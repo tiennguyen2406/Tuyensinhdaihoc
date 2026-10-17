@@ -1,0 +1,50 @@
+{
+  "profile_id": "uet",
+  "university_key": "uet",
+  "allowed_hosts": [
+    "tuyensinh.uet.vnu.edu.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.uet.vnu.edu.vn/uncategorized/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2025-2/"
+  ],
+  "years": [
+    2024,
+    2025,
+    2026
+  ],
+  "authority_scope": {
+    "years": [
+      2025
+    ],
+    "fact_kinds": [
+      "admission_information"
+    ]
+  },
+  "parser": "raw_http",
+  "include_path_patterns": [],
+  "exclude_path_patterns": [],
+  "max_depth": 4,
+  "max_discovery_urls": 5000,
+  "max_query_variants_per_path": 20,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "checked",
+  "access_basis": "Public first-party admissions page observed in web research 2026-10-17; robots still pending",
+  "snapshot_basis": "No explicit automation/storage grant found. Restricted internal technical evaluation only after robots review; redistribution permission unresolved.",
+  "robots_status": "unknown",
+  "review_evidence": [
+    "https://tuyensinh.uet.vnu.edu.vn/uncategorized/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2025-2/",
+    "https://uet.vnu.edu.vn/truong-dai-hoc-cong-nghe-dhqghn-ma-truong-qhi-thong-tin-tuyen-sinh-dai-hoc-nam-2025/"
+  ],
+  "observed_years": [
+    2025
+  ],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400
+}

@@ -1,0 +1,50 @@
+{
+  "profile_id": "haui",
+  "university_key": "haui",
+  "allowed_hosts": [
+    "tuyensinh.haui.edu.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.haui.edu.vn/dai-hoc-chinh-quy/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2025/681c349af721616a54f64963"
+  ],
+  "years": [
+    2024,
+    2025,
+    2026
+  ],
+  "authority_scope": {
+    "years": [
+      2025
+    ],
+    "fact_kinds": [
+      "admission_information"
+    ]
+  },
+  "parser": "raw_http",
+  "include_path_patterns": [],
+  "exclude_path_patterns": [],
+  "max_depth": 4,
+  "max_discovery_urls": 5000,
+  "max_query_variants_per_path": 20,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "candidate",
+  "access_basis": "Search-index candidate only; direct verification pending",
+  "snapshot_basis": "No explicit automation/storage grant found. Restricted internal technical evaluation only after robots review; redistribution permission unresolved.",
+  "robots_status": "unknown",
+  "review_evidence": [
+    "https://tuyensinh.haui.edu.vn/dai-hoc-chinh-quy/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2025/681c349af721616a54f64963",
+    "https://tuyensinh.haui.edu.vn/dai-hoc-chinh-quy/ket-qua-xet-tuyen-dai-hoc-chinh-quy-nam-2025/68affb443021ae3984e7776a"
+  ],
+  "observed_years": [
+    2025
+  ],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400
+}

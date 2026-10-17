@@ -1,0 +1,63 @@
+{
+  "profile_id": "ptit",
+  "university_key": "ptit",
+  "allowed_hosts": [
+    "tuyensinh.ptit.edu.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.ptit.edu.vn/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2025/",
+    "https://tuyensinh.ptit.edu.vn/de-an-tuyen-sinh/de-an-2024/",
+    "https://tuyensinh.ptit.edu.vn/de-an-tuyen-sinh/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2026/"
+  ],
+  "years": [
+    2024,
+    2025,
+    2026
+  ],
+  "authority_scope": {
+    "years": [
+      2024,
+      2025,
+      2026
+    ],
+    "fact_kinds": [
+      "admission_information"
+    ]
+  },
+  "parser": "raw_http",
+  "include_path_patterns": [
+    "^/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2025/?$",
+    "^/de-an-tuyen-sinh/(de-an-2024|thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2026)/?$",
+    "^/wp-content/uploads/.*\\.(pdf|xlsx|xls)$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 4,
+  "max_discovery_urls": 30,
+  "max_query_variants_per_path": 20,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "eligible",
+  "access_basis": "Official public pages checked 2026-10-17. Direct robots preflight HTTP 200 at 2026-10-17T11:59:00Z allows all three seed paths. Eligible only for bounded internal raw pilot; no publisher automation/storage grant asserted.",
+  "snapshot_basis": "No explicit automation/storage grant found. Restricted internal technical evaluation only after robots review; redistribution permission unresolved.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "https://tuyensinh.ptit.edu.vn/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2025/",
+    "https://tuyensinh.ptit.edu.vn/de-an-tuyen-sinh/de-an-2024/",
+    "https://tuyensinh.ptit.edu.vn/de-an-tuyen-sinh/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2026/",
+    "https://tuyensinh.ptit.edu.vn/robots.txt",
+    "Preflight run 3e9e5362-d538-4512-8b36-71eb7b370a66; robots SHA-256 e014272f6d2e2f068146055fc0ce99170f41a9e90c01f7d4c0a83cbe45482949; HTTP200; 1 request"
+  ],
+  "observed_years": [
+    2024,
+    2025,
+    2026
+  ],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400
+}
