@@ -4,6 +4,22 @@ from typing import Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
 
 
+class ParserOptions(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    html_content_selectors: list[str] = Field(default_factory=lambda: ["article", "main"])
+    html_exclude_selectors: list[str] = Field(
+        default_factory=lambda: [
+            "nav",
+            "aside",
+            "footer",
+            "script",
+            "style",
+            ".posts-sidebar",
+            ".order_ticket",
+        ]
+    )
+
+
 class SourceProfile(BaseModel):
     model_config = ConfigDict(extra="forbid")
     profile_id: str = Field(min_length=1)
@@ -14,6 +30,7 @@ class SourceProfile(BaseModel):
     years: list[Literal[2024, 2025, 2026]] = Field(min_length=1, max_length=3)
     authority_scope: dict[str, list[str | int]]
     parser: str = Field(min_length=1)
+    parser_options: ParserOptions = Field(default_factory=ParserOptions)
     include_path_patterns: list[str] = Field(default_factory=list)
     exclude_path_patterns: list[str] = Field(default_factory=list)
     max_depth: int = Field(default=4, ge=0, le=4)

@@ -52,3 +52,9 @@ URL canonical giữ year/page/id, thứ tự và tham số lặp, bỏ tracking 
 Snapshot identity là (source_id, raw_hash); blob theo SHA-256 toàn nội dung. A→B→A tạo hai snapshot, ba fetch; không cập nhật thời điểm snapshot cũ để giả snapshot mới. Representation mới nhất lấy từ crawl_fetches có snapshot theo id giảm dần. 304 tham chiếu snapshot đã có. response_validators lưu ETag/Last-Modified, URL cuối, MIME và số byte response; snapshot giữ MIME/kích thước representation. Lịch attachment có source_id/checksum/due_at riêng; không gắn vào khóa cutoff. Tải unconditional sau 7 ngày để kiểm tra lại nội dung dù validators không đổi.
 
 Raw/fetch history là evidence kỹ thuật chưa xác minh. Không ghi observations, canonical cutoffs hoặc dataset releases. Quota 20.000 không tăng bởi URL, fetch hay snapshot trong đợt này.
+
+## Lát cắt T05
+
+Parser HTML/PDF số tại services/data/parsers tạo staging observations unverified từ raw đã lưu; crawler vẫn chỉ tải raw. Hợp đồng chi tiết: parser-contract.md. Giữ unique(snapshot,locator,parser_version,transform_version); metadata provenance/parse issues nằm trong raw_fields._extraction và durable parse job. normalized_fields={} với raw-only transform version; không thực thi T06/T07 hoặc publication T08.
+
+fact_kind=cutoff trong observation chỉ có nghĩa mẩu trích từ vùng bảng được ghi rõ điểm trúng tuyển; không xác nhận một canonical cutoff. Hàng điểm trống không được tạo cutoff observation; giữ catalog/review. Các cột năm/phương thức/điểm khác nhau vẫn nằm cùng hàng raw, không dùng năm trên tiêu đề trang để gán toàn bảng và không tách tổ hợp tự động. Điểm sàn/điều kiện hồ sơ là catalog/review. PDF scan không sinh observations từ OCR trong đợt này. Canonical quota, catalog version và releases không đổi.
