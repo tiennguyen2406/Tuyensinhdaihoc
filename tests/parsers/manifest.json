@@ -1,0 +1,8 @@
+{
+  "license_basis": "Synthetic fixtures authored for this repository; permitted to store in Git.",
+  "real_source_documents_in_git": false,
+  "html": "Inline test_html.HTML and other literals. All school/program/score examples are synthetic.",
+  "pdf": "ReportLab-generated in memory during tests/test_pdf.py; never copied from PTIT. ASCII labels intentionally avoid system font dependencies.",
+  "scan": "Pillow creates a blank synthetic raster embedded by ReportLab; no OCR output or personal data.",
+  "database": "Only fixtures in uniquely named tuyensinh_test_* databases. Never counted as production coverage."
+}

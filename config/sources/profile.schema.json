@@ -1,4 +1,27 @@
 {
+  "$defs": {
+    "ParserOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "html_content_selectors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Html Content Selectors",
+          "type": "array"
+        },
+        "html_exclude_selectors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Html Exclude Selectors",
+          "type": "array"
+        }
+      },
+      "title": "ParserOptions",
+      "type": "object"
+    }
+  },
   "additionalProperties": false,
   "properties": {
     "profile_id": {
@@ -72,6 +95,9 @@
       "minLength": 1,
       "title": "Parser",
       "type": "string"
+    },
+    "parser_options": {
+      "$ref": "#/$defs/ParserOptions"
     },
     "include_path_patterns": {
       "items": {

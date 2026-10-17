@@ -13,3 +13,7 @@ Bằng chứng preflight/pilot, HTTP status, robots hash, số request/snapshot 
 ## Direct robots preflight
 
 2026-10-17T11:59:00Z, run `3e9e5362-d538-4512-8b36-71eb7b370a66`: 1 request trong budget 2, HTTP 200. Robots SHA-256 `e014272f6d2e2f068146055fc0ce99170f41a9e90c01f7d4c0a83cbe45482949`. Disallow /wp-admin/, Allow /wp-admin/admin-ajax.php; cả ba seed path được Protego cho phép với User-Agent TuyenSinhDaiHocPilot/0.1. Không công bố rằng được cấp quyền lưu/tái phân phối. PTIT được nâng eligible chỉ cho pilot raw nội bộ giới hạn; 11 nguồn khác giữ nguyên trạng thái. Cache hết hạn vẫn phải lấy lại robots.
+
+## Review nội dung T05 từ raw local
+
+Kết quả trong reports/parser-pilot.md: đã kiểm hash6snapshots, đọc HTML và ảnh haiPDFscan15/10trang; không crawl thêm. PDF mang thuong-xuyen xác nhận hình thức Thường xuyên ở trang2, khác Chính quy; bảng2024/2025 của nó không thành điểm2026. HTML2026 cũng có section Thường xuyên riêng. Các điểm ngưỡng giữ tách khỏi điểm trúng tuyển. Review nội dung không nâng nguồn thành verified hoặc cấp license.

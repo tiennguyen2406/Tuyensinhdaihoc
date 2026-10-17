@@ -26,6 +26,21 @@
     ]
   },
   "parser": "raw_http",
+  "parser_options": {
+    "html_content_selectors": [
+      "article.post-wrap",
+      "#main-content .ova_dir_content"
+    ],
+    "html_exclude_selectors": [
+      "nav",
+      "aside",
+      "footer",
+      "script",
+      "style",
+      ".posts-sidebar",
+      ".order_ticket"
+    ]
+  },
   "include_path_patterns": [
     "^/thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2025/?$",
     "^/de-an-tuyen-sinh/(de-an-2024|thong-tin-tuyen-sinh-dai-hoc-chinh-quy-nam-2026)/?$",

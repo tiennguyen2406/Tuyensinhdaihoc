@@ -1,6 +1,6 @@
 # TuyenSinhDaiHoc
 
-Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler bổ sung, Alembic, health checks và CI. Crawler hiện chỉ tải raw; chưa có canonical cutoffs production, Score Engine hay giao diện.
+Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler bổ sung, Alembic, health checks và CI. Crawler tải raw; lát cắt T05 có parser HTML/PDF số offline và observations chưa xác minh. Chưa có canonical cutoffs production, Score Engine hay giao diện.
 
 ## Cài đặt (PowerShell tại gốc repository)
 
@@ -64,7 +64,33 @@ Lệnh due tạo run cho nguồn đã đến lịch (HTML mặc định 6 giờ,
 
 Policy khởi đầu: depth 4, 1 request đồng thời/host, tối đa 0,5 request/giây (khoảng cách ít nhất 2 giây), robots có thể làm chậm thêm. Redirect tối đa 5, kiểm tra lại allowlist/DNS/public IP mỗi hop; kết nối ghim vào IP đã kiểm tra, TLS xác minh hostname. Không dùng proxy môi trường. Mỗi hop có giới hạn thời gian, body tối đa 25 MiB; robots 500 KiB. Tài liệu quá lớn hoặc encoding ngoài identity bị từ chối, không tải tiếp bằng cách lách policy.
 
-Raw blob bất biến theo SHA-256, source_snapshots unique theo source/hash, crawl_fetches giữ lịch sử gồm 304. Chuỗi A→B→A dùng lại snapshot A nhưng có fetch mới. ETag/Last-Modified hỗ trợ conditional GET; sau 7 ngày tải unconditional để kiểm tra lại. Không có parser tuyển sinh/OCR/JS renderer, không ghi observations hoặc canonical cutoffs.
+Raw blob bất biến theo SHA-256, source_snapshots unique theo source/hash, crawl_fetches giữ lịch sử gồm 304. Chuỗi A→B→A dùng lại snapshot A nhưng có fetch mới. ETag/Last-Modified hỗ trợ conditional GET; sau 7 ngày tải unconditional để kiểm tra lại. Crawler không ghi observations hoặc canonical cutoffs. Parser T05 dưới đây trích xuất riêng từ snapshot; OCR/JS renderer chưa có.
+
+## Parser T05: chạy offline từ snapshots
+
+Đọc docs/parser-contract.md và docs/reports/parser-pilot.md để hiểu phạm vi và bằng chứng. Parser nằm trong services/data/parsers; dùng nguyên raw storage/metadata, không tải lại Internet, không resume crawl hoặc tăng budget. PDF scan đi review/OCR, không trích điểm từ ảnh. Public parse(SnapshotRef,SourceProfile) trả danh sách; runner.replay trả thêm issues/metrics.
+
+```powershell
+uv run python -m services.data.parsers list
+uv run python -m services.data.parsers replay 19a1088e-6412-49e4-b911-73ec9146f4fa --output state/parser/preview.json
+uv run python -m services.data.parsers parse 19a1088e-6412-49e4-b911-73ec9146f4fa
+uv run python -m services.data.parsers replay f02f3e8f-b7bb-4e36-a60e-9a683afba099
+```
+
+replay chỉ preview/kiểm hash; --output chứa raw_fields nên chỉ lưu ở state/ bị bỏ qua hoặc ngoài checkout. parse ghi staging observations unverified và durable job; có issue thì job quarantined để review, vẫn giữ các mẩu raw trích được. Các lệnh này dùng profile PTIT mặc định; nguồn khác truyền --profile đường_dẫn_profile.json. Job ID được in khi parse; dùng job JOB_UUID để xem trạng thái. Không chạy trong FastAPI request.
+
+Chạy lại cùng snapshot/parser/transform là idempotent. Thay code/profile/limits phải dùng namespace mới có chủ ý qua --revision 2 (đồng thời ghi version implementation thật), không cập nhật đè observations cũ. Nội dung khác dưới cùng version bị chặn. Thay vì tách mỗi tổ hợp/năm/phương thức, parser giữ quan hệ trong headers/cells/context; chưa có normalization/entity resolution/publication.
+
+Locator HTML có dạng html:<CSS path> trên DOM gốc; lệnh inspect SNAPSHOT_UUID --locator 'html:...' trả nội dung ô/hàng để đối chiếu. PDF locators có trang/table/row hoặc line index và bbox trong raw_fields; scan trả issue theo trang. Không suy năm từ URL/tên file hoặc ngày đăng thành năm của từng điểm.
+
+Kiểm tra số observations và trạng thái ngay trên DB hiện tại:
+
+```powershell
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT fact_kind, verification_status, count(*) FROM observations GROUP BY 1,2 ORDER BY 1,2;"
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT id, status, attempts, payload->>'snapshot_id' AS snapshot_id FROM ingest_jobs WHERE job_type='parse_snapshot';"
+```
+
+Không coi cutoff observations là canonical cutoffs: một observation có thể là cả hàng bảng nhiều năm/phương thức, còn giữ giá trị thô. T06–T08 và quota20.000 chưa hoàn thành. Fixtures parser hoàn toàn tự tạo, manifest trong tests/parsers/manifest.json; không đưa PDF/HTML nguồn thật, ảnh render hay thông tin liên hệ cá nhân vào Git.
 
 ## Kiểm thử và CI
 
@@ -88,6 +114,7 @@ GitHub Actions .github/workflows/ci.yml chạy lock sync, Ruff, mypy, Alembic up
 - docs/data-dictionary.md: cột, constraints/indexes; sinh bằng uv run python scripts/data_dictionary.py.
 - docs/source-inventory.csv và docs/source-review.md: URL, năm, định dạng và trạng thái truy cập.
 - docs/reports/database-foundation.md: báo cáo lịch sử baseline 30 tests, trước crawler.
-- docs/reports/crawler-pilot.md: bằng chứng đợt này, kết quả tải và giới hạn T01/T03/T04.
+- docs/reports/crawler-pilot.md: bằng chứng đợt crawler, kết quả tải và giới hạn T01/T03/T04.
+- docs/parser-contract.md và docs/reports/parser-pilot.md: hợp đồng T05, review tài liệu, locator, observations và giới hạn.
 
 T01 cần mở rộng review robots/quyền dùng/coverage trước ingest production. T03/T04 hiện là nền raw HTTP; các adapter và vận hành quy mô lớn cần bổ sung sau. T19 mới là CI nền, chưa có staging/production release.
