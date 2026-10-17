@@ -1,6 +1,6 @@
 # TuyenSinhDaiHoc
 
-Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler bổ sung, Alembic, health checks và CI. Crawler tải raw; lát cắt T05 có parser HTML/PDF số offline và observations chưa xác minh. Chưa có canonical cutoffs production, Score Engine hay giao diện.
+Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler bổ sung, Alembic, health checks và CI. Crawler tải raw; lát cắt T05 có parser HTML/PDF số offline và observations chưa xác minh. T06 có normalization offline có phiên bản, giữ nguyên raw observations và tạo candidates chưa xác minh. Chưa có canonical cutoffs production, Score Engine hay giao diện.
 
 ## Cài đặt (PowerShell tại gốc repository)
 
@@ -79,18 +79,46 @@ uv run python -m services.data.parsers replay f02f3e8f-b7bb-4e36-a60e-9a683afba0
 
 replay chỉ preview/kiểm hash; --output chứa raw_fields nên chỉ lưu ở state/ bị bỏ qua hoặc ngoài checkout. parse ghi staging observations unverified và durable job; có issue thì job quarantined để review, vẫn giữ các mẩu raw trích được. Các lệnh này dùng profile PTIT mặc định; nguồn khác truyền --profile đường_dẫn_profile.json. Job ID được in khi parse; dùng job JOB_UUID để xem trạng thái. Không chạy trong FastAPI request.
 
-Chạy lại cùng snapshot/parser/transform là idempotent. Thay code/profile/limits phải dùng namespace mới có chủ ý qua --revision 2 (đồng thời ghi version implementation thật), không cập nhật đè observations cũ. Nội dung khác dưới cùng version bị chặn. Thay vì tách mỗi tổ hợp/năm/phương thức, parser giữ quan hệ trong headers/cells/context; chưa có normalization/entity resolution/publication.
+Chạy lại cùng snapshot/parser/transform là idempotent. Thay code/profile/limits phải dùng namespace mới có chủ ý qua --revision 2 (đồng thời ghi version implementation thật), không cập nhật đè observations cũ. Nội dung khác dưới cùng version bị chặn. Thay vì tách mỗi tổ hợp/năm/phương thức, parser giữ quan hệ trong headers/cells/context; T05 chưa thực hiện normalization; T06 bên dưới xử lý riêng, entity resolution/publication còn chờ.
 
 Locator HTML có dạng html:<CSS path> trên DOM gốc; lệnh inspect SNAPSHOT_UUID --locator 'html:...' trả nội dung ô/hàng để đối chiếu. PDF locators có trang/table/row hoặc line index và bbox trong raw_fields; scan trả issue theo trang. Không suy năm từ URL/tên file hoặc ngày đăng thành năm của từng điểm.
 
 Kiểm tra số observations và trạng thái ngay trên DB hiện tại:
 
 ```powershell
-docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT fact_kind, verification_status, count(*) FROM observations GROUP BY 1,2 ORDER BY 1,2;"
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT transform_version, fact_kind, verification_status, count(*) FROM observations GROUP BY 1,2,3 ORDER BY 1,2,3;"
 docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT id, status, attempts, payload->>'snapshot_id' AS snapshot_id FROM ingest_jobs WHERE job_type='parse_snapshot';"
 ```
 
 Không coi cutoff observations là canonical cutoffs: một observation có thể là cả hàng bảng nhiều năm/phương thức, còn giữ giá trị thô. T06–T08 và quota20.000 chưa hoàn thành. Fixtures parser hoàn toàn tự tạo, manifest trong tests/parsers/manifest.json; không đưa PDF/HTML nguồn thật, ảnh render hay thông tin liên hệ cá nhân vào Git.
+
+## Normalization T06: preview/run/replay offline
+
+Đọc docs/normalization-contract.md và docs/reports/normalization-pilot.md. Không resolve entity, thực thi scoring/conversion rules hoặc publish canonical. Chỉ chọn raw-only observations, không normalize lại output. Giữ 215 raw input gốc và normalized_fields={} của chúng; mỗi input tạo một envelope mới theo transform riêng. Số hàng observations sau T06 bao gồm cả raw và envelopes, không là số canonical cutoffs.
+
+```powershell
+uv run python -m services.data.normalization preview --output state/normalization/preview.json
+uv run python -m services.data.normalization preview --snapshot 19a1088e-6412-49e4-b911-73ec9146f4fa
+uv run python -m services.data.normalization run
+uv run python -m services.data.normalization replay --job 7bc439bf-a6d7-4beb-bf03-bb47956c5383
+```
+
+preview dùng transaction read-only, không ghi jobs/observations; --output chi tiết chứa raw/display nên chỉ cho ignored state/ hoặc ngoài checkout. run ghi atomically một batch unverified envelopes và manifest job quarantined. Chạy lại cùng input/config/code/version không thêm hàng. Job UUID được in; dùng `uv run python -m services.data.normalization replay --job JOB_UUID` với UUID thực từ output để kiểm frozen replay. Không tăng revision/version chỉ để có thêm bản ghi. Thay code/config/lock cùng namespace bị từ chối, phải bump normalizer implementation version có chủ ý và review.
+
+```powershell
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT transform_version, count(*), sum(jsonb_array_length(COALESCE(normalized_fields->'candidates','[]'::jsonb))) AS candidates FROM observations GROUP BY 1 ORDER BY 1;"
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT id, status, payload->>'normalizer_version' AS version, payload->'result' AS summary FROM ingest_jobs WHERE job_type='normalize_observations';"
+```
+
+Cutoff draft từ header2024 giữ admission_year2024 dù document_year2026. Thiếu method2025/Điểm TT/ĐGNL,ĐGTD giữ review, không đoán hoặc nhân tổ hợp. Học phí năm học2026–2027 giữ academic_year riêng và qualifiers; không là admission_year2026 hay học phí từng ngành đã xác minh. PDF scan/OCR và các issues cũ vẫn mở.
+
+Parser HTML sửa context/footnotes ở html/1.0.1. Lệnh dry-replay đã kiểm:
+
+```powershell
+uv run python -m services.data.parsers replay 19a1088e-6412-49e4-b911-73ec9146f4fa --revision t06-context --output state/normalization/parser-context-replay.json
+```
+
+Không persist parser sửa trong đợt này;215input gốc vẫn nguyên vẹn. Nếu operator chủ động parse phiên bản mới sau này, phải chọn bộ raw input đã review để tránh normalization nhiều phiên bản cùng locator như facts mới. T06 pilot không đồng nghĩa T05 toàn bộ/T07/T08/quota20.000hoàn thành.
 
 ## Kiểm thử và CI
 

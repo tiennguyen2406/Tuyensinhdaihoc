@@ -58,3 +58,8 @@ Raw/fetch history là evidence kỹ thuật chưa xác minh. Không ghi observat
 Parser HTML/PDF số tại services/data/parsers tạo staging observations unverified từ raw đã lưu; crawler vẫn chỉ tải raw. Hợp đồng chi tiết: parser-contract.md. Giữ unique(snapshot,locator,parser_version,transform_version); metadata provenance/parse issues nằm trong raw_fields._extraction và durable parse job. normalized_fields={} với raw-only transform version; không thực thi T06/T07 hoặc publication T08.
 
 fact_kind=cutoff trong observation chỉ có nghĩa mẩu trích từ vùng bảng được ghi rõ điểm trúng tuyển; không xác nhận một canonical cutoff. Hàng điểm trống không được tạo cutoff observation; giữ catalog/review. Các cột năm/phương thức/điểm khác nhau vẫn nằm cùng hàng raw, không dùng năm trên tiêu đề trang để gán toàn bảng và không tách tổ hợp tự động. Điểm sàn/điều kiện hồ sơ là catalog/review. PDF scan không sinh observations từ OCR trong đợt này. Canonical quota, catalog version và releases không đổi.
+
+
+## Lát cắt T06
+
+Hợp đồng chi tiết: normalization-contract.md. T06 giữ nguyên observations raw-only và thêm envelope theo transform namespace normalization riêng; không cập nhật normalized_fields của hàng raw cũ. Một envelope có zero/nhiều candidates có parent/cell/header/version lineage; tất cả unverified/needs_review, chưa resolve UUID/scale/conditions và không có canonical_fact. Canonical quota/count/publication invariants giữ nguyên. Năm tuyển sinh2024/2025 không lấy từ document year2026 hoặc năm học2026–2027. Thống kê phải tách raw input/envelope/candidate/canonical để tránh đếm dữ kiện nhiều lần.

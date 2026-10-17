@@ -9,7 +9,7 @@ from services.api.source_profiles import SourceProfile
 from services.data.parsers.common import classify, folded, observation, relevant
 from services.data.parsers.contract import ParseLimits, ParseResult, SnapshotRef
 
-VERSION = "html/1.0.0"
+VERSION = "html/1.0.1"
 
 
 def locator(node: Tag) -> str:
@@ -65,6 +65,23 @@ def context(node: Tag, root: Tag, title: str) -> list[dict[str, str]]:
             )
         )
         if marked:
+            # Publishers sometimes use h4 for 2.5 and h5 for chapter 11.
+            # Explicit numbered chapters reset obsolete numeric context, regardless of styling.
+            ordinal = re.match(r"^(\d+(?:\.\d+)*)\.\s", prior.get_text().strip())
+            if ordinal:
+                current_number = tuple(int(n) for n in ordinal[1].split("."))
+                kept = []
+                for item in headings:
+                    old = re.match(
+                        r"^(\d+(?:\.\d+)*)\.\s", item[1].get("raw_text", item[1]["text"]).strip()
+                    )
+                    old_number = tuple(int(n) for n in old[1].split(".")) if old else None
+                    if old_number is None or (
+                        len(old_number) < len(current_number)
+                        and current_number[: len(old_number)] == old_number
+                    ):
+                        kept.append(item)
+                headings = kept
             while headings and headings[-1][0] >= level:
                 headings.pop()
             headings.append(
@@ -82,7 +99,7 @@ def footnotes(table: Tag) -> list[dict[str, str]]:
     for node in table.next_elements:
         if not isinstance(node, Tag) or table in node.parents:
             continue
-        if node.name == "table" or node.name in ("h1", "h2", "h3", "h4"):
+        if node.name == "table" or node.name in ("h1", "h2", "h3", "h4", "h5", "h6"):
             break
         if node.name in ("p", "small") and node.find_parent("table") is None:
             value = text(node)

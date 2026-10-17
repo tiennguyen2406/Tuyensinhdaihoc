@@ -1,0 +1,11 @@
+{
+  "classification": "synthetic fixtures authored for this repository",
+  "files": {
+    "helpers.py": "in-memory HTML with TEST programme code and invented labels; no publisher bytes",
+    "test_values.py": "literal lexical examples and dates derived from T06 acceptance requirements",
+    "test_mapping.py": "synthetic table variations, headers, spans and tuition statements",
+    "test_store.py": "separate PostgreSQL test DB, synthetic parent lineage and deliberate test-only tampering",
+    "test_cli.py": "offline subprocess CLI against separate PostgreSQL test DB"
+  },
+  "raw_snapshots_or_personal_data_in_git": false
+}

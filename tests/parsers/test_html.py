@@ -103,3 +103,24 @@ def test_multiple_numbered_policy_sections_are_not_forced_into_one_fact_kind():
     result = parse_html(snapshot(data), profile(), data)
     assert result.observations[0].fact_kind == "catalog"
     assert "mixed_narrative_fact_kinds" in {i.code for i in result.issues}
+
+
+def test_numbered_chapter_reset_removes_stale_method_despite_html_heading_level():
+    data = """<article><h1>Thông tin tuyển sinh năm 2026</h1><section><h3>II. Chính quy</h3>
+    <h4>2.5. Phương thức THPT năm 2026</h4><h5>11. Kết quả tuyển sinh hai năm trước</h5>
+    <h6>Cơ sở (BVH)</h6><table><tr><th>Ngành</th><th>Điểm trúng tuyển năm 2024</th></tr>
+    <tr><td>TEST</td><td>24</td></tr></table></section></article>""".encode()
+    result = parse_html(snapshot(data), profile(), data)
+    row = next(o for o in result.observations if o.raw_fields.get("kind") == "table_row")
+    assert "Phương thức THPT năm 2026" not in str(row.raw_fields["context"])
+    assert "II. Chính quy" in str(row.raw_fields["context"])
+    assert "Cơ sở (BVH)" in str(row.raw_fields["context"])
+
+
+def test_footnote_does_not_cross_next_business_heading():
+    data = """<article><h5>Điểm thưởng</h5><table><tr><th>Ngành</th><th>Điểm thưởng</th></tr>
+    <tr><td>TEST</td><td>1,00</td></tr></table><p>(*) Điều kiện điểm thưởng</p>
+    <h5>Học bổng</h5><p>Ghi chú: Chỉ một học bổng.</p></article>""".encode()
+    result = parse_html(snapshot(data), profile(), data)
+    row = next(o for o in result.observations if o.raw_fields.get("kind") == "table_row")
+    assert [n["text"] for n in row.raw_fields["footnotes"]] == ["(*) Điều kiện điểm thưởng"]
