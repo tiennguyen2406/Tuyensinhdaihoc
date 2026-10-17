@@ -1,4 +1,4 @@
-name: Database foundation
+name: Database and crawler foundation
 on:
   push:
   pull_request:
@@ -7,6 +7,7 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       POSTGRES_HOST: 127.0.0.1
       POSTGRES_PORT: "5432"

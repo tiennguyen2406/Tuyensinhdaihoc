@@ -10,7 +10,7 @@ from services.api.db.models import metadata
 lines = [
     "# Data dictionary",
     "",
-    "Generated from static mappings; matches frozen v1.0 DDL (see schema-provenance.md).",
+    "Generated from static mappings: frozen v1.0 business DDL plus additive crawler operations (see schema-provenance.md).",
     "",
     "Scores/money use Decimal; JSON decimal values must be strings. All timestamps are timezone-aware.",
     "",
@@ -40,4 +40,7 @@ for table in sorted(metadata.tables.values(), key=lambda t: t.name):
     ]
     for index in sorted(table.indexes, key=lambda i: i.name):
         lines += ["```sql", str(CreateIndex(index).compile(dialect=dialect())) + ";", "```", ""]
-Path("docs/data-dictionary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+Path("docs/data-dictionary.md").write_text(
+    "\n".join(line.rstrip() for line in "\n".join(lines).splitlines()).rstrip() + "\n",
+    encoding="utf-8",
+)

@@ -1380,3 +1380,64 @@ class CatalogState(Base):
 
 class SnaRun(Base):
     __table__ = sna_runs
+
+
+# Operational crawler additions (0002), distinct from the frozen 31-table business DDL.
+crawl_runs = sa.Table(
+    "crawl_runs",
+    metadata,
+    sa.Column("id", sa.UUID(), primary_key=True, server_default=sa.text("gen_random_uuid()")),
+    sa.Column("profile_id", sa.Text(), nullable=False),
+    sa.Column("profile", postgresql.JSONB(), nullable=False),
+    sa.Column("status", sa.Text(), nullable=False, server_default=sa.text("'running'")),
+    sa.Column("url_budget", sa.Integer(), nullable=False),
+    sa.Column("requests_used", sa.Integer(), nullable=False, server_default=sa.text("0")),
+    sa.Column("stop_reason", sa.Text()),
+    sa.Column(
+        "created_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")
+    ),
+    sa.CheckConstraint(
+        "url_budget > 0 AND requests_used >= 0 AND requests_used <= url_budget",
+        name="crawl_runs_budget_check",
+    ),
+    sa.CheckConstraint(
+        "status IN ('running','paused','completed','needs_review','failed')",
+        name="crawl_runs_status_check",
+    ),
+)
+
+crawl_host_states = sa.Table(
+    "crawl_host_states",
+    metadata,
+    sa.Column("host", sa.Text(), primary_key=True),
+    sa.Column("owner_token", sa.UUID()),
+    sa.Column("busy_until", sa.DateTime(timezone=True)),
+    sa.Column(
+        "next_allowed_at",
+        sa.DateTime(timezone=True),
+        nullable=False,
+        server_default=sa.text("now()"),
+    ),
+    sa.Column("blocked_until", sa.DateTime(timezone=True)),
+    sa.Column("needs_review", sa.Boolean(), nullable=False, server_default=sa.text("false")),
+    sa.Column("failures", sa.Integer(), nullable=False, server_default=sa.text("0")),
+    sa.Column(
+        "robots_cache", postgresql.JSONB(), nullable=False, server_default=sa.text("'{}'::jsonb")
+    ),
+    sa.CheckConstraint("failures >= 0", name="crawl_host_states_failures_check"),
+)
+
+crawl_schedules = sa.Table(
+    "crawl_schedules",
+    metadata,
+    sa.Column("source_id", sa.UUID(), sa.ForeignKey("sources.id"), primary_key=True),
+    sa.Column("profile_id", sa.Text(), nullable=False),
+    sa.Column("resource_kind", sa.Text(), nullable=False),
+    sa.Column("interval_seconds", sa.Integer(), nullable=False),
+    sa.Column("due_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("last_unconditional_at", sa.DateTime(timezone=True)),
+    sa.CheckConstraint(
+        "resource_kind IN ('html','attachment','robots')", name="crawl_schedules_kind_check"
+    ),
+    sa.CheckConstraint("interval_seconds >= 3600", name="crawl_schedules_interval_check"),
+)

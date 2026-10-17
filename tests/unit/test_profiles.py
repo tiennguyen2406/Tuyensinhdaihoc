@@ -21,3 +21,23 @@ def test_source_profile_rejects_outside_hosts_and_wrong_year():
         SourceProfile.model_validate(base | {"years": [2023]})
     with pytest.raises(ValidationError):
         SourceProfile.model_validate(base | {"robots_policy": "ignore"})
+
+
+def test_all_real_inventory_profiles_validate_and_schema_is_current():
+    import json
+    from pathlib import Path
+
+    from services.api.source_profiles import SourceProfile
+
+    paths = [p for p in Path("config/sources").glob("*.json") if p.name != "profile.schema.json"]
+    assert 10 <= len(paths) <= 15
+    for path in paths:
+        profile = SourceProfile.model_validate_json(path.read_text(encoding="utf-8"))
+        assert profile.verified is False
+        assert all(
+            "example" not in url.host and "invalid" not in url.host for url in profile.seed_urls
+        )
+    assert (
+        json.loads(Path("config/sources/profile.schema.json").read_text())
+        == SourceProfile.model_json_schema()
+    )

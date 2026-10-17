@@ -16,7 +16,7 @@ from tests.fixtures import make_scope
 
 def test_full_metadata_matches_migration(migrated_engine):
     with migrated_engine.connect() as c:
-        assert len(metadata.tables) == 31
+        assert len(metadata.tables) == 34
         assert set(inspect(c).get_table_names()) == set(metadata.tables) | {"alembic_version"}
         assert (
             compare_metadata(
@@ -49,7 +49,7 @@ def test_upgrade_preserves_existing_data_and_is_idempotent(database_factory):
             )
             assert (
                 c.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-                == "0001_core"
+                == "0002_crawler"
             )
     finally:
         db.dispose()

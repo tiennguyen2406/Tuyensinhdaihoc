@@ -25,6 +25,7 @@ def test_unknown_database_revision_is_not_ready(migrated_engine):
     environment = os.environ.copy()
     environment["POSTGRES_DB"] = migrated_engine.url.database
     with migrated_engine.begin() as c:
+        previous = c.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
         c.execute(text("UPDATE alembic_version SET version_num='unknown_future_revision'"))
     try:
         result = probe(environment)
@@ -37,4 +38,6 @@ def test_unknown_database_revision_is_not_ready(migrated_engine):
         }
     finally:
         with migrated_engine.begin() as c:
-            c.execute(text("UPDATE alembic_version SET version_num='0001_core'"))
+            c.execute(
+                text("UPDATE alembic_version SET version_num=:revision"), {"revision": previous}
+            )

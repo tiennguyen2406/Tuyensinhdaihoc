@@ -25,7 +25,7 @@ Chỉ đếm cutoff_scores.is_current=true AND verification_status='verified', s
 
 ## Quy ước adapter đang triển khai
 
-SourceProfile schema tại config/sources/profile.schema.json; chưa có profile thật được duyệt. allowed_hosts là hostname chính xác; seed HTTPS, robots=obey. verified trong cấu hình chỉ là metadata cần reviewer xác nhận, không cấp quyền publication cho client.
+SourceProfile schema tại config/sources/profile.schema.json; 12 profile URL thật nằm trong cùng thư mục. Trạng thái candidate/checked/eligible và bằng chứng được ghi riêng trong docs/source-inventory.csv. allowed_hosts là hostname chính xác; seed HTTPS, robots=obey. verified trong cấu hình chỉ là metadata cần reviewer xác nhận, không cấp quyền publication cho client.
 
 Để validator chấp nhận nguồn verified: sources.university_id phải đúng trường hoặc authority_scope.universities chứa UUID trường; authority_scope.years chứa admission_year; authority_scope.fact_kinds chứa loại fact. Đây là quy ước adapter bổ sung cho JSONB authority_scope, cần được reviewer nguồn xác nhận trước ingest thật. Hiện chỉ chấp nhận nguồn first-party/official đã verified; nguồn báo chí cần quy trình review T08/T11, chưa được tự coi authoritative.
 
@@ -39,6 +39,16 @@ SQL constraints bảo vệ FK/unique/check trong mọi đường ghi. SessionFac
 
 T08 phải bổ sung transaction publication: khóa scope, retire + revision mới, evidence + audit + refresh job + tăng catalog version; DB roles không DELETE, bảo vệ payload đã dùng, manifest checksum và release nhất quán. Hiện guard từ chối tạo DatasetRelease và mọi sửa cutoff/rule đã lưu cho đến khi có đường publisher được audit. Không giả lập phần này bằng sửa DB tay.
 
-Registry condition_key kiểm được tính nhất quán JSON chuẩn hóa; các cách diễn đạt đồng nghĩa vẫn cần T07/reviewer. Chưa có 10–15 nguồn thật, quyền lưu snapshots, robots review, bộ fixtures được cấp phép hoặc golden rules tuyển sinh; các mục này giữ trạng thái pending, T01 chưa hoàn tất.
+Registry condition_key kiểm được tính nhất quán JSON chuẩn hóa; các cách diễn đạt đồng nghĩa vẫn cần T07/reviewer. Đã lập 12 nguồn thật; coverage theo năm và robots/quyền lưu được ghi theo từng nguồn. Không suy từ năm mục tiêu sang năm đã kiểm chứng. Phần lớn robots và quyền tái phân phối còn pending. Fixtures crawler tự tạo, không phải dữ liệu tuyển sinh production; golden rules tuyển sinh chưa có. T01 chưa hoàn tất.
 
-CI action commits được khóa theo hướng dẫn chính thức https://docs.astral.sh/uv/guides/integration/github/ tại thời điểm triển khai; uv khóa 0.13.1. Chưa thực thi workflow trên GitHub.
+CI action commits được khóa theo hướng dẫn chính thức https://docs.astral.sh/uv/guides/integration/github/ tại thời điểm triển khai; uv khóa 0.13.1. Kết quả workflow thực tế của đợt push được ghi trong báo cáo crawler-pilot.md.
+
+## Raw-only crawler (T03/T04)
+
+Eligibility chỉ cho phép thử kỹ thuật có giới hạn sau review truy cập/robots, không làm sources.verification_status thành verified và không cấp quyền publication. university_key là registry nội bộ, chưa phải UUID trường đã mapping. Mọi nguồn crawler mới đều unverified, university_id=NULL cho tới quy trình mapping/review.
+
+URL canonical giữ year/page/id, thứ tự và tham số lặp, bỏ tracking theo danh sách cụ thể. Crawl run đóng băng profile, request budget và frontier idempotency key. raw_fetch dùng lease token; lease hết hạn được nhận lại, worker cũ bị chặn ghi kết quả. Host budget dùng chung PostgreSQL cho robots/HTML/attachment/redirect. Tiến trình worker độc lập với API.
+
+Snapshot identity là (source_id, raw_hash); blob theo SHA-256 toàn nội dung. A→B→A tạo hai snapshot, ba fetch; không cập nhật thời điểm snapshot cũ để giả snapshot mới. Representation mới nhất lấy từ crawl_fetches có snapshot theo id giảm dần. 304 tham chiếu snapshot đã có. response_validators lưu ETag/Last-Modified, URL cuối, MIME và số byte response; snapshot giữ MIME/kích thước representation. Lịch attachment có source_id/checksum/due_at riêng; không gắn vào khóa cutoff. Tải unconditional sau 7 ngày để kiểm tra lại nội dung dù validators không đổi.
+
+Raw/fetch history là evidence kỹ thuật chưa xác minh. Không ghi observations, canonical cutoffs hoặc dataset releases. Quota 20.000 không tăng bởi URL, fetch hay snapshot trong đợt này.
