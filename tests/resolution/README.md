@@ -1,0 +1,5 @@
+# Synthetic resolution fixtures
+
+280cases =14families×20variants;80calibration/200evaluation tách family trước scoring. Expected decisions viết trong build_gold.py không import/call resolver; gold.json được sinh từ expected rules, không từ output. Chạy `uv run python -m tests.resolution.build_gold` để tái tạo file một case/mỗi dòng. Test helpers dùng UUID5/code TEST-*/reviewer SYNTHETIC TEST REVIEWER; chỉ phục vụ fixtures, không là approvals hoặc official codes thật. Tên ba Bách khoa minh họa entity separation, UUID/code đều giả. BVH/BVS test riêng đối chiếu pending seed có snapshot evidence. Các bài T06 envelope/store dùng fixture tự tạo, không lưu raw nguồn.
+
+Đây là rule coverage có biến thể tương quan, không280gold thật độc lập. Đánh giá không chứng minh precision thực địa/fuzzy auto-link. Các regression còn bao phủ malformed review/parent/version/input/output tampering và PostgreSQL concurrent/idempotent runs. Không Internet/production DB; database tests tạo database riêng và giữ lại, không xóa DB cũ.

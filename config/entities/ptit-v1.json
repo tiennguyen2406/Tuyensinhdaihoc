@@ -1,0 +1,191 @@
+{
+  "version": "registry/ptit-pilot/1",
+  "alias_version": "aliases/ptit-pilot/1",
+  "classification": "pilot_pending",
+  "entities": [
+    {
+      "key": "proposal:ptit",
+      "kind": "university",
+      "name": "Học viện Công nghệ Bưu chính Viễn thông",
+      "domains": [
+        "tuyensinh.ptit.edu.vn"
+      ],
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy",
+          "local-review:docs/reports/parser-pilot.md"
+        ]
+      },
+      "codes": [
+        {
+          "system": "ptit:campus-admission-label",
+          "value": "BVH",
+          "from_year": 2024,
+          "to_year": 2024,
+          "attributes": {
+            "campus": "BVH"
+          },
+          "evidence": [
+            "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > h6:nth-of-type(20)"
+          ]
+        },
+        {
+          "system": "ptit:campus-admission-label",
+          "value": "BVS",
+          "from_year": 2024,
+          "to_year": 2024,
+          "attributes": {
+            "campus": "BVS"
+          },
+          "evidence": [
+            "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > h6:nth-of-type(21)"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "proposal:ptit:method:thpt",
+      "kind": "method",
+      "name": "Dựa vào kết quả thi tốt nghiệp THPT",
+      "university_key": "proposal:ptit",
+      "attributes": {
+        "admission_year": 2024,
+        "training_mode": "Chính quy",
+        "proposed_input_kind": "subjects"
+      },
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(6) > thead",
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(7) > thead"
+        ]
+      }
+    },
+    {
+      "key": "proposal:ptit:method:talent",
+      "kind": "method",
+      "name": "Xét tuyển Tài năng",
+      "university_key": "proposal:ptit",
+      "attributes": {
+        "admission_year": 2024,
+        "training_mode": "Chính quy",
+        "proposed_input_kind": "composite"
+      },
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(6) > thead",
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(7) > thead"
+        ]
+      }
+    },
+    {
+      "key": "proposal:ptit:method:combined",
+      "kind": "method",
+      "name": "Xét tuyển kết hợp",
+      "university_key": "proposal:ptit",
+      "attributes": {
+        "admission_year": 2024,
+        "training_mode": "Chính quy",
+        "proposed_input_kind": "composite"
+      },
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(6) > thead",
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(7) > thead"
+        ]
+      }
+    }
+  ],
+  "aliases": [
+    {
+      "key": "proposal:alias:ptit:name",
+      "target": "proposal:ptit",
+      "kind": "name",
+      "value": "Học viện Công nghệ Bưu chính Viễn thông",
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy",
+          "local-review:docs/reports/parser-pilot.md"
+        ]
+      }
+    },
+    {
+      "key": "proposal:alias:ptit:short",
+      "target": "proposal:ptit",
+      "kind": "short_name",
+      "value": "PTIT",
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy",
+          "local-review:docs/reports/parser-pilot.md"
+        ]
+      }
+    },
+    {
+      "key": "proposal:alias:ptit:domain",
+      "target": "proposal:ptit",
+      "kind": "domain",
+      "value": "tuyensinh.ptit.edu.vn",
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy",
+          "local-review:docs/reports/parser-pilot.md"
+        ]
+      }
+    },
+    {
+      "key": "proposal:alias:ptit:thpt",
+      "target": "proposal:ptit:method:thpt",
+      "kind": "name",
+      "value": "Dựa vào kết quả thi tốt nghiệp THPT",
+      "university_key": "proposal:ptit",
+      "from_year": 2024,
+      "to_year": 2024,
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(6) > thead",
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(7) > thead"
+        ]
+      }
+    },
+    {
+      "key": "proposal:alias:ptit:talent",
+      "target": "proposal:ptit:method:talent",
+      "kind": "name",
+      "value": "Xét tuyển Tài năng",
+      "university_key": "proposal:ptit",
+      "from_year": 2024,
+      "to_year": 2024,
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(6) > thead",
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(7) > thead"
+        ]
+      }
+    },
+    {
+      "key": "proposal:alias:ptit:combined",
+      "target": "proposal:ptit:method:combined",
+      "kind": "name",
+      "value": "Xét tuyển kết hợp",
+      "university_key": "proposal:ptit",
+      "from_year": 2024,
+      "to_year": 2024,
+      "review": {
+        "status": "pending",
+        "evidence": [
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(6) > thead",
+          "snapshot://19a1088e-6412-49e4-b911-73ec9146f4fa?sha256=03a243b651c18fd2e89beb89676e2adb9722c66922d8e1758138c6c1bb7b7586#html:#main-content .ova_dir_content > section#dao_tao_chinh_quy > table:nth-of-type(7) > thead"
+        ]
+      }
+    }
+  ]
+}

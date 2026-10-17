@@ -120,6 +120,28 @@ uv run python -m services.data.parsers replay 19a1088e-6412-49e4-b911-73ec9146f4
 
 Không persist parser sửa trong đợt này;215input gốc vẫn nguyên vẹn. Nếu operator chủ động parse phiên bản mới sau này, phải chọn bộ raw input đã review để tránh normalization nhiều phiên bản cùng locator như facts mới. T06 pilot không đồng nghĩa T05 toàn bộ/T07/T08/quota20.000hoàn thành.
 
+## Entity resolution T07: registry có phiên bản và pilot offline
+
+Đọc [hợp đồng](docs/entity-resolution-contract.md) và [báo cáo](docs/reports/entity-resolution-pilot.md). T07 chỉ nhận normalization envelopes thuộc job đã đóng băng, phân giải từng candidate; không nhận430hàng observations như430facts. Seed config/entities/ptit-v1.json hoàn toàn pending, không có canonical UUID được duyệt. Fuzzy chỉ gợi ý review, không auto-link hoặc publish.
+
+```powershell
+uv run python -m services.data.resolution evaluate --output state/resolution/gold-evaluation.json
+uv run python -m services.data.resolution preview --normalization-job 7bc439bf-a6d7-4beb-bf03-bb47956c5383 --output state/resolution/preview.json
+uv run python -m services.data.resolution run --normalization-job 7bc439bf-a6d7-4beb-bf03-bb47956c5383
+uv run python -m services.data.resolution affected --entry proposal:ptit --output state/resolution/affected.json
+```
+
+Pilot hiện có job `e4ede9f6-feed-4ce9-aac4-fc9237eeee56`; kiểm tra lại bằng `uv run python -m services.data.resolution replay --job e4ede9f6-feed-4ce9-aac4-fc9237eeee56`. run in job_id; replay bằng `uv run python -m services.data.resolution replay --job JOB_UUID` với UUID thật in ở run hoặc báo cáo. Replay giữ registry frozen trong manifest, không lấy alias mới để sửa lịch sử. preview/affected read-only; run/replay là transaction riêng, không chạy trong HTTP FastAPI. Chạy lại cùng versions/code/config/input không thêm hàng. Thay logic/registry/alias cần version mới có chủ ý; thay payload cùng version bị từ chối. --registry FILE chọn registry khác đã validation; approved targets còn phải tồn tại và khớp canonical DB.
+
+--output chỉ cho ignored state/ hoặc ngoài checkout vì chứa evidence/tên nguồn. Không commit output/raw/secrets/dumps. affected trả historical_dependency và có thể potential_registry_change bảo thủ cho entry trong registry mới; đó là danh sách cần đánh giá lại, không tự thu hồi/duyệt fact. Gold280 synthetic cases là kiểm quy tắc, không chứng minh accuracy thực địa99.5%.
+
+```powershell
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT id,status,payload->'result' AS summary FROM ingest_jobs WHERE job_type='resolve_entities';"
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT normalized_fields->>'schema_version' AS schema,count(*) FROM observations GROUP BY 1;"
+```
+
+Unknown year/campus/track/language/method/scale/scope giữ unknown. BVH/BVS là hai source campus labels dưới một university proposal; Program/Offering proposals không là canonical IDs. Tuition năm học không biến thành admission year hay phí từng ngành. T08 chỉ có thể nhận packets cần review; cần phê duyệt registry/taxonomy và scale/scope/rules trước publication. Crawl vẫn paused5/5; không tải thêm nguồn.
+
 ## Kiểm thử và CI
 
 ```powershell

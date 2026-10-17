@@ -63,3 +63,7 @@ fact_kind=cutoff trong observation chỉ có nghĩa mẩu trích từ vùng bả
 ## Lát cắt T06
 
 Hợp đồng chi tiết: normalization-contract.md. T06 giữ nguyên observations raw-only và thêm envelope theo transform namespace normalization riêng; không cập nhật normalized_fields của hàng raw cũ. Một envelope có zero/nhiều candidates có parent/cell/header/version lineage; tất cả unverified/needs_review, chưa resolve UUID/scale/conditions và không có canonical_fact. Canonical quota/count/publication invariants giữ nguyên. Năm tuyển sinh2024/2025 không lấy từ document year2026 hoặc năm học2026–2027. Thống kê phải tách raw input/envelope/candidate/canonical để tránh đếm dữ kiện nhiều lần.
+
+## Lát cắt T07
+
+Hợp đồng: entity-resolution-contract.md. Mỗi normalization candidate có resolution/lineage riêng trong envelope dẫn xuất mới; không sửa raw/T06. Registry/aliases có provenance, review và versions; pending proposal keys không phải approved canonical UUIDs. Entity recognition không xác minh fact hoặc publication. Đếm riêng raw/normalization/resolution envelopes, candidates và canonical. Không sửa cutoff_scores/catalog_state/releases; tuition academic year không là admission year, mã xét tuyển không là taxonomy major code.
