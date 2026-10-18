@@ -1,6 +1,6 @@
 # TuyenSinhDaiHoc
 
-Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler bổ sung, Alembic, health checks và CI. Crawler tải raw; lát cắt T05 có parser HTML/PDF số offline và observations chưa xác minh. T06 có normalization offline có phiên bản, giữ nguyên raw observations và tạo candidates chưa xác minh. Chưa có canonical cutoffs production, Score Engine hay giao diện.
+Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler, Alembic, health checks và CI. Pipeline raw → parser → normalization → entity resolution → reviewed publication đã có pilot DEV với ba cutoff PTIT2024 được duyệt. T09 bổ sung immutable release builder nội bộ; chưa Score Engine, Search hoặc giao diện. Xem báo cáo từng lát cắt; chưa nghiệm thu Phase 1 hoặc quota20.000.
 
 ## Cài đặt (PowerShell tại gốc repository)
 
@@ -155,7 +155,26 @@ uv run python -m services.data.publication plan --resolution 97259d1b-894c-4637-
 
 Plan packet là read-only, chưa là approval. Sau khi người phụ trách xác minh hồ sơ và soạn ReviewCommand riêng: `uv run python -m services.data.publication plan --file state/publication/review.json`, rồi `uv run python -m services.data.publication apply --file state/publication/review.json` bằng dedicated reviewer login. Apply action publish chỉ tạo quyết định; publisher dùng `uv run python -m services.data.publication apply --decision $decision` với UUID thực, correction thêm expected revision đã duyệt. `uv run python -m services.data.publication replay --decision $decision` kiểm lại lineage/versions và idempotency. Xem workflow cho export registry, chạy T07 mới và quyền DB.
 
-Actor lấy từ PostgreSQL session_user, không nhận reviewer tự nhập; superuser bị chặn apply. Đã có hai login kỹ thuật DEV riêng theo ủy quyền; chưa có approval nghiệp vụ thật. Xem [evidence review](docs/reports/publication-evidence-review.md) và hướng dẫn nạp credentials local trong review-workflow.md. Ba hồ sơ THPT2024 đã chuẩn bị ở ignored `state/publication/review-batch.md`; canonical cutoffs vẫn 0. Không dùng dữ liệu/approvals TEST ONLY cho pilot. Secrets, quyết định và output chứa dữ liệu nguồn luôn ngoài Git. Local role grants/guards đã có tests riêng; production OIDC/RBAC, withdrawal governance đầy đủ, refresh worker/release builder và UI còn ở các task sau.
+Actor lấy từ PostgreSQL session_user, không nhận reviewer tự nhập; superuser bị chặn apply. Ba facts THPT2024 đã được duyệt và publish riêng bằng reviewer/publisher DEV; xem [publication pilot](docs/reports/ptit-publication-pilot.md). Các hồ sơ pending cũ là lịch sử, không thay approval mới. Không dùng dữ liệu/approvals TEST ONLY cho pilot. Secrets, decisions và source outputs luôn ngoài Git. Production OIDC/RBAC, withdrawal governance đầy đủ và UI còn thiếu; refresh/release DEV xem T09 bên dưới.
+
+## Release T09 nội bộ trên DEV
+
+Builder `services/data/releases` materialize toàn bộ current verified published cutoffs
+2024–2026 trong REPEATABLE READ snapshot; manifest/export/coverage bất biến, verified hashes,
+registration và refresh jobs có audit. Dedicated `eduradar_release_builder` tách publisher.
+Đọc [contract và runbook](docs/release-contract.md) trước vận hành; không public distribution.
+
+```powershell
+uv run python -m services.data.releases plan
+uv run python -m services.data.releases build --root state/releases/canonical
+uv run python -m services.data.releases verify --version 3
+uv run python -m services.data.releases replay --version 3
+```
+
+Migration `0004_releases` additive, không viết lại migrations cũ. Owner chỉ migrate/provision;
+build dùng dedicated login và `RELEASE_DB_USER`/`RELEASE_DB_PASSWORD` trong process environment.
+Artifacts/private outputs ở ignored state/. Xem [báo cáo T09](docs/reports/t09-release-pilot.md)
+cho trạng thái pilot thực tế; release ba facts không nghiệm thu toàn T09/Phase 1/quota20.000.
 
 ## Kiểm thử và CI
 

@@ -15,3 +15,11 @@ Tệp mang tên gốc và `EduRadar_tom_tat_du_an_va_dac_ta.md` chưa hiện di�
 ## T08 — additive guards, không thay DDL gốc
 
 `0003_publication` thêm PostgreSQL functions/triggers bảo vệ audit/manifests và T08-managed publication history. Không thêm bảng, sửa 0001/0002 hoặc chuẩn hóa dữ liệu cũ. Metadata vẫn 34 bảng (31 core + 3 crawler); review decisions, registry versions, publication requests và queued refresh dùng ingest_jobs hiện có. Schema diff Alembic không tự phản ánh trigger semantics; tests publication dùng non-superuser roles kiểm riêng. Căn cứ DDL/checksum phía trên vẫn là hồ sơ lịch sử, không được viết lại theo HEAD T08.
+
+## T09 — immutable release và refresh guards
+
+`0004_releases` additive functions/triggers bảo vệ INSERT có audit và cấm UPDATE/DELETE
+dataset_releases; refresh lease/status/result có fencing, request immutable và audit.
+Không thêm bảng/cột, sửa migrations cũ hoặc rewrite dữ liệu. Metadata vẫn 34 bảng.
+Provision riêng capability release chỉ có grants cần thiết, được audit; owner không chạy builder.
+Xem release-contract.md và reports/t09-release-pilot.md.

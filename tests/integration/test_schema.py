@@ -49,7 +49,7 @@ def test_upgrade_preserves_existing_data_and_is_idempotent(database_factory):
             )
             assert (
                 c.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-                == "0003_publication"
+                == "0004_releases"
             )
     finally:
         db.dispose()

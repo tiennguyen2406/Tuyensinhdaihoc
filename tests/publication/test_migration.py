@@ -18,7 +18,7 @@ def test_upgrade_0002_to_publication_guards_preserves_legacy_rows(database_facto
         )
         command.upgrade(cfg, "head")
         command.upgrade(cfg, "head")
-        assert c.scalar(sa.text("SELECT version_num FROM alembic_version")) == "0003_publication"
+        assert c.scalar(sa.text("SELECT version_num FROM alembic_version")) == "0004_releases"
         assert (
             digest([dict(r) for r in c.execute(sa.text("SELECT * FROM cutoff_scores")).mappings()])
             == before
