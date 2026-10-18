@@ -1,6 +1,6 @@
 # Review workflow T08 — CLI quản trị local
 
-Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2/B1/B2 đúng hash/request; đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. B3/C/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
+Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2/B1/B2/B3 đúng hash/request; đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. C1/C2/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
 
 ## Quan sát và preview
 
@@ -137,3 +137,13 @@ Mục B2 chờ duyệt phía trên là trạng thái lịch sử tại commit9b9
 Decision thật `be5546cf-4562-5d9b-8ac5-6326aad319b0`; registry manifest `8baaa2cc-a703-4563-b6a3-f4c04dea58f3`; Offering BVS `257a579f-e7a6-5a6b-8fd4-8a43f9d74ecb`. Export CLI/checkpoints private ở `state/publication/b2-approved-20261018/`. Mọi ghi nghiệp vụ qua CLI hiện hữu; không tạo script vận hành hoặc framework mới.
 
 B3 mới tại `state/publication/b2-approved-20261018/decision-b3.draft.json`, request `c9e0bdad-e392-49e4-8d2c-0bb23cd3413f`, dùng University và expected heads thật sau B2. Đề nghị Program CNTT và Offering BVH2024/mã7480201 không hậu tố; evidencep11/p20, đối chiếu tách CLC/UDU/LK ởp12 và chương trình Việt–Nhật dự kiến ởp13. Không gán track STANDARD từ cách gọi “CNTT chuẩn”. Plan read-only đã đạt, **chưa approval/apply**; C/D còn conditional. Xem báo cáo blocker decisions về exact hash và impacts.
+
+## Cập nhật sau approval B3
+
+Mục B3 chờ duyệt phía trên là trạng thái lịch sử tại commitc5ff6d0. Người dùng duyệt riêng B3 SHA `1bb13962fc2b97e9eb46dec44be2dbfb3fa4dafa8cf0b93ed1447bf0a69ef578`, request `c9e0bdad-e392-49e4-8d2c-0bb23cd3413f`; đã kiểm hash/binding/head/University/schema/reviewer/evidence rồi apply qua CLI, đối chiếu actual và gọi lại apply cùng request không thêm dữ liệu. C/D không thừa hưởng approval.
+
+Decision `4c2eb582-b43a-51a6-bbad-5cb2c137a116`; registry manifest `c4420433-a883-4ca7-8f0f-9d90b37ed0c5`; Program CNTT `c5423f44-3ffd-5c2f-91b0-e96bea3464bb`; Offering `659f29e9-911c-5db9-9af1-cdbef363df82`. Export/checkpoints mới ở private `state/publication/b3-approved-20261018/`; không thay CLI, script vận hành, migration hoặc manifests cũ.
+
+C1 mới `decision-c1.draft.json` trong thư mục private trên, request `7025e964-946c-447f-a0a1-12c64e165587`, đã qua plan read-only, **chưa approval/apply**. Primary snapshot chuyển từ anchor HTML của conditional cũ sang PDFgốcp16 có max30; basis evidence thêm locators đúng hai thông báo gốc. Min0 được trình là derivation miền, không ngưỡng xét tuyển hoặc source quotation; không duyệt công thức/rounding/scoring DSL.
+
+Scale schema khóa method/year, không có Offering membership FK: ba Offering IDs ghi trong command/basis_description là phạm vi đề nghị duyệt, không giả constraint mới. Khi review D vẫn cần source authority đúng context, active scale review và quyết định fact/scope riêng; không dùng can_apply của C1 như quyền publication. C2 round/population/source_aggregate/TTNV vẫn chưa duyệt; named-notice round không là “đợt1”, TTNV chỉ tại điểm bằng cutoff. Xem reports/ptit-blocker-decisions.md về hash/impact và C2.

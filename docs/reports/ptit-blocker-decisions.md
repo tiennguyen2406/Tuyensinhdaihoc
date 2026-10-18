@@ -201,3 +201,44 @@ File private `state/publication/b2-approved-20261018/decision-b3.draft.json`; SH
 Actual CLI plan dedicated reviewer read-only can_apply/preview_only=true,2operations,catalogdelta0. Prechecks parent year/University, mandatory columns, program/offering unique keys chưa trùng, packet CNTT và source catalog authority đúng7480201/BVH/snapshot đã đạt; không giả mô phỏng toàn bộ SQL insert. Nếu được duyệt và revalidate còn hợp lệ: **+1Program/+1Offering/+2jobs/+3audit**,0scale/scope/cutoff/release/datasetdelta. New registry dự kiến `registry/ptit-programs/20261018-b3`, alias giữ nguyên. C/D chưa approval; sau bootstrap được duyệt mới export/T07 mới và materialize từngD. Chưa chuyển T09, chưa nghiệm thu toànT07/T08/Phase1 hoặc quota20.000.
 
 Checks mới lượt B2: `uv run pytest -q tests/publication tests/integration/test_health.py tests/integration/test_health_schema.py`: **62passed126.12s**, DB test riêng. Không thay code nên không chạy full pytest local; CI trên SHA mới được kiểm riêng. Ruff check/format128files, mypy55sourcefiles, uv lock87packages, Alembic current0003head/check no new operations và git diff --check đều pass. ASGI health/live vàready200 với DB thật; HTTP8000 chưa kết nối. Sau tests,34tables/old row digests vẫn đúng sau B2; reviewer không privileged/không publisher/không DELETE Offering. Chỉ stage tài liệu vận hành; private decisions/exports/raw/credentials và .vscode/ giữ ngoài commit.
+
+## Cập nhật: B3 đã duyệt/apply, C1/C2 chờ duyệt riêng
+
+Điểm xuất phát commitc5ff6d0563fe09b6a313d3c15622e801cd1ec538; nhánh/origin đúng, chỉ .vscode/ chưa tracked. Người dùng duyệt riêng exact B3 SHA `1bb13962fc2b97e9eb46dec44be2dbfb3fa4dafa8cf0b93ed1447bf0a69ef578`, request `c9e0bdad-e392-49e4-8d2c-0bb23cd3413f`; không duyệt C/D. Giữ nguyên file/reason đã duyệt. Revalidate packet/expected B2head/aliasr2, University, schema0003head và dedicated reviewer không privileged/không publisher ngay trước apply. PDF snapshotf31d55ba-cbc7-42e0-9a02-c5a7c285abc3 khớp hash/size; đọc lạip11/p20 và đối chiếu CLC/UDU/LK/Việt–Nhật ởp12/p13, không suy track chuẩn.
+
+| B3 | Expected | Actual |
+|---|---|---|
+| Program / Offering |+1/+1|1→2Program;2→3Offering, chỉ CNTT BVH2024/7480201 không hậu tố |
+| Major/track/language |unknown|MajorNULL, DB UNSPECIFIED/registry null, đúng parents và unique keys |
+| Jobs / audit |+2/+3|41→43jobs;19→22audit, đúng request/reason/evidence/actor |
+| Scales/scopes/cutoffs/releases |0new|Tất cả vẫn0 |
+| Dataset version |0delta|0→0 |
+
+Actual decision `4c2eb582-b43a-51a6-bbad-5cb2c137a116`; registry manifest `c4420433-a883-4ca7-8f0f-9d90b37ed0c5`; Program CNTT `c5423f44-3ffd-5c2f-91b0-e96bea3464bb`; Offering CNTT BVH `659f29e9-911c-5db9-9af1-cdbef363df82`. University PTIT giữ `d7bfe9d8-6f23-57a8-bc41-b3caa7ea2f07`. Registry head `registry/ptit-programs/20261018-b3`, alias `aliases/ptit-identities-authority/20261018-r2`; export CLI thật tại private `state/publication/b3-approved-20261018/registry-b3-applied.json`, digest/targets khớp manifest/DB.
+
+Gọi lại bootstrap cùng **apply --file** trả result cũ; cả34tables/jobs/audit/version không đổi. Mọi rows có trước B3, gồm hai Offering/Program QTKD,645observations/41jobs/22snapshots/sources, giữ row digests.282tệp lịch sử private và22raws khớp checksum/size. Chỉ thêm hai canonical rows/hai jobs/ba audit đã duyệt. Không tải nguồn/resume crawl, không chạy T07 mới, không sửa code/migrations hoặc tạo script vận hành mới.
+
+### C1 materialized bằng method, Offering IDs và head thật — chưa approval/apply
+
+File private `state/publication/b3-approved-20261018/decision-c1.draft.json`; SHA `3c59223370b303878c4cacf88bdcfaf4f448e38f8c75adf5cfa45b815ef3197e`; request `7025e964-946c-447f-a0a1-12c64e165587`. Expected registryB3/aliasr2 thật; canonical methodTHPT ID `d391066d-0c18-579e-82fb-4398b1f9cd30`; packet QTKD BVH checked độc lập. New registry dự kiến `registry/ptit-scale/20261018-c1`. Conditional C1 cũ giữ nguyên; draft mới thay symbolic method ref bằng ID thật, primary snapshot từ HTML anchor sang originalPDFp16, bổ sung precise priority evidence và ba Offering IDs trong reason/basis_description. Đây chưa phải file được duyệt.
+
+- **Max30:** PDF2024 snapshotf31d55ba… SHA1b1e3741108ce5711bc61823200d4acaa534082a70b769894ec61d28fbb167c3, locatorpdf:p16, đoạn b)Đối với Phương thức2 nêu ba môn trên thang10, tổng tối đa30. Đã render/đọc trực quan từ raw đúng hash/size; không suy30 từ giá trị cutoff.
+- **Min0:** derivation miền kỹ thuật từ inputs môn[0,10] ở đặc tả§5.4 (bảnSHAc3745329…) và tổng ba môn không âm, tương thích DDLmin_score≥0. Không trích nguồn ghi “min_score=0”, không dùng ngưỡng18/22 hoặc khẳng định điểm0 đủ điều kiện. Đây là quyết định domain cần người dùng duyệt.
+- **Basis đã gồm ưu tiên:** hai thông báo gốc BVH snapshot46446cac… SHAacbce18768c840d37acad823e6834df53e72437a7dfbc6f4d7d95bfebb421db3 và BVS snapshot3e376892… SHA60e6ca663bbb0e396e281eebdf4d7cdbabe311154bcec8e62d0c6b9e08a50084 có note điểm đã gồm ưu tiên Khu vực/Đối tượng nếu có. CSS locators và text digests được reselect/kiểm trong private c1-notice-evidence.json và executable draft, không chỉ URL. Không phê duyệt công thức ưu tiên, rounding hoặc scoring DSL.
+
+Phạm vi C1 đề nghị duyệt là ba Offering2024 thật: QTKD/BVH `b957f9b2-ec7b-5f3f-b8ee-c1f3e9b1cf3e`, QTKD/BVS `257a579f-e7a6-5a6b-8fd4-8a43f9d74ecb`, CNTT/BVH `659f29e9-911c-5db9-9af1-cdbef363df82`. Đã kiểm source scoring_rule authority của primaryPDF đúng ba context và snapshot. **Schema scale khóa method/year, không có Offering membership FK**; IDs nằm trong command/basis_description không tự thành validator membership mới. Publication còn cần active reviewed scale, same method/year/bounds, scoped source authority và review C2/D riêng. Không tuyên bố C1 tạo permission publish hoặc enforce riêng exact ba UUID bằng SQL.
+
+Plan reviewer read-only can_apply/preview_only=true,1operation,0catalogdelta; bắt buộc/FK method/snapshot/NUMERIC bounds/business unique key/version đích và authority đã kiểm độc lập. Không giả mô phỏng toàn SQL insert. Nếu duyệt/apply sau revalidation: **+1score_scale/+2jobs/+2audit**,0scoring_rule/scope/cutoff/release/datasetdelta. Scale không là entity type riêng trong T07 registry: row ởscore_scales, provenance qua review/audit; registry manifest mới giữ entities đã duyệt và version mới, không giả scale đã resolve.
+
+### C2 còn cần duyệt trước publication
+
+| Trường | Proposal có evidence, chưa approval | Phần cần quyết định |
+|---|---|---|
+| Round |Named notice28701 cho BVH,28700 cho BVS; scope đúng thông báo kết quả2024|Chấp nhận identity theo thông báo hoặc cung cấp căn cứ ordinal; ordinal vẫnunknown, không gọi đợt1 |
+| Population |PTIT_THPT2024_REGULAR_VALID_APPLICANTS: đối tượng/hồ sơ theo PDFp9§1.2a và thi môn tổ hợp THPT2024 theo p10§1.2c|Duyệt mapping cụ thể, không GENERAL/empty conditions |
+| Tổ hợp |source_aggregate: QTKD A00/A01/D01, CNTT A00/A01; PDFp16 cùng điểm trong ngành vàp20 membership|Một fact aggregate/Offering, không nhân tổ hợp; chưa tính/so sánh được |
+| TTNV |Literal≤13 QTKD/BVH,≤3 QTKD/BVS,≤5 CNTT/BVH; comparatorlte, applies_when score==cutoff theo header/footnote gốc|Chỉ tie boundary: dưới cutoff vẫn dưới, trên cutoff không áp TTNV, bằng thiếu TTNV là insufficient; không chạy evaluatorT12 |
+
+Private c2-pending-decisions.json giữ nguyên proposals với approvalfalse, không actor/decision giả hoặc canonical scope mới. C1 approval nếu có không duyệt C2 hay ba cutoffs. Sau C được duyệt/apply phù hợp mới export/T07 namespace mới trên T06 input, materialize D riêng bằng IDs/bindings thật; chưa T09 hoặc nghiệm thu toànT07/T08/Phase1/quota20.000.
+
+Checks local mới:62tests publication/health passed108.51s trên DB test riêng; Ruff check/format128files, mypy55sourcefiles, lock87packages, Alembic current0003head/check và diff checks đạt. Không đổi code nên không chạy full pytest local; CI trên SHA tài liệu mới được kiểm riêng khi bàn giao. ASGI live/ready200 với DB thật; HTTP8000 chưa kết nối. Sau tests,34tables đúng trạng thái B3, reviewer vẫn không privileged/publisher/DELETE. Chỉ tài liệu vận hành tracked thay đổi; secrets/raw/private decisions/exports và .vscode/ không stage.
