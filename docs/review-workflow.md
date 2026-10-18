@@ -1,6 +1,6 @@
 # Review workflow T08 — CLI quản trị local
 
-Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2 và B1 đúng hash/request; cả hai đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. B2/B3/C/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
+Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2/B1/B2 đúng hash/request; đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. B3/C/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
 
 ## Quan sát và preview
 
@@ -129,3 +129,11 @@ Mục B1 chờ duyệt phía trên là trạng thái lịch sử tại commit07a
 Decision thật `684a8f28-1faa-54d9-a57a-cfca85820cc2`; registry manifest thật `bd0c37a0-0036-432a-9391-c5e451a4dc21`. Checkpoints và export CLI ở private `state/publication/b1-approved-20261018/`. Không tạo script vận hành mới hoặc thay CLI/framework; các thao tác ghi nghiệp vụ đều qua CLI hiện có.
 
 B2 mới tại `state/publication/b1-approved-20261018/decision-b2.draft.json`, request `f59e9c89-a7dd-40a7-8038-5b19f612f6fb`, dùng Program ID và registry head B1 thật. Đã đọc riêng BVS PDFp13/p20 và chạy plan read-only, **chưa approval/apply**. Nếu được duyệt, kiểm lại exact file/hash/request/head/packet/evidence/role rồi mới apply; B3/C/D không được kế thừa approval. Không dùng publication replay cho bootstrap; chỉ gọi lại apply cùng request đã được duyệt để kiểm idempotency.
+
+## Cập nhật sau approval B2
+
+Mục B2 chờ duyệt phía trên là trạng thái lịch sử tại commit9b90fd2. Người dùng đã duyệt riêng B2 SHA `563d6a93777d4e7c205ce42f917871dfa50333a39d420b758e58061a4f5ed5a0`, request `f59e9c89-a7dd-40a7-8038-5b19f612f6fb`. Đã revalidate exact bytes/binding/B1 head/Program/schema/reviewer, đọc lại PDF cachep13/p20, apply đúng CLI và kiểm actual/replay cùng request không thêm dữ liệu. Không sửa reason/file đã duyệt hoặc dùng approval B2 cho B3/C/D.
+
+Decision thật `be5546cf-4562-5d9b-8ac5-6326aad319b0`; registry manifest `8baaa2cc-a703-4563-b6a3-f4c04dea58f3`; Offering BVS `257a579f-e7a6-5a6b-8fd4-8a43f9d74ecb`. Export CLI/checkpoints private ở `state/publication/b2-approved-20261018/`. Mọi ghi nghiệp vụ qua CLI hiện hữu; không tạo script vận hành hoặc framework mới.
+
+B3 mới tại `state/publication/b2-approved-20261018/decision-b3.draft.json`, request `c9e0bdad-e392-49e4-8d2c-0bb23cd3413f`, dùng University và expected heads thật sau B2. Đề nghị Program CNTT và Offering BVH2024/mã7480201 không hậu tố; evidencep11/p20, đối chiếu tách CLC/UDU/LK ởp12 và chương trình Việt–Nhật dự kiến ởp13. Không gán track STANDARD từ cách gọi “CNTT chuẩn”. Plan read-only đã đạt, **chưa approval/apply**; C/D còn conditional. Xem báo cáo blocker decisions về exact hash và impacts.

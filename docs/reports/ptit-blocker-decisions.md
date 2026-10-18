@@ -172,3 +172,32 @@ File private `state/publication/b1-approved-20261018/decision-b2.draft.json`; SH
 Nếu sau này người dùng duyệt và revalidate còn hợp lệ: expected **+1Offering/+2jobs/+2audit**,0Program/scale/scope/cutoff/release/dataset delta. New registry dự kiến `registry/ptit-programs/20261018-b2`, alias không đổi. IDs trong plan chưa tồn tại; chỉ dùng IDs đã apply của B1 làm parents. Chưa apply B2/B3/C/D hoặc T09. Sau các bootstrap được duyệt mới export/T07 mới rồi materialize D theo binding thật và review từng fact. Phase1/T07/T08 chưa được đánh dấu hoàn tất.
 
 Checks mới của lượt B1: `uv run pytest -q tests/publication tests/integration/test_health.py tests/integration/test_health_schema.py`: **62passed109.61s**, database test riêng. Không chạy lại toàn bộ pytest local vì không đổi code; con số525 của lượt A2 là lịch sử, CI trên commit tài liệu mới được kiểm riêng khi bàn giao. Ruff check/format128files, mypy55sourcefiles, uv lock87packages, Alembic current0003head/check no new operations và git diff --check đều pass. ASGI health/live vàready200 với DB thật; HTTP8000 chưa kết nối được. Sau tests,34tables vẫn đúng trạng thái sau B1; reviewer vẫn không privileged/không publisher/không DELETE Offering. Chỉ cập nhật tài liệu vận hành tracked, private decisions/raw/exports/credentials và .vscode/ không stage.
+
+## Cập nhật: B2 đã được duyệt/apply, B3 chờ duyệt riêng
+
+Điểm xuất phát: commit9b90fd2e2771c5c92d672f2867a29936fa20cbd8, đúng nhánh/origin, chỉ .vscode/ chưa tracked. Các mục trước là hồ sơ lịch sử. Người dùng duyệt riêng exact B2 file/hash `563d6a93777d4e7c205ce42f917871dfa50333a39d420b758e58061a4f5ed5a0`, request `f59e9c89-a7dd-40a7-8038-5b19f612f6fb`; không duyệt B3/C/D. Không sửa bytes/reason của B2.
+
+Trước apply: checked_packet/expected registryB1 và aliasr2, Program QTKD/University IDs thật, schema0003head và dedicated reviewer không privileged/không publisher đều hợp lệ. PDF snapshotf31d55ba-cbc7-42e0-9a02-c5a7c285abc3 khớp SHA1b1e3741108ce5711bc61823200d4acaa534082a70b769894ec61d28fbb167c3/size; render lại và đọc p13 header BVS/QTKDrow8, p20row13. Không OCR/download mới. CLI plan vẫn1operation/can_applytrue/catalogdelta0.
+
+| Tác động B2 | Expected | Actual |
+|---|---|---|
+| Program / Offering |0/+1|Program giữ1; Offering1→2, chỉ thêm BVS2024/7340101 |
+| Parents/context |PTIT→Program QTKD thật→BVS2024|Đúng University/Program/năm/mã/campus; unique key không trùng BVH |
+| Track/language |unknown|DB UNSPECIFIED/registry null; không suy mặc định |
+| Jobs / audit |+2/+2|39→41jobs;17→19audit, đúng request/reason/actor/evidence |
+| Scale/scope/cutoff/evidence/releases |0new|Tất cả vẫn0 |
+| Catalog dataset_version |0delta|0→0 |
+
+Apply chỉ qua CLI/ReviewService bằng dedicated reviewer. Actual decision `be5546cf-4562-5d9b-8ac5-6326aad319b0`; registry manifest `8baaa2cc-a703-4563-b6a3-f4c04dea58f3`; Offering BVS `257a579f-e7a6-5a6b-8fd4-8a43f9d74ecb`. Program giữ `cf5b839c-2c74-57b2-a97c-6bb563edbbf6`, University giữ `d7bfe9d8-6f23-57a8-bc41-b3caa7ea2f07`; Offering BVH `b957f9b2-ec7b-5f3f-b8ee-c1f3e9b1cf3e` giữ nguyên toàn row digest. Registry head `registry/ptit-programs/20261018-b2`; alias giữ `aliases/ptit-identities-authority/20261018-r2`. Export CLI thật `state/publication/b2-approved-20261018/registry-b2-applied.json` khớp manifest digest/validate_targets.
+
+Gọi lại cùng bootstrap request qua **apply --file** trả result cũ; cả34tables/rows/jobs/audit/version không đổi. Mọi rows có trước B2 gồm645observations/39jobs/22snapshots/sources/A2/B1 entities giữ digest;260tệp lịch sử private nguyên checksum,22raws nguyên hash/size. Chỉ thêm đúng1Offering/2jobs/2audit. Không đổi crawler runs/budgets, không tải nguồn, không chạy T07 mới hoặc tạo script vận hành/framework/code/migration.
+
+### B3 đã materialize, chưa được duyệt/apply
+
+File private `state/publication/b2-approved-20261018/decision-b3.draft.json`; SHA `1bb13962fc2b97e9eb46dec44be2dbfb3fa4dafa8cf0b93ed1447bf0a69ef578`; request `c9e0bdad-e392-49e4-8d2c-0bb23cd3413f`. Bản conditional cũ giữ nguyên. Draft mới có University ID/head thật sau B2; Program/Offering mới còn proposal/ref trong cùng transaction, không dùng preview UUID như canonical ID.
+
+Đề nghị **một Program CNTT cấp PTIT**, canonical_key nội bộ `ptit-regular-7480201`, MajorNULL, và **một Offering BVH/2024/mã7480201**. Track/language unknown (UNSPECIFIED trong DB/null trong registry); Chính quy theo evidence. PDFp11 có header BVH vàrow4 tên CNTT/mã7480201, p20row5 xác nhận tên/mã. Đối chiếu p12/p20 tách7480201_UDU (định hướng ứng dụng),7480201_CLC (chất lượng cao),7480201_LK (liên kết quốc tế). Ghi chúp13 nói Việt–Nhật là chương trình dự kiến có thông báo bổ sung; không lấy ghi chú đó để gán mã hoặc nhập vào B3. “CNTT chuẩn” trong bàn giao chỉ bản ghi tên/mã không hậu tố, không suy track STANDARD hoặc taxonomy/major.
+
+Actual CLI plan dedicated reviewer read-only can_apply/preview_only=true,2operations,catalogdelta0. Prechecks parent year/University, mandatory columns, program/offering unique keys chưa trùng, packet CNTT và source catalog authority đúng7480201/BVH/snapshot đã đạt; không giả mô phỏng toàn bộ SQL insert. Nếu được duyệt và revalidate còn hợp lệ: **+1Program/+1Offering/+2jobs/+3audit**,0scale/scope/cutoff/release/datasetdelta. New registry dự kiến `registry/ptit-programs/20261018-b3`, alias giữ nguyên. C/D chưa approval; sau bootstrap được duyệt mới export/T07 mới và materialize từngD. Chưa chuyển T09, chưa nghiệm thu toànT07/T08/Phase1 hoặc quota20.000.
+
+Checks mới lượt B2: `uv run pytest -q tests/publication tests/integration/test_health.py tests/integration/test_health_schema.py`: **62passed126.12s**, DB test riêng. Không thay code nên không chạy full pytest local; CI trên SHA mới được kiểm riêng. Ruff check/format128files, mypy55sourcefiles, uv lock87packages, Alembic current0003head/check no new operations và git diff --check đều pass. ASGI health/live vàready200 với DB thật; HTTP8000 chưa kết nối. Sau tests,34tables/old row digests vẫn đúng sau B2; reviewer không privileged/không publisher/không DELETE Offering. Chỉ stage tài liệu vận hành; private decisions/exports/raw/credentials và .vscode/ giữ ngoài commit.
