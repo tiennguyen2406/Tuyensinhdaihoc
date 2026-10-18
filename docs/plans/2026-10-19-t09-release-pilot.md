@@ -37,8 +37,8 @@ Thực hiện inline trong checkout hiện tại, giữ `.vscode/` và private h
    frozen coverage, roles/DB guards, coalescing. Quan sát RED trước implementation.
 3. [x] Implement snapshot/coverage/storage + CLI plan/build/inspect/verify/replay;
    migration/roles/guards giữ ORM guard hiện hữu. Regression tests và lint/type/lock.
-4. [ ] Full pytest, publication/health, empty/upgrade Alembic checks; review toàn diff.
-5. [ ] Migrate/provision có audit, chạy DEV bằng dedicated login; verify/replay/counters,
+4. [x] Full pytest548, publication/health, empty/upgrade Alembic checks; review toàn diff.
+5. [x] Migrate/provision có audit, chạy DEV bằng dedicated login; verify/replay/counters,
    historical row/file digests. Expected: +1release, 0jobs mới, 3jobs updated;
    +1capability provision/+1dedicated login audit/+3lease audit/+1register audit/
    +3success audit = +9audit. Login provisioning tách audit riêng để truy vết quyền thực tế.
@@ -60,3 +60,8 @@ RED→GREEN cho cached-release recovery, NULL lease, actual_version bắt buộc
 maintenance. Full regression đầu tiên phát hiện test temp sai guard và pg_has_role của
 superuser, đã sửa môi trường/guard; full546 đạt, full cuối trên23 release tests đang kiểm.
 Reviewer độc lập không còn blocker. Giữ checkout hiện tại theo yêu cầu; không worktree mới.
+
+Final local548passed208.38s; code commit4b7cc538a4e2d24ff20b52cab48b7711702b6f62.
+DEV release396ccd8b-1193-43dd-a08a-bb19e639dd56/version3, count3, audit36→45;
+replay cả34tables unchanged, raw22 và historical357files khớp. README/contract/report/WBS
+cập nhật; commit/push/CI của báo cáo được kiểm ở bước cuối, checkpoint private.

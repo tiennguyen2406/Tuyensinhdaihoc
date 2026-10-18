@@ -17,7 +17,7 @@ Publication và quota chỉ cho 2024, 2025, 2026. DDL giữ miền 2000–2100 t
 
 ## Định nghĩa 20.000
 
-Chỉ đếm cutoff_scores.is_current=true AND verification_status='verified', scope.data_status='published', offering.admission_year IN (2024,2025,2026). Hàm thực thi: db.validators.count_canonical_cutoffs(). Không join evidence/học phí/học bổng để đếm. Không tính URL, fetch, snapshot, observation, evidence, revision cũ hoặc dữ liệu test. Báo riêng publication groups trước khi tách tổ hợp và coverage theo trường/năm/phương thức. Hiện có 0 bản ghi tuyển sinh production được xác minh; chưa có release đạt quota.
+Chỉ đếm cutoff_scores.is_current=true AND verification_status='verified', scope.data_status='published', offering.admission_year IN (2024,2025,2026). Hàm thực thi: db.validators.count_canonical_cutoffs(). Không join evidence/học phí/học bổng để đếm. Không tính URL, fetch, snapshot, observation, evidence, revision cũ hoặc dữ liệu test. Báo riêng publication groups trước khi tách tổ hợp và coverage theo trường/năm/phương thức. DEV pilot hiện có3canonical PTIT2024 đã duyệt và1internal smoke release version3;3/20.000,thiếu19.997. Chưa có production deployment hoặc release đạt quota. Xem release-contract.md và reports/t09-release-pilot.md.
 
 ## Giá trị và provenance
 

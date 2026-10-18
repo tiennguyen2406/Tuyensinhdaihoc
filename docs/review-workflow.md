@@ -165,3 +165,12 @@ C2 exact hash/request được ghi nhận riêng tại private state/publication
 Private handoff mới: state/publication/d-approved-20261018/. D1decision e073fd09-a667-5402-b5d1-148fe32d8c6f; D2decision3415734f-4b13-52c2-a7a2-654b607be322; D3decisionc151870c-34c3-5f11-a88d-e3bc1cadcfc4. Reviewer retry bằng apply --file giữ quyết định cũ; publisher replay --decision cached=true, không ghi thêm. Cached result giữ catalog version tại request1/2/3, global version vẫn3.
 
 Ba scopes/cutoffs/evidence thật, cutoff revision1/current/verified/published, catalog3; refresh_serving:1/2/3 queued,0releases. Computation unavailable_aggregate_scope, thiếu preference_order tại biên giữ insufficient_input; chưa evaluator/admission guarantee. Không sửa T07. Đề xuất T09 releasepilot là task tiếp theo, chưa chạy builder hoặc đánh refresh succeeded.
+
+## T09 DEV internal release — 19/10/2026
+
+Mốc queued/0releases phía trên là trạng thái cuối T08. Task T09 mới đã được người dùng
+ủy quyền và thực thi:1release version3/count3, jobs1/2coalesced3 vàjob3built, cùng release
+ID396ccd8b-1193-43dd-a08a-bb19e639dd56. Không xin lại hoặc thay A2/B/C/D, không sửa T07.
+Dedicated release login/capability tách reviewer/publisher, không owner application runner.
+Contract/runbook:release-contract.md; actual verification/replay:reports/t09-release-pilot.md.
+Vẫn thiếu19.997canonical và chưa nghiệm thu toànT09/Phase1/đa nguồn hoặc public deployment.
