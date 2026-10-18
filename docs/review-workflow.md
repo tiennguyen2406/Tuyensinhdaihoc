@@ -1,6 +1,6 @@
 # Review workflow T08 — CLI quản trị local
 
-Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2/B1/B2/B3/C1 đúng hash/request; đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. C2/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
+Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2/B1/B2/B3/C1 đúng hash/request; đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. Người dùng tiếp đó đã duyệt riêng C2 và từng D1/D2/D3; ba facts đã review/publication/replay, xem cập nhật cuối tài liệu. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
 
 ## Quan sát và preview
 
@@ -157,3 +157,11 @@ Export registry thật ở private `state/publication/c1-approved-20261018/regis
 Gói C2 `decision-c2.packet.json` và D1–D3 `decision-d1.draft.json`…`decision-d3.draft.json` cùng thư mục private có exact hashes/requests trong `decision-batch.readiness.json`. Mỗi D dùng binding T07 mới, IDs thật và field evidence, plan read-only đã đạt. Đây **không là approval C2 hoặc D**. C2 chỉ là hồ sơ quyết định scope, không phải ReviewCommand có action scope bootstrap; duyệt C2 đơn lẻ không ghi DB. Scope chỉ được tạo trong publisher transaction của D hợp lệ sau các approval riêng.
 
 Khi được người dùng duyệt rõ đúng nội dung: revalidate gói C2/D hashes, heads/packets/environment/evidence/roles, rồi mới apply từng review command được duyệt bằng reviewer; publisher riêng áp dụng từng decision hợp lệ. Chưa dùng apply --file D hoặc apply --decision từ trạng thái preview. Nếu scope/nội dung thay đổi, giữ bản cũ và tạo file/request/binding phù hợp, không kế thừa approval. TTNV missing tại biên giữ insufficient input theo gói C2; chưa có evaluator, computation giữ unavailable_aggregate_scope. Không đổi named notice thành ordinal1 hoặc nhân source_aggregate thành nhiều cutoff.
+
+## Cập nhật sau approval C2 và publication D1–D3
+
+C2 exact hash/request được ghi nhận riêng tại private state/publication/c2-approved-20261018/c2-human-approval-record.json; packet nguyên bytes, không technical approval hoặc scope bootstrap độc lập. Người dùng sau đó duyệt riêng đúng từng D; reviewer apply --file rồi publisher apply --decision bằng IDs thật, tuần tự. Actual plans/fields/source bindings/parents/scale/predicate/transactions/replay đã kiểm; xem [báo cáo publication pilot](reports/ptit-publication-pilot.md). Các mục pending phía trên là lịch sử; không sửa reason/file đã duyệt.
+
+Private handoff mới: state/publication/d-approved-20261018/. D1decision e073fd09-a667-5402-b5d1-148fe32d8c6f; D2decision3415734f-4b13-52c2-a7a2-654b607be322; D3decisionc151870c-34c3-5f11-a88d-e3bc1cadcfc4. Reviewer retry bằng apply --file giữ quyết định cũ; publisher replay --decision cached=true, không ghi thêm. Cached result giữ catalog version tại request1/2/3, global version vẫn3.
+
+Ba scopes/cutoffs/evidence thật, cutoff revision1/current/verified/published, catalog3; refresh_serving:1/2/3 queued,0releases. Computation unavailable_aggregate_scope, thiếu preference_order tại biên giữ insufficient_input; chưa evaluator/admission guarantee. Không sửa T07. Đề xuất T09 releasepilot là task tiếp theo, chưa chạy builder hoặc đánh refresh succeeded.
