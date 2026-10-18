@@ -3,6 +3,7 @@
 from collections.abc import Mapping
 from decimal import Decimal, InvalidOperation
 from typing import Any, cast
+from uuid import UUID
 
 from sqlalchemy import Connection, Table, event, func, inspect, select
 from sqlalchemy.orm import Session, sessionmaker
@@ -33,8 +34,44 @@ def decimal_value(value: Any, places: int) -> Decimal:
     return value
 
 
+def validate_authority_scope(authority: Mapping[str, Any]) -> None:
+    """Optional reviewed bindings narrow legacy year/kind authority; never widen it."""
+    if "publication_bindings" not in authority:
+        return
+    bindings = authority["publication_bindings"]
+    keys = {"admission_year", "method_code", "offering_code", "campus_code", "snapshot_ids"}
+    if not isinstance(bindings, list) or not bindings:
+        raise ValueError("Nonempty publication bindings required")
+    for b in bindings:
+        if not isinstance(b, dict) or set(b) != keys:
+            raise ValueError("Unsupported publication binding fields")
+        if type(b["admission_year"]) is not int or b["admission_year"] not in authority.get(
+            "years", []
+        ):
+            raise ValueError("Publication binding year outside authority")
+        if any(
+            not isinstance(b[k], str) or not b[k].strip()
+            for k in ["method_code", "offering_code", "campus_code"]
+        ):
+            raise ValueError("Explicit method/offering/campus binding required")
+        snapshots = b["snapshot_ids"]
+        if (
+            not isinstance(snapshots, list)
+            or not snapshots
+            or any(not isinstance(v, str) for v in snapshots)
+        ):
+            raise ValueError("Pinned snapshot bindings required")
+        for value in snapshots:
+            UUID(value)
+
+
 def validate_source(
-    connection: Connection, snapshot_id: Any, offering: Mapping[str, Any], kind: str
+    connection: Connection,
+    snapshot_id: Any,
+    offering: Mapping[str, Any],
+    kind: str,
+    *,
+    method_id: Any = None,
 ) -> None:
     snapshot = record(connection, "source_snapshots", snapshot_id)
     source = record(connection, "sources", snapshot["source_id"])
@@ -50,6 +87,20 @@ def validate_source(
         "fact_kinds", []
     ):
         raise ValueError("Source authority does not cover this year/fact kind")
+    validate_authority_scope(authority)
+    if "publication_bindings" in authority:
+        if method_id is None:
+            raise ValueError("Method required for restricted authority binding")
+        method = record(connection, "admission_methods", method_id)
+        if not any(
+            b["admission_year"] == offering["admission_year"]
+            and b["method_code"] == method["code"]
+            and b["offering_code"] == offering["offering_code"]
+            and b["campus_code"] == offering["campus_code"]
+            and str(snapshot["id"]) in b["snapshot_ids"]
+            for b in authority["publication_bindings"]
+        ):
+            raise ValueError("Source authority binding does not cover this admission/snapshot")
 
 
 def validate_admission(connection: Connection, values: Mapping[str, Any]) -> None:
@@ -118,12 +169,14 @@ def validate_rule(
                 "Rule scale/method/year mismatch; unsupported compatibility must be reviewed"
             )
     if values.get("verification_status") == "verified" or values.get("is_current"):
-        validate_source(
-            connection,
-            values["primary_snapshot_id"],
-            offering,
-            "conversion_rule" if conversion else "scoring_rule",
-        )
+        for _, method_key in pairs:
+            validate_source(
+                connection,
+                values["primary_snapshot_id"],
+                offering,
+                "conversion_rule" if conversion else "scoring_rule",
+                method_id=values[method_key],
+            )
 
 
 def validate_cutoff(connection: Connection, values: Mapping[str, Any]) -> None:
@@ -145,8 +198,20 @@ def validate_cutoff(connection: Connection, values: Mapping[str, Any]) -> None:
         raise ValueError("Score outside scale bounds")
     if values.get("verification_status") == "verified" or values.get("is_current"):
         offering = record(connection, "program_years", admission["program_year_id"])
-        validate_source(connection, values["primary_snapshot_id"], offering, "cutoff")
-        validate_source(connection, scale["primary_snapshot_id"], offering, "scoring_rule")
+        validate_source(
+            connection,
+            values["primary_snapshot_id"],
+            offering,
+            "cutoff",
+            method_id=admission["method_id"],
+        )
+        validate_source(
+            connection,
+            scale["primary_snapshot_id"],
+            offering,
+            "scoring_rule",
+            method_id=admission["method_id"],
+        )
 
 
 def validate_evidence(connection: Connection, values: Mapping[str, Any]) -> None:
@@ -164,7 +229,13 @@ def validate_evidence(connection: Connection, values: Mapping[str, Any]) -> None
             raise ValueError("Primary evidence snapshot mismatch")
         admission = record(connection, "program_admissions", cutoff["program_admission_id"])
         offering = record(connection, "program_years", admission["program_year_id"])
-        validate_source(connection, observation["snapshot_id"], offering, "cutoff")
+        validate_source(
+            connection,
+            observation["snapshot_id"],
+            offering,
+            "cutoff",
+            method_id=admission["method_id"],
+        )
     elif role == "conflicting" and same:
         raise ValueError("Matching evidence cannot be conflicting")
 

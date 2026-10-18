@@ -98,3 +98,18 @@ Publisher dùng account publisher tương ứng sau khi có quyết định hợ
 Scope aggregate chỉ dùng khi có đoạn nguồn nói rõ cùng điểm giữa các tổ hợp của cùng Offering. `source_aggregate` + evidence `combination_aggregation` giữ một fact; không dùng confirmed_none cho nguồn có nhiều tổ hợp, không suy membership từ thông báo ngưỡng chung. Aggregate vẫn chưa dùng để tính/so sánh.
 
 Nguồn bổ trợ cùng publisher/host có thể được review từ snapshot chính nó trong cùng bootstrap batch; không cần parse/normalize/resolve thêm envelopes chỉ để duyệt authority. Điều này không tự duyệt nguồn khác host hoặc quyền thương mại/tái phân phối.
+
+
+## Lô A2/B/C/D mới — chưa có approval
+
+Bản A cũ và batch18/10 trước được giữ nguyên làm lịch sử, không apply A thay A2. Xem [PTIT blocker decisions](reports/ptit-blocker-decisions.md), [WBS](progress-wbs.md), private state/publication/review-batch.md và blocker-review-20261018/decision-readiness.json. A2 dùng THPT canonical, source100 chỉ metadata scoped, authority7sources có publication_bindings; phạm vi chỉ identities/authority.
+
+Nạp dedicated credentials như ví dụ ở trên rồi chạy **plan**:
+
+```powershell
+uv run python -m services.data.publication plan --file state/publication/blocker-review-20261018/decision-a2.draft.json --output state/publication/blocker-review-20261018/decision-a2.plan-recheck.json
+```
+
+Trước apply ở lượt được duyệt: so file SHA, input/evidence checksums/locator, expected registry/alias heads và DB role. Nếu đổi nội dung phải request/version mới, giữ bản cũ, xin duyệt đúng bản mới. Không gọi apply từ prompt “tiếp tục”. B1/B2/B3/C1 là typed conditional commands với @refs, chưa plan/apply được trước A2 và từng parent head. Không dùng preview IDs để điền canonical_id. Sau bootstrap thực mới export registry/T07 namespace mới trên jobT06cũ; D recipes phải materialize ReviewCommand mới bằng IDs/binding thực và approval riêng từng cutoff. Named-notice round ở C2 là lựa chọn identity cần duyệt, không claim round1.
+
+Reviewer không kiêm publisher qua login migration. Bootstrap approval không cấp fact/rule/license approval. Source authorities ngoài bindings hoặc snapshot mới cần review phù hợp, không sửa SQL trực tiếp để vượt gate. Sau mỗi apply đã được duyệt: kiểm fields/parents/business unique keys/audit/jobs/catalog và replay cùng request; sau publication kiểm thêm revision/current/evidence/refresh. Không triển khai release builder trong lô này.

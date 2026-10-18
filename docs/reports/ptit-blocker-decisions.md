@@ -1,0 +1,103 @@
+# PTIT — gỡ blocker và lô quyết định A2/B/C/D
+
+Ngày18/10/2026, tiếp tục `codex/crawler-pilot` từ `a07370527c4634a7f4d99e0bf32e48a818fa599b`, origin đúng repository người dùng chỉ định, working tree sạch lúc bắt đầu. Không reset/merge/main/deploy. Phase1 — Data, chưa approval/publication canonical. Bảng tiến độ từng T01–T19: [progress-wbs.md](../progress-wbs.md).
+
+## Hiện trạng và approval
+
+PostgreSQL ở0003_publication(head). Baseline645observations/25jobs/11snapshots; canonical cutoffs/catalog version/releases0/0/0. Dedicated DEV reviewer/publisher tồn tại, không privileged, đọc schema/role đúng; không tạo/reset credentials. Không có AGENTS.md trong repo/cha được kiểm; đã đọc Overview/WBS Desktop, provenance/dictionary/contracts T05–T08, workflow/báo cáo/private packets và DraftA.
+
+**Không nhận approval nghiệp vụ nào.** Prompt tiếp tục, reports, can_apply hoặc technical login không là approval. DraftA cũ giữ nguyên SHA `eb2e08b6da932da939d0af9cf95f3d694a1a865588f424dc471d91176273f650`. Draft mới A2 có requestID/versions/hash mới; không dùng approval của bản khác. Không bootstrap thật, export registry preview thành approved, chạy resolver persist mới hoặc publisher thật trong đợt này.
+
+## Evidence mới, accounting và locator
+
+Tổng allocation bổ sung **17/20 requests**, còn3, không cấp thêm15 vào cap cũ. Từ baseline5 đã dùng thêm12requests:4discovery/content API ở tuyển sinh, robots404 host tài liệu+PDF200, robots200 portal chính+3API200+2HTML200. Không redirect/retry/login/portal cá nhân/CAPTCHA; không truy cập các đường tra cứu thí sinh được nêu trong thông báo. Raw200 lưu bất biến; robots404 ghi fetch nhưng không tạo blob200 giả.
+
+| Run (UUID prefix; đầy đủ trong private manifest) | Cap | Used | Lý do chuyển allocation |
+|---|---:|---:|---|
+|8693513c|1|1|Run đầu của đợt trước|
+|4adcf376|8|8|Cap19 giảm về8 đã dùng, chuyển11 chưa dùng|
+|06ce2f6f|1|1|Robots document host; chuyển10 chưa dùng|
+|ca3d7ab0|1|1|PDF gốc; chuyển9 chưa dùng|
+|dadb882d|1|1|Robots portal chính; chuyển8 chưa dùng|
+|49928398|8|5|API và hai thông báo cutoff; dừng khi đủ evidence để review|
+|Tổng|**20**|**17**|Sáu run paused; không tăng tổng cap|
+
+Old pilot6ee6fd0d… vẫn paused5/5; old preflight3e9e5362… paused1/2. Không sửa frozen profiles; có profiles mới theo host/phase. Crawler/Transport/RawStorage cũ giữ shared limiter, robots/TTL, allowlist, public-IP pinning/SSRF/TLS/size checks. Host mới có quan hệ từ nguồn đã đọc trước tải: API tuyển sinh id3432 liên kết PDF `apiquanlydaotao.ptit.edu.vn`; PDF2024p1 và cached HTML2026 liên kết portal `ptit.edu.vn`. Profiles checked trước robots, eligible sau preflight; trạng thái này không là quyền thương mại/tái phân phối hoặc fact approval.
+
+| Nội dung đã đọc | Snapshot / SHA-256 | Locator/phạm vi |
+|---|---|---|
+|[Đề án gốc2024, nội dung QĐ545](https://apiquanlydaotao.ptit.edu.vn/data/fileUpload-1712750500244-qd_545_noi_dung_de_an_ts__h_2024.pdf)|f31d55ba-cbc7-42e0-9a02-c5a7c285abc3 / `1b1e3741108ce5711bc61823200d4acaa534082a70b769894ec61d28fbb167c3`|62pages scan/0digital chars. Visual p1 institution/BVH/BVS; p7 authorized majors; p9–10 method/eligibility; p11–13 campus offerings; p16§1.6.2b same cutoff/30/tie; p19 priority; p20 institutional catalog/combinations; p21–22 planned rounds. Không OCR/không người phụ trách duyệt|
+|[Thông báo cutoff BVH2024](https://ptit.edu.vn/hoc-vien-cong-nghe-buu-chinh-vien-thong-thong-bao-diem-chuan-trung-tuyen-vao-dai-hoc-he-chinh-quy-theo-phuong-thuc-xet-tuyen-dua-vao-ket-qua-thi-tot-nghiep-thpt-nam-2024-co-so-dao-tao-phia-bac-ma-bvh/)|46446cac-45b5-4e8d-9374-b3fd83bb9b17 / `acbce18768c840d37acad823e6834df53e72437a7dfbc6f4d7d95bfebb421db3`|article/table, row ngành7340101 và7480201; TTNV header, ghi chú scale30/priority/tie, nội dung công bố kết quả19/08/2024|
+|[Thông báo cutoff BVS2024](https://ptit.edu.vn/thong-bao-diem-chuan-trung-tuyen-vao-dai-hoc-he-chinh-quy-theo-phuong-thuc-xet-tuyen-dua-vao-ket-qua-thi-tot-nghiep-thpt-nam-2024-co-so-dao-tao-phia-nam-ma-bvs/)|3e376892-6448-49f5-bb57-05badf3e86e5 / `60e6ca663bbb0e396e281eebdf4d7cdbabe311154bcec8e62d0c6b9e08a50084`|article/table row8 ngành7340101, TTNV header và cùng ghi chú|
+|API hai thông báo gốc, id28700/28701|58ffad8b-f548-4889-b224-c8eb848f894f / `a40027d784c3969d3baab0f848fee456ff087ad3540e9ba5340f64de75b89db5`|JSON pointers /0/content/rendered và /1/content/rendered; nội dung được đọc, không chỉ search snippet|
+|API liên kết đề án gốc id3432|ad16df20-bc16-48e4-96dd-80ef7e19e7b6 / `365503094048e129bf7c38400d8a1cbb40bb3d32e5b838800795cf1eff70ced3`|/3/content/rendered chứa href hai PDF host tài liệu chính thức|
+
+Các API discovery khác là evidence tìm nguồn, không là điểm chuẩn. Private journal/accounting giữ mỗi URL/status/validators/snapshot/byte size; new-evidence.json giữ CSS cụ thể từng row/đoạn và excerpt digests. PDF pages được render/đọc trực quan, không giả OCR cell bbox. Các nguồn2024/2025/2026 đã cache trước vẫn được tái sử dụng đúng năm ô, không ghi đè.
+
+## Đối chiếu blocker thực
+
+| Hồ sơ THPT2024 | Dữ kiện nguồn đã đối chiếu | TTNV: literal / comparator / applicability |
+|---|---|---|
+|QTKD7340101/BVH|25.17; table gốc row13; historical PDF2025p10/30|TTNV<=13 / lte13 / chỉ khi bằng cutoff|
+|QTKD7340101/BVS|18.40=Decimal18.4; table gốc row8; PDF2025p13/30|TTNV<=3 / lte3 / chỉ khi bằng cutoff|
+|CNTT7480201/BVH|26.40=Decimal26.4; table gốc row4; PDF2025p11/30|TTNV<=5 / lte5 / chỉ khi bằng cutoff|
+
+Header nguồn mở rộng TTNV thành **Thứ tự nguyện vọng**, nêu áp dụng khi điểm xét tuyển bằng mức điểm trúng tuyển; footnote nối quy định xử lý bằng điểm ở cuối danh sách. Không bỏ điều kiện, không dùng TTNV như gate cho mọi mức điểm. Truth tables private cho mỗi hồ sơ: dưới cutoff/rank trong hoặc ngoài biên đều vẫn dưới cutoff; bằng cutoff/rank≤N thỏa tie boundary, rank>N không thỏa; trên cutoff thì TTNV boundary không áp dụng; bằng cutoff thiếu rank là insufficient. Đây là đề xuất canonical predicate cho review, không chạy T12 hoặc khẳng định trúng tuyển/eligibility hoàn chỉnh.
+
+**Program/Offering:** PDFp7 là danh mục ngành được phép đào tạo toàn Học viện, p20 có một hàng QTKD7340101 chung; p11–13 phân bổ theo BVH/BVS. Phương ánB đề xuất một Program dài hạn QTKD ở mức ngành/chương trình chính quy của cùng PTIT, hai Offering campus khác nhau; CNTT chuẩn có Program riêng và Offering BVH. Đây là quyết định mô hình có căn cứ, **không** khẳng định curriculum/tuition/delivery tại hai cơ sở giống nhau, không merge canonical rows đang tồn tại (hiện0). BVS proposal cũ vẫn pending; Offering được reparent bằng registry version mới nếu B được duyệt. MajorNULL; track/language unknown/UNSPECIFIED đúng biểu diễn schema, không suy MAIN/GENERAL/Chính quy từ thiếu dữ liệu. Chính quy đã có evidence. Quan hệ/aliases liên năm sau không auto kế thừa từ quyết định2024.
+
+**Scale:** thông báo gốc và PDFp16 nêu thang30; cutoff gồm ưu tiên khu vực/đối tượng nếu có. Max30 không suy từ25.17/26.4. Đề xuất min0 dựa miền ba môn[0,10] của đặc tả§5.4 và nguyên tắc tổng3môn, tương thích DDL§4 min_score≥0/default0: tổng không âm, domain declared[0,30]. Đây là **suy luận miền kỹ thuật được trình duyệt**, không trích nguyên văn nguồn hoặc tuyên bố người có0điểm đủ điều kiện. Threshold18/22 không là scale min. Việc ghi nhận scale/basis không approve công thức/rounding/priority DSL; khả năng tính/so sánh vẫn unavailable.
+
+**Combinations:** PDFp11–13 và p20 xác nhận QTKD A00/A01/D01, CNTT chuẩn A00/A01; p16 cùng điểm trong một ngành. Giữ một source_aggregate fact, không nhân3hoặc2facts. Membership đã có evidence mới, nhưng aggregate chưa có evaluation plan/scoring rule nên computation unavailable_aggregate_scope.
+
+**Population:** PDFp9§1.2a vàp10§1.2c, nối A của thông báo THPT2024, hỗ trợ mapping người dự tuyển chính quy bằng kết quả THPT2024, đáp ứng đối tượng/hồ sơ và môn tổ hợp. Đề xuất canonical key riêng PTIT_THPT2024_REGULAR_VALID_APPLICANTS, không DEFAULT GENERAL; các điều kiện khác/confirmation không bị bỏ. Phạm vi B của thông báo nói tất cả phương thức không được dùng để mở rộng bảng cutoff A sang Tài năng/Kết hợp.
+
+**Round:** đề án có planned đợt1 và bổ sung, nhưng hai thông báo gốc không gọi rõ ordinal. Không lấy round1 từ thông báo ngưỡng, lịch dự kiến hoặc suy từ không tìm thấy bổ sung. C2 đưa lựa chọn có nghĩa nguồn: round key theo chính thông báo kết quả `PTIT_THPT_2024_NOTICE_28701`/`…28700`, định nghĩa nhóm xét tuyển THPT2024 của cơ sở được thông báo19/08/2024, ordinal vẫn unknown. Đây là **đề xuất quy tắc identity cần người phụ trách duyệt**, chưa là khẳng định nguồn ghi “đợt1”; nếu nghiệp vụ yêu cầu ordinal1, còn cần văn bản nối rõ ordinal. Không dùng sentinel unknown để pass. Không tạo ReviewCommand publish chắc chắn vướng field/parents, không xem C2 đã approved.
+
+Ngày WordPress00:00 không được biến thành thời điểm công bố có timezone; giữ publication_date metadata/date-only, source_published_at vẫn unknown nếu chưa đủ giờ. Không nhập ngày ký2025 hoặc năm trang2026 vào fact2024.
+
+## Rà soát A và giới hạn được thực thi
+
+DraftA cũ dùng PTIT_THPT_2024_100 dễ tạo method trùng ngữ nghĩa/mất filterTHPT, và authority chỉ year/factkind. A2 thay bằng canonical `admission_methods.code=THPT`; mã nguồn100 giữ trong `ptit:admission-method-code`, hiệu lực2024 và university binding, không thành method row khác. PTIT vẫn là khóa University nội bộ, BVH/BVS là mã nguồn/campus cùng một trường. Registry method global code và metadata nguồn phân biệt; name-only T07 vẫn có thể cần review dù đã có canonical method, không nới auto-link.
+
+Mỗi source của A2 có `publication_bindings`: year2024, method_codeTHPT, đúng offering_code/campus trong ba hồ sơ và snapshot IDs của chính source. Publication/Core cutoff/evidence/rule validators đều kiểm context này; conversion kiểm cả hai methods. Snapshot mới hoặc Talent/Kết hợp/mã-campus khác không tự nằm trong quyền. Broad legacy sources có thể không có bindings để giữ contract cũ; **A2 không dùng đường legacy**. Không tuyên bố mọi source trong hệ thống đều đã chuyển sang policy này.
+
+Nguồn khác host cần own snapshot và typed source_relationship gồm cached parent snapshot+locator+exact target_host trong evidence được duyệt. Parent phải official type, cùng publisher/domain với packet host và final_url đúng host. Code kiểm provenance/binding này; **ý nghĩa hyperlink và authority vẫn là trách nhiệm review nội dung**, không tự chứng minh từ tên domain hoặc reason. Hai portal/PDF host của A2 đã được đọc nội dung và đối chiếu quan hệ thật trước trình duyệt. Source authority không là fact approval, license thương mại hoặc quyền tái phân phối.
+
+Sửa lỗi phân loại evidence: score/publication/correction chỉ nhận cutoff authority; scale/basis/aggregation nhận cutoff hoặc scoring_rule; fields metadata còn lại nhận cutoff hoặc catalog theo field. Tài liệu chỉ có scoring_rule không được duyệt score. Approval environment digest đóng băng **mọi** supporting source authority, được kiểm lại lúc publication. Source/cutoff serving guards/audit/version/idempotency giữ nguyên; không migrations, schema tables hoặc dependency mới. Implementation namespace publication/1.2.0, outputs lịch sử không sửa; policy mới có thể đòi re-review decision cũ, không silently grandfather quyền rộng.
+
+## Lô quyết định và dependencies
+
+Files đều private dưới state/publication/blocker-review-20261018; không source outputs/decisions/secrets trong Git.
+
+| Quyết định | Preview và phạm vi DB nếu sau này được duyệt | Điều kiện trước apply / sau apply |
+|---|---|---|
+|A2, decision-a2.draft.json|Actual CLI plan read-only can_applytrue/13ops. 1University,1THPT method,1yearpartial,3aliases;7source updates;2registry/review jobs,14audit.0Program/Offering/scale/scope/cutoff/catalog delta|Người dùng duyệt đúng SHA/file; revalidate input/versions/raw/evidence/role. Dedicated reviewer apply; kiểm counts/fields/audit; cùng request replay không thêm rows|
+|B1→B2→B3, typed conditional JSON|2Program,3Offering tổng; B2 dùng @Program thật củaB1, không link UUID dự kiến. Mỗi bootstrap tạo2jobs, audits theoops+review;0cutoff/version|A2 phải thực apply. Expected heads nối tuyến tính. Có schema/columns/evidence/unique-context kiểm độc lập; chưa executable/read-only plan head hiện tại còn thiếu parents. Sau apply kiểm đúng university/campus/track/language và registry|
+|C1, typed conditional JSON|1scale THPT2024 min0/max30, basis_description có nhãn derivation;0scoring rule/0fact|A2/B heads thật và riêng approval domain; kiểm bounds/method/year/source/audit. Không bootstrap superuser|
+|C2, scope-decisions.json|Predicate TTNV, source aggregate/population và round identity proposal để người duyệt quyết định; không có scope bootstrap độc lập trong CLI hiện có|Không thêm framework/bảng. Scope thực được tạo nguyên tử cùng D khi binding/IDs/approval hợp lệ. Round named-notice còn là lựa chọn phải duyệt|
+|D1/D2/D3, recipes|Mỗi hồ sơ nếu sau này valid:1scope,1current revision1,1primary cutoff_evidence, catalog+1 và queued refresh. Field-level supporting refs giữ trong review decision, **không** giả9cutoff_evidence từ3sources|Chưa là ReviewCommand publish hợp lệ: IDs/registry/T07 outputs mới chưa tồn tại. Materialize từ IDs thật sau A/B/C, export registry và T07 namespace mới, rồi review từngD riêng, publisher apply/replay|
+
+Mọi draft giữ upstream binding/row digests/evidence refs/expected versions/request reason và dependencies. Preview registry chứa planned IDs/metadata mô phỏng không được dùng như canonical input. Không dùng raw-only/old resolver output làm input vòng lặp. Không sửa normalizer/resolver logic để ép khớp hoặc giải phóng T06 blocked issues.
+
+## Dữ liệu, checks và giới hạn nghiệm thu
+
+Sau fetch:645observations,35jobs,23sources,22snapshots,23fetches. So với baseline đợt này: +10raw-fetch jobs, +12sources/+12fetches, +11snapshots (robots404khôngblob), +4runs. Hai host-state rows mới; host-state cũ thay coordination. Run4adcf376 cũ đổi cap/used/stop_reason đúng accounting; old pilot/preflight nguyên trạng. Old25jobs/645observations/11snapshots/sources cùng PK/hash không sửa. Ba packet bindings kiểm lại được; DraftA cũ đúng SHA.22raws đều khớp hash/kích thước. Canonical entities/scales/scopes/cutoffs/revisions/evidence/audit/releases vẫn0; catalog_version0. Không có approvals nhận/apply mới.
+
+Baseline `uv run pytest -q`:512passed181.01s. Regressions ban đầu5failed/3passed cho scope/related host; basis test sau sửa import fixture1failed/1passed chứng minh quyền basis khác score. Review phát hiện conversion target và unofficial relationship parent: hai regression fail trước sửa, đã sửa kiểm cảpair và official parent/finalhost. Full run trung gian521passed/1failed do test inventory đếm profile version như trường; sửa sang unique university_key, vẫn validate mọi profile. Test canonical method ban đầu kỳ vọng name-only auto-link đã sai policyT07; sửa kỳ vọng giữ canonical candidate/review, không đổi resolver để pass.
+
+Code reviewer agent đã đọc diff/callers, kiểm lại hai findings được xử lý; không findings mới trong phạm vi, không chạy tests/raw/credentials/network hoặc duyệt nghiệp vụ. Các checks cuối và exact-SHA CI được ghi bổ sung trong bàn giao sau khi chạy; không suy từ local hoặc số tests. Health/live vàready HTTP200, PostgreSQL0003head. Dedicated roles được kết nối read-only kiểm capability/flags/noDELETE, credentials/.env không sửa.
+
+Mốc tiếp theo là approval đúng A2, rồi các quyết định phụ thuộc; không áp dụng chỉ vì prompt tiếp tục. Khi có lô canonical nhỏ verified/current/published và replay/audit/catalog/outbox được kiểm chứng mới chuyển triển khai T09 releasepilot có manifest/coverage/checksum/count SQL=export; T10 bắt đầu trên release ổn định song song mở rộng. Chưa nghiệm thu20.000, toànT08/T09 hoặc Phase1. Không triển khai T09/T10/T12 trong đợt này.
+
+
+### Kết quả kiểm chứng cuối trước commit
+
+- `uv run pytest -q`: **525passed190.68s**, không Internet, DBtest riêng. Baseline512passed; checks mới xuất phát từ authority defects, canonicalTHPT và review findings, không dùng số tests như tiến độ.
+- `uv run ruff check .`, `uv run ruff format --check .`: pass (126files); `uv run mypy`: pass55sourcefiles; `uv lock --check`:87packages/unchanged.
+- `uv run alembic current`:0003_publication(head); `uv run alembic check`:no new upgrade operations. Không chạy migration mới hoặc sửa0001/0002/0003.
+- A2 actual dedicated-reviewer CLI plan:preview_only/can_applytrue,13ops. B/C conditional schema/required columns/source snapshots kiểm độc lập; chưa executable do missing real parents/heads, không giả apply/replay trên pilot.
+- Raw22blobs/hash/size, baT07packet digests, originalDraftA hash và old application rows đều kiểm lại; exceptions operational crawl_runs/host coordination được thống kê ở trên. Live/ready200, roles đọc-only đúng/noDELETE.
+- Bốn SourceProfiles mới qua schema; kiểm kê distinct university_key thay vì cộng mỗi profile version như trường mới. `git diff --check` pass; staged secret/path audit và exact-SHA CI được kiểm ở bước Git, kết quả cụ thể trong bàn giao.
+
+A2 review file SHA-256: `b032e83495c619177c3aa22442f79fefc2c0405f0d4000ba70db6bbad41863fd`. Scope/operations described above; approval applies only to this exact version.

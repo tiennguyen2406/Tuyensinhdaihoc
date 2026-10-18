@@ -669,3 +669,74 @@ def test_aggregate_combination_requires_separate_aggregation_evidence(prepared):
         with pytest.raises(ValueError):
             publish(c, cmd)
         assert c.scalar(sa.text("SELECT count(*) FROM cutoff_scores")) == 0
+
+
+@pytest.mark.parametrize("field", ["basis", "score"])
+def test_supporting_basis_authority_does_not_approve_cutoff_scores(prepared, field):
+    from uuid import uuid4
+
+    from services.api.db.models import source_snapshots, sources
+    from services.data.publication.contract import BootstrapOperation, ReviewCommand
+    from services.data.publication.packets import binding_for
+    from services.data.publication.review import ReviewService
+    from services.data.resolution.registry import EntityRegistry
+    from tests.publication.helpers import resolve_again
+
+    admin, e, packet, boot = prepared
+    sid, snap = uuid4(), uuid4()
+    with admin.begin() as c:
+        c.execute(
+            sources.insert().values(
+                id=sid,
+                canonical_url="https://example.invalid/basis",
+                domain="example.invalid",
+                publisher="TEST ONLY",
+                source_type="university",
+            )
+        )
+        c.execute(
+            source_snapshots.insert().values(
+                id=snap,
+                source_id=sid,
+                raw_hash="d" * 64,
+                raw_uri="fixture://TEST-ONLY",
+                final_url="https://example.invalid/basis",
+                media_type="text/html",
+                byte_size=0,
+            )
+        )
+    with e.begin() as c:
+        cmd = ReviewCommand(
+            request_id=uuid4(),
+            action="bootstrap",
+            binding=binding_for(packet),
+            expected_registry_version=packet["registry_version"],
+            expected_alias_version=packet["alias_version"],
+            reason="TEST ONLY explicit basis authority, never score authority",
+            new_registry_version="test/basis/" + uuid4().hex,
+            new_alias_version=packet["alias_version"],
+            operations=[
+                BootstrapOperation(
+                    key="test:basis-source",
+                    kind="source",
+                    mode="link",
+                    canonical_id=sid,
+                    values={
+                        "university_id": boot["ids"]["test:university"],
+                        "authority_scope": {"years": [2024], "fact_kinds": ["scoring_rule"]},
+                    },
+                    evidence=["snapshot:" + str(snap) + "#html:main"],
+                )
+            ],
+        )
+        result = ReviewService(c).apply(cmd)
+        packet = resolve_again(c, packet, EntityRegistry.model_validate(result["registry"]))
+        fact = fact_command(packet, boot["ids"])
+        evidence = dict(fact.fact.evidence)
+        evidence[field] = [*evidence[field], "snapshot:" + str(snap) + "#html:main"]
+        fact = fact.model_copy(update={"fact": fact.fact.model_copy(update={"evidence": evidence})})
+        if field == "basis":
+            assert publish(c, fact).status == "published"
+        else:
+            with pytest.raises(ValueError):
+                publish(c, fact)

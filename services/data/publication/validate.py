@@ -37,6 +37,16 @@ def environment_digest(c: Connection, cmd: ReviewCommand, packet: dict[str, Any]
     rows.append(record(c, "sources", snap["source_id"]))
     if f.scoring_rule_id:
         rows.append(record(c, "scoring_rules", f.scoring_rule_id))
+    # Freeze every supporting evidence authority, not just primary/basis authority.
+    for source_id in sorted(
+        {
+            record(c, "source_snapshots", UUID(ref[9:].split("#", 1)[0]))["source_id"]
+            for refs in f.evidence.values()
+            for ref in refs
+        },
+        key=str,
+    ):
+        rows.append(record(c, "sources", source_id))
     return digest(rows)
 
 
@@ -213,16 +223,33 @@ def build_draft(
     if not approved:
         raise ValueError("Verified scale/basis review required")
     source_ids = {UUID(packet["source_id"])}
-    for evidence in [v for k in required for v in f.evidence[k]]:
-        if not evidence.startswith("snapshot:") or "#" not in evidence:
-            raise ValueError("Snapshot/locator evidence required")
-        sid, locator = evidence[9:].split("#", 1)
-        if not locator.strip():
-            raise ValueError("Evidence locator required")
-        validate_source(c, UUID(sid), offering, "cutoff")
-        source_ids.add(record(c, "source_snapshots", UUID(sid))["source_id"])
-    validate_source(c, UUID(packet["snapshot_id"]), offering, "cutoff")
-    validate_source(c, scale["primary_snapshot_id"], offering, "scoring_rule")
+    for field in sorted(required):
+        for evidence in f.evidence[field]:
+            if not evidence.startswith("snapshot:") or "#" not in evidence:
+                raise ValueError("Snapshot/locator evidence required")
+            sid, locator = evidence[9:].split("#", 1)
+            if not locator.strip():
+                raise ValueError("Evidence locator required")
+            snapshot = record(c, "source_snapshots", UUID(sid))
+            source = record(c, "sources", snapshot["source_id"])
+            permitted = (
+                ["cutoff"]
+                if field in {"score", "publication", "correction"}
+                else ["cutoff", "scoring_rule"]
+                if field in {"scale", "basis", "combination_aggregation"}
+                else ["cutoff", "catalog"]
+            )
+            evidence_kind = next(
+                (k for k in permitted if k in source["authority_scope"].get("fact_kinds", [])), None
+            )
+            if evidence_kind is None:
+                raise ValueError("Source authority does not cover this evidence field")
+            validate_source(c, UUID(sid), offering, evidence_kind, method_id=f.method_id)
+            source_ids.add(snapshot["source_id"])
+    validate_source(c, UUID(packet["snapshot_id"]), offering, "cutoff", method_id=f.method_id)
+    validate_source(
+        c, scale["primary_snapshot_id"], offering, "scoring_rule", method_id=f.method_id
+    )
     source_ids.add(record(c, "source_snapshots", scale["primary_snapshot_id"])["source_id"])
     for source_id in source_ids:
         active_source_review(c, source_id)

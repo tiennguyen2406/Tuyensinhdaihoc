@@ -1,6 +1,6 @@
 # T08 — hợp đồng review và publication pilot
 
-Phạm vi `publication/1.1.0`: review local có xác thực PostgreSQL, bootstrap registry bất biến và publisher **cutoff** có giao dịch. Tái sử dụng 34 bảng hiện có; không dựng publisher học phí/học bổng, Score Engine, release builder hoặc API mutation. Đọc cùng contracts T05–T07; entity resolved không thay thế fact verified.
+Phạm vi `publication/1.2.0`: review local có xác thực PostgreSQL, bootstrap registry bất biến và publisher **cutoff** có giao dịch. Tái sử dụng 34 bảng hiện có; không dựng publisher học phí/học bổng, Score Engine, release builder hoặc API mutation. Đọc cùng contracts T05–T07; entity resolved không thay thế fact verified.
 
 ## Gates theo loại fact
 
@@ -45,7 +45,7 @@ Không HTTP/OCR trong transaction. Shared registry advisory lock ngăn bootstrap
 4. Correction khác score cần supersedes_cutoff_id, expected revision và correction evidence: retire old, insert revision kế tiếp trong cùng scope. Nguồn công bố cũ đến muộn không rollback current.
 5. Official conflict chưa rõ hiệu lực: giữ giá trị current, đánh disputed, ghi quality issue/evidence; không lấy trung bình hoặc chọn theo crawl time. Press thiếu authority bị từ chối trước publication.
 6. Thay basis/scale: yêu cầu replaces_scope_id và basis version mới, retire current/withdraw scope cũ rồi tạo current trong scope mới. Lịch sử giữ nguyên; không UPDATE liên kết scale/rule tại chỗ.
-7. Evidence envelope mới có namespace `validated/1;publication/1.1.0`, liên kết raw/decision; không sửa raw/T05/T06/T07.
+7. Evidence envelope mới có namespace `validated/1;publication/1.2.0`, liên kết raw/decision; không sửa raw/T05/T06/T07.
 8. Fact/evidence/audit/publication_request, catalog increment và queued `refresh_serving:<version>` cùng transaction. Rollback/crash không để fact thiếu refresh. Refresh pending chưa là release T09.
 
 Serving thay đổi khi thêm fact, correction, conflict/dispute, evidence công khai mới hoặc alias của trường đã có current cutoff; tăng dataset_version một lần và enqueue refresh. Bootstrap nội bộ/approval chưa publication/alias của trường chưa serving/replay no-op không tăng version. Request ID retry idempotent; cùng ID khác nội dung bị từ chối. Conflict governance nhiều quyết định độc lập không thay thế workflow giải quyết/withdrawal đầy đủ.
@@ -65,3 +65,12 @@ Revocation là quyết định append-only. Approval đã áp dụng publication
 Bootstrap authority có thể link source của packet hoặc source bổ trợ có **snapshot của chính source đó**, cùng publisher/domain và official source_type. Đây là quyết định do reviewer có quyền thực hiện, có audit và scope năm/fact_kind cụ thể; không tự verified vì tải thành công. Cross-host support vẫn cần workflow quan hệ nguồn riêng, chưa tự chấp nhận. Căn cứ: Pub/EduRadar yêu cầu nhiều evidence cho một fact, không yêu cầu mọi tài liệu basis phải tạo T07 candidate trước.
 
 Các guards, expected versions/digests và append-only history không bị bỏ qua. Thay đổi implementation dùng publication/1.1.0; manifests/outputs cũ không được viết lại. Chi tiết dữ liệu thật và các gate còn chặn ở reports/publication-evidence-review.md.
+
+
+## A2 — authority giới hạn theo dữ liệu (publication/1.2.0)
+
+`authority_scope.publication_bindings` là danh sách explicit year/method_code/offering_code/campus_code/snapshot_ids. Khi có, mọi validate_source yêu cầu method và đúng context/snapshot; bootstrap kiểm schema và own-snapshot. Legacy authority không có field này giữ contract cũ; A2 có bindings trên cả7sources. Quyền year/factkind vẫn phải pass, bindings chỉ thu hẹp. Scoring/conversion rule kiểm mọi method trong pair, không chỉ source method.
+
+Supporting source khác host phải có `registry_fields.source_relationship={snapshot_id,locator,target_host}` và ref tương ứng trong op.evidence: parent cached phải official/cùng publisher/domain/finalhost như packet host; own supporting snapshot vẫn bắt buộc. Semantic relationship/authority được người phụ trách review, code không coi locator đơn thuần là chứng minh nội dung. Những lời reason không thay bindings/grants.
+
+Field authority: score/publication/correction cầncutoff; scale/basis/combination_aggregation nhậncutoff hoặcscoring_rule; metadata fields khác nhậncutoff hoặccatalog. Source active review vẫn bắt buộc. Approval environment hash thêm tất cả supporting evidence source rows; authority đổi thì re-review, không silent widen. Không approve scoring DSL qua scale/basis evidence. Xem reports/ptit-blocker-decisions.md về A2/B/C/D, THPT canonical code và named-notice round proposal chưa được duyệt.

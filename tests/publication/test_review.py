@@ -290,3 +290,151 @@ def test_supporting_source_authority_does_not_accept_unrelated_evidence(
             == "unverified"
         )
         assert c.scalar(sa.text("SELECT count(*) FROM audit_events")) == 0
+
+
+@pytest.mark.parametrize("relation", ["valid", "wrong_host", "wrong_parent", "unofficial_parent"])
+def test_cross_host_source_requires_explicit_reviewed_relationship(
+    publication_database, publication_logins, relation
+):
+    from services.api.db.models import source_snapshots, sources
+    from services.data.publication.contract import BootstrapOperation
+    from services.data.publication.review import ReviewService
+    from tests.publication.helpers import bootstrap_command, input_packet
+
+    with publication_database.begin() as c:
+        packet = input_packet(c)
+        sid, snap = uuid4(), uuid4()
+        c.execute(
+            sources.insert().values(
+                id=sid,
+                canonical_url="https://documents.example.invalid/2024.pdf",
+                domain="documents.example.invalid",
+                publisher="TEST ONLY",
+                source_type="admission_office",
+            )
+        )
+        c.execute(
+            source_snapshots.insert().values(
+                id=snap,
+                source_id=sid,
+                raw_hash="c" * 64,
+                raw_uri="fixture://TEST-ONLY",
+                final_url="https://documents.example.invalid/2024.pdf",
+                media_type="application/pdf",
+                byte_size=0,
+            )
+        )
+    with publication_logins["reviewer"].begin() as c:
+        cmd = bootstrap_command(c, packet)
+        parent = str(snap) if relation == "wrong_parent" else packet["snapshot_id"]
+        if relation == "unofficial_parent":
+            with publication_database.begin() as admin:
+                parent_source, parent_snapshot = uuid4(), uuid4()
+                admin.execute(
+                    sources.insert().values(
+                        id=parent_source,
+                        canonical_url="https://example.invalid/press",
+                        domain="example.invalid",
+                        publisher="TEST ONLY",
+                        source_type="press",
+                    )
+                )
+                admin.execute(
+                    source_snapshots.insert().values(
+                        id=parent_snapshot,
+                        source_id=parent_source,
+                        raw_hash="e" * 64,
+                        raw_uri="fixture://TEST-ONLY",
+                        final_url="https://example.invalid/press",
+                        media_type="text/html",
+                        byte_size=0,
+                    )
+                )
+            parent = str(parent_snapshot)
+        loc = "html:a.official-document-link"
+        op = BootstrapOperation(
+            key="test:related-source",
+            kind="source",
+            mode="link",
+            canonical_id=sid,
+            values={
+                "university_id": "@test:university",
+                "authority_scope": {"years": [2024], "fact_kinds": ["scoring_rule"]},
+            },
+            registry_fields={
+                "source_relationship": {
+                    "snapshot_id": parent,
+                    "locator": loc,
+                    "target_host": "wrong.invalid"
+                    if relation == "wrong_host"
+                    else "documents.example.invalid",
+                }
+            },
+            evidence=["snapshot:" + str(snap) + "#pdf:p1", "snapshot:" + parent + "#" + loc],
+        )
+        cmd = cmd.model_copy(update={"operations": [*cmd.operations, op]})
+        if relation == "valid":
+            assert ReviewService(c).plan(cmd)["can_apply"]
+            ReviewService(c).apply(cmd)
+            assert (
+                c.scalar(sa.select(sources.c.verification_status).where(sources.c.id == sid))
+                == "verified"
+            )
+        else:
+            with pytest.raises(ValueError):
+                ReviewService(c).apply(cmd)
+            assert c.scalar(sa.text("SELECT count(*) FROM audit_events")) == 0
+
+
+def test_canonical_thpt_code_keeps_scoped_source_100_metadata(
+    publication_database, publication_logins
+):
+    from services.api.db.models import admission_methods
+    from services.data.publication.review import ReviewService
+    from services.data.resolution.registry import EntityRegistry
+    from tests.publication.helpers import bootstrap_command, input_packet, resolve_again
+
+    with publication_database.begin() as c:
+        packet = input_packet(c)
+    with publication_logins["reviewer"].begin() as c:
+        cmd = bootstrap_command(c, packet)
+        updated = []
+        for op in cmd.operations:
+            if op.kind == "method":
+                op = op.model_copy(
+                    update={
+                        "values": op.values | {"code": "THPT"},
+                        "registry_fields": {
+                            "codes": [
+                                {
+                                    "system": "admission_methods.code",
+                                    "value": "THPT",
+                                    "evidence": op.evidence,
+                                },
+                                {
+                                    "system": "official:method-code",
+                                    "value": "100",
+                                    "from_year": 2024,
+                                    "to_year": 2024,
+                                    "attributes": {"university_key": "test:university"},
+                                    "evidence": op.evidence,
+                                },
+                            ]
+                        },
+                    }
+                )
+            updated.append(op)
+        result = ReviewService(c).apply(cmd.model_copy(update={"operations": updated}))
+        registry = EntityRegistry.model_validate(result["registry"])
+        method = registry.entry("test:method")
+        assert method.canonical_id == c.scalar(
+            sa.select(admission_methods.c.id).where(admission_methods.c.code == "THPT")
+        )
+        assert c.scalar(sa.select(sa.func.count()).select_from(admission_methods)) == 1
+        source_code = next(x for x in method.codes if x.system == "official:method-code")
+        assert source_code.value == "100" and source_code.from_year == source_code.to_year == 2024
+        new_packet = resolve_again(c, packet, registry)
+        # Name-only matching remains a suggestion under the conservative T07 policy.
+        match = new_packet["resolution"]["entities"]["method"]
+        assert any(o["canonical_id"] == str(method.canonical_id) for o in match["options"])
+        assert match["status"] == "unresolved"

@@ -10,7 +10,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-VERSION = "publication/1.1.0"
+VERSION = "publication/1.2.0"
 
 
 def canonical_decimal(value: Decimal) -> str:
@@ -68,6 +68,12 @@ class Binding(Frozen):
     resolution_id: UUID
     candidate_key: str
     packet_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class SourceRelationship(Frozen):
+    snapshot_id: UUID
+    locator: str = Field(min_length=1)
+    target_host: str = Field(min_length=1)
 
 
 class BootstrapOperation(Frozen):

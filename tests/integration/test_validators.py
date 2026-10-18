@@ -230,3 +230,98 @@ def test_cutoff_payload_requires_schema_version(db):
     f = make_scope(db)
     with pytest.raises(ValueError, match="schema_version"):
         validate_cutoff(db, f["cutoff_values"] | {"fact_payload": {"score": "24.12345"}})
+
+
+@pytest.mark.parametrize("mismatch", [None, "method", "offering", "campus", "snapshot"])
+def test_source_publication_bindings_enforce_actual_admission_context(db, mismatch):
+    from services.api.db.validators import record, validate_cutoff
+
+    f = make_scope(db)
+    offering = record(db, "program_years", f["scope_values"]["program_year_id"])
+    method = record(db, "admission_methods", f["scope_values"]["method_id"])
+    binding = dict(
+        admission_year=offering["admission_year"],
+        method_code=method["code"],
+        offering_code=offering["offering_code"],
+        campus_code=offering["campus_code"],
+        snapshot_ids=[str(f["snapshot"])],
+    )
+    if mismatch:
+        key = {"method": "method_code", "offering": "offering_code", "campus": "campus_code"}.get(
+            mismatch
+        )
+        if key:
+            binding[key] = "OUTSIDE-APPROVED-SCOPE"
+        else:
+            binding["snapshot_ids"] = [str(uuid4())]
+    source = record(db, "sources", f["source"])
+    db.execute(
+        metadata.tables["sources"]
+        .update()
+        .where(metadata.tables["sources"].c.id == f["source"])
+        .values(authority_scope=source["authority_scope"] | {"publication_bindings": [binding]})
+    )
+    if mismatch:
+        with pytest.raises(ValueError, match="binding"):
+            validate_cutoff(db, f["cutoff_values"])
+    else:
+        validate_cutoff(db, f["cutoff_values"])
+
+
+def test_conversion_requires_restricted_authority_for_both_methods(db):
+    from services.api.db.validators import record, validate_rule
+
+    f = make_scope(db)
+    target_method = f["add"](
+        "admission_methods", code="TEST-TARGET", name="TEST ONLY", input_kind="exam_total"
+    )
+    target_scale = f["add"](
+        "score_scales",
+        method_id=target_method,
+        admission_year=2026,
+        code="TEST-TARGET",
+        exam_version="TEST ONLY",
+        min_score=Decimal("0"),
+        max_score=Decimal("100"),
+        basis_description="TEST ONLY",
+        primary_snapshot_id=f["snapshot"],
+    )
+    offering = record(db, "program_years", f["offering"])
+    method = record(db, "admission_methods", f["method"])
+    binding = {
+        "admission_year": 2026,
+        "method_code": method["code"],
+        "offering_code": offering["offering_code"],
+        "campus_code": offering["campus_code"],
+        "snapshot_ids": [str(f["snapshot"])],
+    }
+    authority = {
+        "years": [2026],
+        "fact_kinds": ["conversion_rule"],
+        "publication_bindings": [binding],
+    }
+    db.execute(
+        metadata.tables["sources"]
+        .update()
+        .where(metadata.tables["sources"].c.id == f["source"])
+        .values(authority_scope=authority)
+    )
+    values = {
+        "program_year_id": f["offering"],
+        "from_method_id": f["method"],
+        "from_scale_id": f["scale"],
+        "to_method_id": target_method,
+        "to_scale_id": target_scale,
+        "verification_status": "verified",
+        "primary_snapshot_id": f["snapshot"],
+    }
+    with pytest.raises(ValueError, match="binding"):
+        validate_rule(db, values, conversion=True)
+    authority["publication_bindings"].append(binding | {"method_code": "TEST-TARGET"})
+    db.execute(
+        metadata.tables["sources"]
+        .update()
+        .where(metadata.tables["sources"].c.id == f["source"])
+        .values(authority_scope=authority)
+    )
+    validate_rule(db, values, conversion=True)

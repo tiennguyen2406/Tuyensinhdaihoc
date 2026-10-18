@@ -3,14 +3,20 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Any
+from urllib.parse import urlsplit
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 import sqlalchemy as sa
 from sqlalchemy.engine import Connection
 
 from services.api.db.models import audit_events, metadata
-from services.api.db.validators import decimal_value, record
-from services.data.publication.contract import ReviewCommand, json_value
+from services.api.db.validators import (
+    OFFICIAL_TYPES,
+    decimal_value,
+    record,
+    validate_authority_scope,
+)
+from services.data.publication.contract import ReviewCommand, SourceRelationship, json_value
 from services.data.resolution.registry import EntityRegistry
 from services.data.resolution.store import validate_targets
 
@@ -127,17 +133,42 @@ def operations(
             if op.canonical_id != UUID(packet["source_id"]):
                 supporting = record(c, "sources", op.canonical_id)
                 primary = record(c, "sources", UUID(packet["source_id"]))
-                if (
-                    supporting["domain"] != primary["domain"]
-                    or supporting["publisher"] != primary["publisher"]
-                    or supporting["source_type"]
-                    not in {"university", "admission_office", "official_portal", "exam_organizer"}
-                ):
+                if supporting["publisher"] != primary["publisher"] or supporting[
+                    "source_type"
+                ] not in {"university", "admission_office", "official_portal", "exam_organizer"}:
                     raise ValueError(
-                        "Supporting authority requires same first-party publisher/host"
+                        "Supporting authority requires an official first-party publisher"
                     )
+
+                relation = op.registry_fields.get("source_relationship")
+                if supporting["domain"] != primary["domain"] or relation is not None:
+                    proof = SourceRelationship.model_validate(relation)
+                    parent = record(c, "source_snapshots", proof.snapshot_id)
+                    proof_ref = "snapshot:" + str(proof.snapshot_id) + "#" + proof.locator
+                    parent_source = record(c, "sources", parent["source_id"])
+                    if (
+                        parent_source["domain"] != primary["domain"]
+                        or parent_source["publisher"] != primary["publisher"]
+                        or parent_source["source_type"] not in OFFICIAL_TYPES
+                        or urlsplit(parent["final_url"]).hostname != primary["domain"]
+                        or proof.target_host != supporting["domain"]
+                        or not proof.locator.strip()
+                        or proof_ref not in op.evidence
+                    ):
+                        raise ValueError(
+                            "Source relationship must bind primary cached evidence and exact host"
+                        )
+            if set(op.registry_fields) - {"source_relationship"}:
+                raise ValueError("Unsupported source relationship fields")
             if set(values) != {"university_id", "authority_scope"}:
                 raise ValueError("Explicit source authority required")
+            validate_authority_scope(values["authority_scope"])
+            for binding in values["authority_scope"].get("publication_bindings", []):
+                if any(
+                    record(c, "source_snapshots", UUID(sid))["source_id"] != op.canonical_id
+                    for sid in binding["snapshot_ids"]
+                ):
+                    raise ValueError("Authority snapshot binding must belong to this source")
             values["verification_status"] = "verified"
         elif op.kind == "university":
             values["verification_status"] = "verified"

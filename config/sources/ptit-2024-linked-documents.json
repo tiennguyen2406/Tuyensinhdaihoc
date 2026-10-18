@@ -1,0 +1,67 @@
+{
+  "profile_id": "ptit-2024-linked-documents",
+  "university_key": "ptit",
+  "allowed_hosts": [
+    "tuyensinh.ptit.edu.vn"
+  ],
+  "allowed_document_hosts": [
+    "apiquanlydaotao.ptit.edu.vn"
+  ],
+  "seed_urls": [
+    "https://tuyensinh.ptit.edu.vn/de-an-tuyen-sinh/de-an-2024/"
+  ],
+  "years": [
+    2024
+  ],
+  "authority_scope": {
+    "years": [
+      2024
+    ],
+    "fact_kinds": [
+      "admission_information"
+    ]
+  },
+  "parser": "raw_http",
+  "parser_options": {
+    "html_content_selectors": [
+      "article.post-wrap",
+      "#main-content .ova_dir_content"
+    ],
+    "html_exclude_selectors": [
+      "nav",
+      "aside",
+      "footer",
+      "script",
+      "style",
+      ".posts-sidebar",
+      ".order_ticket"
+    ]
+  },
+  "include_path_patterns": [
+    "^/data/fileUpload-1712750(483351-qd_545_de_an_ts__h_2024|500244-qd_545_noi_dung_de_an_ts__h_2024)\\.pdf$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 1,
+  "max_discovery_urls": 20,
+  "max_query_variants_per_path": 20,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "eligible",
+  "access_basis": "Official linked institutional document host; public unauthenticated robots preflight only before document fetch; no permission beyond restricted internal evidence review.",
+  "snapshot_basis": "Restricted local evidence review only; no commercial-use or full-text redistribution grant established.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "Official first-party API snapshot ad16df20-bc16-48e4-96dd-80ef7e19e7b6 SHA365503094048e129bf7c38400d8a1cbb40bb3d32e5b838800795cf1eff70ced3: array item id3432 /content/rendered links the exact document host/path. Relationship checked; robots/access eligibility is not assumed.",
+    "Crawler robots preflight run 06ce2f6f-4637-480d-85a1-3fe29e816495; runtime UA TuyenSinhDaiHocPilot/0.1 (+https://github.com/tiennguyen2406/Tuyensinhdaihoc) obeys cached rules and validates every request again; allocation1+8+1+10=20."
+  ],
+  "observed_years": [
+    2024
+  ],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400
+}

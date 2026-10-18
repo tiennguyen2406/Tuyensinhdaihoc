@@ -183,3 +183,8 @@ GitHub Actions .github/workflows/ci.yml chạy lock sync, Ruff, mypy, Alembic up
 - docs/parser-contract.md và docs/reports/parser-pilot.md: hợp đồng T05, review tài liệu, locator, observations và giới hạn.
 
 T01 cần mở rộng review robots/quyền dùng/coverage trước ingest production. T03/T04 hiện là nền raw HTTP; các adapter và vận hành quy mô lớn cần bổ sung sau. T19 mới là CI nền, chưa có staging/production release.
+
+
+## PTIT — lô quyết định đang chờ duyệt
+
+Xem [tiến độ T01–T19](docs/progress-wbs.md) và [evidence/blocker decisions](docs/reports/ptit-blocker-decisions.md). Tổng allocation bổ sung17/20requests, các run paused, old pilot5/5giữ nguyên. A2 chuẩn bị13ops identities/canonicalTHPT/authority7sources, chưa apply; B/C phụ thuộc, D chưa có IDs/T07 binding mới. Canonical/catalog/releases vẫn0/0/0. Quy trình chạy plan bằng credentials local tại docs/review-workflow.md; không chạy apply khi chưa duyệt đúng file/hash.
