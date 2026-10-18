@@ -10,7 +10,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-VERSION = "publication/1.0.0"
+VERSION = "publication/1.1.0"
 
 
 def canonical_decimal(value: Decimal) -> str:
@@ -98,7 +98,9 @@ class CutoffSpec(Frozen):
     admission_year: int
     method_id: UUID
     combination_id: UUID | None = None
-    combination_status: Literal["specified", "confirmed_none", "unknown"] = "unknown"
+    combination_status: Literal["specified", "confirmed_none", "source_aggregate", "unknown"] = (
+        "unknown"
+    )
     round_key: str | None = None
     population_key: str | None = None
     conditions: dict[str, Any] | None = None
@@ -163,7 +165,9 @@ class ValidatedDraft(Frozen):
     fact: CutoffSpec
     snapshot_id: UUID
     primary_observation_id: UUID
-    computation_status: Literal["rule_available_not_evaluated", "unavailable_rule"]
+    computation_status: Literal[
+        "rule_available_not_evaluated", "unavailable_rule", "unavailable_aggregate_scope"
+    ]
 
 
 class PublicationResult(Frozen):

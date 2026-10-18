@@ -1,6 +1,6 @@
 # Review workflow T08 — CLI quản trị local
 
-Chưa có người phụ trách được gán quyền trên database thật. Không tạo approval hoặc credentials thay người dùng. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
+Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; chưa gán một người phụ trách nghiệp vụ hoặc tạo approval. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
 
 ## Quan sát và preview
 
@@ -17,7 +17,7 @@ Migration là lệnh operator rõ ràng, health/CLI không tự migrate. list/in
 
 Migration owner có thể chạy `uv run python -m scripts.provision_publication_roles` sau khi kiểm schema head. Lệnh chỉ tạo NOLOGIN groups/grants, không tạo tài khoản hoặc gán memberships. Người quản trị phải chọn và provision dedicated PostgreSQL login(s) cho reviewer/publisher qua quy trình quản lý secrets của mình, rồi GRANT group tương ứng. Không dùng tài khoản migration superuser để review. Không nhập password trong command history hoặc commit file secrets.
 
-CLI nhận cặp biến môi trường `PUBLICATION_DB_USER`/`PUBLICATION_DB_PASSWORD` từ phiên shell bảo mật; cả hai có giá trị hoặc cùng unset. Chúng override username/password của DB URL hiện có, không đổi host/database. `.env.example` chỉ ghi biến trống; không lưu credentials vào quyết định JSON. Script này chưa được chạy trên database pilot, chưa có danh tính reviewer/publisher thật.
+CLI nhận cặp biến môi trường `PUBLICATION_DB_USER`/`PUBLICATION_DB_PASSWORD` từ phiên shell bảo mật; cả hai có giá trị hoặc cùng unset. Chúng override username/password của DB URL hiện có, không đổi host/database. `.env.example` chỉ ghi biến trống; không lưu credentials vào quyết định JSON. Script grants đã được chạy trên database development ngày18/10/2026. Hai login kỹ thuật riêng eduradar_dev_reviewer/eduradar_dev_publisher có group tương ứng; chưa là danh tính reviewer production hoặc approval nghiệp vụ.
 
 ## Bootstrap và phiên bản registry
 
@@ -68,8 +68,33 @@ Reject/request_more là ReviewCommand cùng binding/expected versions/reason, gh
 
 ## Các quyết định còn cần cho ba hồ sơ thật
 
-1. Chọn người phụ trách và dedicated login có phạm vi reviewer/publisher; không gán tên theo tài khoản Windows/Git.
+1. Chỉ định người phụ trách nghiệp vụ; hai dedicated login DEV đã provision là danh tính kỹ thuật, không tự gán reviewer theo tài khoản Windows/Git.
 2. Xác nhận University canonical code/system và BVH/BVS là campus labels trong nguồn; Program/Offering năm 2024, mã xét tuyển, track/language/training mode. Unknown giữ unknown; Major có thể để NULL.
 3. Xác nhận authority của nguồn đối với chính các ô lịch sử 2024 và method THPT, không duyệt mọi thông tin của trang 2026.
-4. Cung cấp evidence đã cache cho scale/basis, combination hoặc confirmed_none, round, population, conditions. Không suy 30 từ điểm. Nếu tài liệu cần thiết chưa cache, đợt này giữ blocked; việc tải bổ sung là task riêng.
+4. Cung cấp evidence đã cache cho scale/basis, combination/confirmed_none/source_aggregate có căn cứ, round, population, conditions. Không suy 30 từ điểm. Lô bổ sung 18/10 đã tải có giới hạn 5/20 requests; những field còn thiếu vẫn blocked, không tự tăng budget.
 5. Review score/cell và publication cụ thể. Chưa có quyết định nào trong các mục trên được apply trên dữ liệu thật.
+
+## Lô evidence review 18/10/2026
+
+Xem reports/publication-evidence-review.md và private `state/publication/review-batch.md`. Không overwrite pilot-1/2/3.json hoặc manifests T05–T07. Draft độc lập ở `state/publication/evidence-review-20261018/bootstrap-identities.draft.json`; actual read-only plan ở bootstrap-identities.cli-plan.json, expected impacts ở bootstrap-identities.readiness.json. Trong đợt này chưa apply.
+
+Credentials ngẫu nhiên lưu tại `state/publication/access/local-dev-credentials.json`, ignored và ACL chỉ owner/SYSTEM. .env giữ nguyên. Để chạy lại **plan** mà không đưa mật khẩu vào command history/stdout:
+
+```powershell
+$localAccess = Get-Content -Raw -Encoding UTF8 state/publication/access/local-dev-credentials.json | ConvertFrom-Json
+$env:PUBLICATION_DB_USER = $localAccess.accounts.reviewer.user
+$env:PUBLICATION_DB_PASSWORD = $localAccess.accounts.reviewer.password
+try {
+    uv run python -m services.data.publication plan --file state/publication/evidence-review-20261018/bootstrap-identities.draft.json --output state/publication/evidence-review-20261018/bootstrap-plan-recheck.json
+} finally {
+    Remove-Item Env:\PUBLICATION_DB_PASSWORD -ErrorAction SilentlyContinue
+    Remove-Item Env:\PUBLICATION_DB_USER -ErrorAction SilentlyContinue
+    $localAccess = $null
+}
+```
+
+Publisher dùng account publisher tương ứng sau khi có quyết định hợp lệ, không thể tự tạo approval. Không chia sẻ/commit file credentials; đây là storage local có ACL, chưa là secrets manager/SSO production.
+
+Scope aggregate chỉ dùng khi có đoạn nguồn nói rõ cùng điểm giữa các tổ hợp của cùng Offering. `source_aggregate` + evidence `combination_aggregation` giữ một fact; không dùng confirmed_none cho nguồn có nhiều tổ hợp, không suy membership từ thông báo ngưỡng chung. Aggregate vẫn chưa dùng để tính/so sánh.
+
+Nguồn bổ trợ cùng publisher/host có thể được review từ snapshot chính nó trong cùng bootstrap batch; không cần parse/normalize/resolve thêm envelopes chỉ để duyệt authority. Điều này không tự duyệt nguồn khác host hoặc quyền thương mại/tái phân phối.

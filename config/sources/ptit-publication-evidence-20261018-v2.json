@@ -1,0 +1,68 @@
+{
+  "profile_id": "ptit-publication-evidence-20261018-v2",
+  "university_key": "ptit",
+  "allowed_hosts": [
+    "tuyensinh.ptit.edu.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.ptit.edu.vn/de-an-tuyen-sinh/de-an-2024/"
+  ],
+  "years": [
+    2024
+  ],
+  "authority_scope": {
+    "years": [
+      2024
+    ],
+    "fact_kinds": [
+      "admission_information"
+    ]
+  },
+  "parser": "raw_http",
+  "parser_options": {
+    "html_content_selectors": [
+      "article.post-wrap",
+      "#main-content .ova_dir_content"
+    ],
+    "html_exclude_selectors": [
+      "nav",
+      "aside",
+      "footer",
+      "script",
+      "style",
+      ".posts-sidebar",
+      ".order_ticket"
+    ]
+  },
+  "include_path_patterns": [
+    "^/wp-json/wp/v2/(search|posts|pages)(/\\d+)?/?$",
+    "^/wp-content/uploads/sites/4/(2024|2025|2026)/.*\\.pdf$",
+    "^/.*2024[^/]*/?$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 1,
+  "max_discovery_urls": 20,
+  "max_query_variants_per_path": 20,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "eligible",
+  "access_basis": "Bounded supplemental internal evidence review authorized 2026-10-18, same first-party public admission host; cached robots evidence below is checked again by shared crawler policy. No login/portal/CAPTCHA bypass.",
+  "snapshot_basis": "Restricted local evidence review only; no commercial-use or full-text redistribution grant established.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "Cached official snapshots ce670b50-64dc-41b3-b25f-c7509bdb3b95 and 19a1088e-6412-49e4-b911-73ec9146f4fa identify the admission host and same-host document links.",
+    "Cached robots snapshot 6755f9a2-bd3c-4481-994a-53bc89d1b390, SHA-256 e014272f6d2e2f068146055fc0ce99170f41a9e90c01f7d4c0a83cbe45482949; runtime obeys cache TTL/robots and counts fresh robots/redirects/retries within the same20request run.",
+    "Discovery snapshot 4dd7bad3-f231-4388-b204-87c83d75daa2 links official nested 2024 cutoff page; allow only2024paths/public WordPress reads/same-host PDFs. Parent frozen profile unchanged; parent cap reduced to spent1, replacement cap19: total20."
+  ],
+  "observed_years": [
+    2024
+  ],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400
+}

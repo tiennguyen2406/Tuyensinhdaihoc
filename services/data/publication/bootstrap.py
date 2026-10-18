@@ -100,11 +100,12 @@ def operations(
     ids = {e.key: e.canonical_id for e in seed.entities if e.canonical_id}
     effects = []
     for op in sorted(cmd.operations, key=lambda o: ORDER.index(o.kind)):
+        evidence_sources = set()
         for evidence in op.evidence:
             if not evidence.startswith("snapshot:") or "#" not in evidence:
                 raise ValueError("Bootstrap evidence requires a cached snapshot and locator")
             sid, locator = evidence[9:].split("#", 1)
-            record(c, "source_snapshots", UUID(sid))
+            evidence_sources.add(record(c, "source_snapshots", UUID(sid))["source_id"])
             if not locator.strip():
                 raise ValueError("Bootstrap evidence locator is empty")
         table = metadata.tables[TABLES[op.kind]]
@@ -121,8 +122,20 @@ def operations(
         if set(values) - set(table.c.keys()) or set(values) & IMMUTABLE_FIELDS:
             raise ValueError("Unsupported/client-controlled canonical column")
         if op.kind == "source":
-            if op.mode != "link" or op.canonical_id != UUID(packet["source_id"]):
-                raise ValueError("Authority review must link this packet source")
+            if op.mode != "link" or op.canonical_id not in evidence_sources:
+                raise ValueError("Authority review must link a source with its own cached evidence")
+            if op.canonical_id != UUID(packet["source_id"]):
+                supporting = record(c, "sources", op.canonical_id)
+                primary = record(c, "sources", UUID(packet["source_id"]))
+                if (
+                    supporting["domain"] != primary["domain"]
+                    or supporting["publisher"] != primary["publisher"]
+                    or supporting["source_type"]
+                    not in {"university", "admission_office", "official_portal", "exam_organizer"}
+                ):
+                    raise ValueError(
+                        "Supporting authority requires same first-party publisher/host"
+                    )
             if set(values) != {"university_id", "authority_scope"}:
                 raise ValueError("Explicit source authority required")
             values["verification_status"] = "verified"

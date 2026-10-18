@@ -114,6 +114,10 @@ def build_draft(
         "publication",
         "score",
     }
+    if f.combination_status == "source_aggregate":
+        required.add("combination_aggregation")
+        if f.scoring_rule_id is not None:
+            raise ValueError("Aggregate scope cannot use a combination-specific scoring rule")
     if f.supersedes_cutoff_id or f.replaces_scope_id:
         required.add("correction")
     if not required.issubset(f.evidence) or any(not f.evidence[k] for k in required):
@@ -229,6 +233,8 @@ def build_draft(
         basis_version=f.basis_version,
         score_scale_id=str(f.score_scale_id),
     )
+    if f.combination_status == "source_aggregate":
+        dsl["aggregation_basis"] = "same_cutoff_across_offering_admissible_combinations"
     scope = dict(
         program_year_id=f.program_year_id,
         method_id=f.method_id,
@@ -289,7 +295,9 @@ def build_draft(
         fact=f,
         snapshot_id=UUID(packet["snapshot_id"]),
         primary_observation_id=UUID(packet["raw_observation_id"]),
-        computation_status="rule_available_not_evaluated"
+        computation_status="unavailable_aggregate_scope"
+        if f.combination_status == "source_aggregate"
+        else "rule_available_not_evaluated"
         if f.scoring_rule_id
         else "unavailable_rule",
     )

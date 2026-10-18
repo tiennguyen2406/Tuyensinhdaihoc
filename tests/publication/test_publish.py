@@ -632,3 +632,40 @@ def test_reviewed_predicate_has_structured_identity_without_running_rules(prepar
             c.scalar(sa.text("SELECT condition_dsl->'conditions' FROM program_admissions"))
             == predicate
         )
+
+
+def test_evidenced_aggregate_combination_scope_is_one_fact_and_not_a_wildcard(prepared):
+    admin, e, packet, boot = prepared
+    cmd = fact_command(packet, boot["ids"])
+    evidence = dict(cmd.fact.evidence)
+    evidence["combination_aggregation"] = evidence["combination"]
+    cmd = cmd.model_copy(
+        update={
+            "fact": cmd.fact.model_copy(
+                update={"combination_status": "source_aggregate", "evidence": evidence}
+            )
+        }
+    )
+    with e.begin() as c:
+        draft = reviewed(c, cmd)
+        assert draft.computation_status == "unavailable_aggregate_scope"
+        result = publish(c, cmd)
+        assert result.status == "published"
+        assert c.scalar(sa.text("SELECT count(*) FROM cutoff_scores")) == 1
+        assert c.scalar(sa.text("SELECT combination_id FROM program_admissions")) is None
+        dsl = c.scalar(sa.text("SELECT condition_dsl FROM program_admissions"))
+        assert dsl["combination_status"] == "source_aggregate"
+        assert dsl["aggregation_basis"] == "same_cutoff_across_offering_admissible_combinations"
+        assert publish(c, cmd).cached
+
+
+def test_aggregate_combination_requires_separate_aggregation_evidence(prepared):
+    admin, e, packet, boot = prepared
+    cmd = fact_command(packet, boot["ids"])
+    cmd = cmd.model_copy(
+        update={"fact": cmd.fact.model_copy(update={"combination_status": "source_aggregate"})}
+    )
+    with e.begin() as c:
+        with pytest.raises(ValueError):
+            publish(c, cmd)
+        assert c.scalar(sa.text("SELECT count(*) FROM cutoff_scores")) == 0

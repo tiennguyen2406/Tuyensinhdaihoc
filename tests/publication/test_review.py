@@ -178,3 +178,115 @@ def test_bootstrap_requires_snapshot_locator_not_an_arbitrary_evidence_string(
         with pytest.raises(ValueError):
             ReviewService(c).apply(cmd)
         assert c.scalar(sa.text("SELECT count(*) FROM universities")) == 0
+
+
+def test_supporting_source_bootstrap_requires_its_cached_evidence_and_same_publisher(
+    publication_database, publication_logins
+):
+    from services.api.db.models import source_snapshots, sources
+    from services.data.publication.contract import BootstrapOperation
+    from services.data.publication.review import ReviewService
+    from tests.publication.helpers import bootstrap_command, input_packet
+
+    with publication_database.begin() as c:
+        packet = input_packet(c)
+        sid, snap = uuid4(), uuid4()
+        c.execute(
+            sources.insert().values(
+                id=sid,
+                canonical_url="https://example.invalid/support",
+                domain="example.invalid",
+                publisher="TEST ONLY",
+                source_type="admission_office",
+            )
+        )
+        c.execute(
+            source_snapshots.insert().values(
+                id=snap,
+                source_id=sid,
+                raw_hash="a" * 64,
+                raw_uri="fixture://TEST-ONLY",
+                final_url="https://example.invalid/support",
+                media_type="text/html",
+                byte_size=0,
+            )
+        )
+    with publication_logins["reviewer"].begin() as c:
+        cmd = bootstrap_command(c, packet)
+        support = BootstrapOperation(
+            key="test:support-source",
+            kind="source",
+            mode="link",
+            canonical_id=sid,
+            values={
+                "university_id": "@test:university",
+                "authority_scope": {"years": [2024], "fact_kinds": ["cutoff", "scoring_rule"]},
+            },
+            evidence=["snapshot:" + str(snap) + "#html:main"],
+        )
+        cmd = cmd.model_copy(update={"operations": [*cmd.operations, support]})
+        assert ReviewService(c).plan(cmd)["can_apply"]
+        result = ReviewService(c).apply(cmd)
+        assert (
+            c.scalar(sa.select(sources.c.verification_status).where(sources.c.id == sid))
+            == "verified"
+        )
+        assert result["ids"]["test:support-source"] == str(sid)
+        assert c.scalar(sa.text("SELECT count(*) FROM cutoff_scores")) == 0
+
+
+@pytest.mark.parametrize("problem", ["wrong_snapshot", "foreign_host", "unofficial"])
+def test_supporting_source_authority_does_not_accept_unrelated_evidence(
+    publication_database, publication_logins, problem
+):
+    from services.api.db.models import source_snapshots, sources
+    from services.data.publication.contract import BootstrapOperation
+    from services.data.publication.review import ReviewService
+    from tests.publication.helpers import bootstrap_command, input_packet
+
+    with publication_database.begin() as c:
+        packet = input_packet(c)
+        sid, snap = uuid4(), uuid4()
+        domain = "other.invalid" if problem == "foreign_host" else "example.invalid"
+        c.execute(
+            sources.insert().values(
+                id=sid,
+                canonical_url="https://" + domain + "/support",
+                domain=domain,
+                publisher="TEST ONLY",
+                source_type="press" if problem == "unofficial" else "admission_office",
+            )
+        )
+        c.execute(
+            source_snapshots.insert().values(
+                id=snap,
+                source_id=sid,
+                raw_hash="b" * 64,
+                raw_uri="fixture://TEST-ONLY",
+                final_url="https://" + domain + "/support",
+                media_type="text/html",
+                byte_size=0,
+            )
+        )
+    with publication_logins["reviewer"].begin() as c:
+        cmd = bootstrap_command(c, packet)
+        evidence_snapshot = packet["snapshot_id"] if problem == "wrong_snapshot" else str(snap)
+        support = BootstrapOperation(
+            key="test:unrelated-source",
+            kind="source",
+            mode="link",
+            canonical_id=sid,
+            values={
+                "university_id": "@test:university",
+                "authority_scope": {"years": [2024], "fact_kinds": ["cutoff"]},
+            },
+            evidence=["snapshot:" + evidence_snapshot + "#html:main"],
+        )
+        cmd = cmd.model_copy(update={"operations": [*cmd.operations, support]})
+        with pytest.raises(ValueError):
+            ReviewService(c).apply(cmd)
+        assert (
+            c.scalar(sa.select(sources.c.verification_status).where(sources.c.id == sid))
+            == "unverified"
+        )
+        assert c.scalar(sa.text("SELECT count(*) FROM audit_events")) == 0

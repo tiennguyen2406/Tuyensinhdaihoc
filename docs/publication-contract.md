@@ -1,12 +1,12 @@
 # T08 — hợp đồng review và publication pilot
 
-Phạm vi `publication/1.0.0`: review local có xác thực PostgreSQL, bootstrap registry bất biến và publisher **cutoff** có giao dịch. Tái sử dụng 34 bảng hiện có; không dựng publisher học phí/học bổng, Score Engine, release builder hoặc API mutation. Đọc cùng contracts T05–T07; entity resolved không thay thế fact verified.
+Phạm vi `publication/1.1.0`: review local có xác thực PostgreSQL, bootstrap registry bất biến và publisher **cutoff** có giao dịch. Tái sử dụng 34 bảng hiện có; không dựng publisher học phí/học bổng, Score Engine, release builder hoặc API mutation. Đọc cùng contracts T05–T07; entity resolved không thay thế fact verified.
 
 ## Gates theo loại fact
 
 | Fact | Định danh và dữ liệu bắt buộc | Unknown được giữ | Evidence/review và trạng thái |
 |---|---|---|---|
-| cutoff | University, Program, Offering đúng năm/campus/context, method; combination được xác nhận hoặc confirmed_none; round, population, conditions; Decimal score, verified scale và basis version | Major nullable; scoring rule, ngày hiệu lực/ngày công bố có thể thiếu; track/language chưa biết được biểu diễn rõ theo registry, không suy mặc định | Authority đúng trường/năm/fact_kind; review từng trường và đúng ô điểm; thiếu scale/basis/scope chặn publication |
+| cutoff | University, Program, Offering đúng năm/campus/context, method; combination được xác nhận, confirmed_none hoặc source_aggregate có evidence; round, population, conditions; Decimal score, verified scale và basis version | Major nullable; scoring rule, ngày hiệu lực/ngày công bố có thể thiếu; track/language chưa biết được biểu diễn rõ theo registry, không suy mặc định | Authority đúng trường/năm/fact_kind; review từng trường và đúng ô điểm; thiếu scale/basis/scope chặn publication |
 | tuition | Schema hiện tại cho Offering nullable nhưng admission_year bắt buộc | Giữ academic_year và phạm vi nhóm chương trình từ T06 | Chưa có publisher tuition trong lát cắt này. Nhóm/năm học 2026–2027 bị chặn, không tạo admission_year hay chia phí từng ngành |
 | scholarship, exam_schedule | Dùng schema/dictionary hiện có khi xây validator riêng | Không bổ sung giả các trường thiếu | Review-only, chưa có typed publication gates/CLI trong đợt này |
 | scoring/conversion rule | Cần method, scale/basis, hiệu lực và evidence riêng | Không suy từ max_score giống nhau | Không chạy DSL hay phê duyệt rule qua publisher cutoff; triển khai sau |
@@ -23,7 +23,7 @@ Packet chọn **một candidate** trong T07 envelope, kiểm manifest raw → T0
 
 ## Bootstrap không phụ thuộc vòng
 
-Một quyết định bootstrap tạo/liên kết theo thứ tự phụ thuộc: trường/phương thức/ngành/năm/subjects/combination → Program → Offering → scale → alias; kiểm canonical parents bằng validator hiện có. Program.major có thể NULL. Tạo UUID theo request/key để retry ổn định, chỉ trở thành canonical sau transaction thành công. Link không ghi đè entity đang có. Source link chỉ đúng source của packet và scope authority đã review. Evidence phải tham chiếu snapshot tồn tại và locator không rỗng; kiểm ý nghĩa evidence thuộc trách nhiệm reviewer.
+Một quyết định bootstrap tạo/liên kết theo thứ tự phụ thuộc: trường/phương thức/ngành/năm/subjects/combination → Program → Offering → scale → alias; kiểm canonical parents bằng validator hiện có. Program.major có thể NULL. Tạo UUID theo request/key để retry ổn định, chỉ trở thành canonical sau transaction thành công. Link không ghi đè entity đang có. Source link dùng source của packet hoặc supporting source chính thức cùng publisher/host có snapshot riêng, và scope authority đã review. Evidence phải tham chiếu snapshot tồn tại và locator không rỗng; kiểm ý nghĩa evidence thuộc trách nhiệm reviewer.
 
 Entity operations nhận các proposal keys hiện có; đường alias canonical hiện hỗ trợ `university_aliases`. General program/method alias governance và UI tạo proposal mới chưa hoàn thiện. Không ép BVH/BVS thành hai trường; đối chiếu campus/code system/context trong review. Không ép Tài năng/Kết hợp vào enum phương thức khác. Scale không suy từ độ lớn số.
 
@@ -45,7 +45,7 @@ Không HTTP/OCR trong transaction. Shared registry advisory lock ngăn bootstrap
 4. Correction khác score cần supersedes_cutoff_id, expected revision và correction evidence: retire old, insert revision kế tiếp trong cùng scope. Nguồn công bố cũ đến muộn không rollback current.
 5. Official conflict chưa rõ hiệu lực: giữ giá trị current, đánh disputed, ghi quality issue/evidence; không lấy trung bình hoặc chọn theo crawl time. Press thiếu authority bị từ chối trước publication.
 6. Thay basis/scale: yêu cầu replaces_scope_id và basis version mới, retire current/withdraw scope cũ rồi tạo current trong scope mới. Lịch sử giữ nguyên; không UPDATE liên kết scale/rule tại chỗ.
-7. Evidence envelope mới có namespace `validated/1;publication/1.0.0`, liên kết raw/decision; không sửa raw/T05/T06/T07.
+7. Evidence envelope mới có namespace `validated/1;publication/1.1.0`, liên kết raw/decision; không sửa raw/T05/T06/T07.
 8. Fact/evidence/audit/publication_request, catalog increment và queued `refresh_serving:<version>` cùng transaction. Rollback/crash không để fact thiếu refresh. Refresh pending chưa là release T09.
 
 Serving thay đổi khi thêm fact, correction, conflict/dispute, evidence công khai mới hoặc alias của trường đã có current cutoff; tăng dataset_version một lần và enqueue refresh. Bootstrap nội bộ/approval chưa publication/alias của trường chưa serving/replay no-op không tăng version. Request ID retry idempotent; cùng ID khác nội dung bị từ chối. Conflict governance nhiều quyết định độc lập không thay thế workflow giải quyết/withdrawal đầy đủ.
@@ -57,3 +57,11 @@ Ba NOLOGIN group roles: `eduradar_reader`, `eduradar_reviewer`, `eduradar_publis
 Migration additive `0003_publication` chỉ thêm functions/triggers: audit append-only; review/registry/publication manifests bất biến; T08 cutoff/scopes, approved scale/Program/Offering và validated observations có guard. Core SQL vẫn gọi validator; DB chặn forged approval, legacy-marker bypass của non-superuser và sửa/xóa lịch sử T08. Owner vẫn là maintenance trust boundary; đây là quyền quản trị local, chưa là production RBAC/OIDC/SECURITY DEFINER sealed API.
 
 Revocation là quyết định append-only. Approval đã áp dụng publication hoặc bootstrap khi có current fact không được revoke âm thầm; CLI từ chối cho đến khi có workflow withdrawal có kiểm dependencies/version/refresh. Source authority đã dùng cũng không bị ghi đè tùy tiện. Gate hiện bảo thủ trên toàn bộ current cutoffs; chưa có merge/unmerge/withdrawal đầy đủ.
+
+## Evidence review bổ sung 18/10/2026
+
+`source_aggregate` là scope nguồn công bố cùng một cutoff cho các tổ hợp admissible của Offering, combination_id=NULL, không là wildcard và không đồng nghĩa confirmed_none. Cần evidence riêng `combination_aggregation` ngoài `combination`; DSL đóng băng aggregation_basis=`same_cutoff_across_offering_admissible_combinations`, tham gia condition_key. Không nhân tổ hợp. Chưa resolve membership/evaluation plan nên computation_status=`unavailable_aggregate_scope`; combination-specific scoring_rule bị từ chối trong mode này. Unknown hoặc thiếu bằng chứng vẫn chặn. NULL uniqueness và một current cutoff/scope giữ nguyên, không migration.
+
+Bootstrap authority có thể link source của packet hoặc source bổ trợ có **snapshot của chính source đó**, cùng publisher/domain và official source_type. Đây là quyết định do reviewer có quyền thực hiện, có audit và scope năm/fact_kind cụ thể; không tự verified vì tải thành công. Cross-host support vẫn cần workflow quan hệ nguồn riêng, chưa tự chấp nhận. Căn cứ: Pub/EduRadar yêu cầu nhiều evidence cho một fact, không yêu cầu mọi tài liệu basis phải tạo T07 candidate trước.
+
+Các guards, expected versions/digests và append-only history không bị bỏ qua. Thay đổi implementation dùng publication/1.1.0; manifests/outputs cũ không được viết lại. Chi tiết dữ liệu thật và các gate còn chặn ở reports/publication-evidence-review.md.

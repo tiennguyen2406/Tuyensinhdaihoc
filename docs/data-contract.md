@@ -9,7 +9,7 @@ Chuỗi: universities → admission_years → programs/program_years → program
 - majors: ngành chuẩn hóa theo (code_system, major_code), dùng liên trường; không dùng tên giống nhau để hợp nhất.
 - programs: identity chương trình dài hạn của một trường, theo (university_id, canonical_key).
 - program_years: offering theo năm, mã xét tuyển, campus/track/language. Business key: (university_id, admission_year, offering_code, campus_code, track_code, language_code).
-- program_admissions: (program_year_id, method_id, combination_id, round_key, population_key, condition_key). NULL combination là một phạm vi không tổ hợp, không phải wildcard; NULLS NOT DISTINCT ngăn trùng.
+- program_admissions: (program_year_id, method_id, combination_id, round_key, population_key, condition_key). NULL combination phải có trạng thái có căn cứ: confirmed_none hoặc source_aggregate được công bố cùng điểm theo Offering; không phải wildcard. Aggregate có rule/evidence riêng trong condition_dsl/condition_key, không mở rộng thành mọi tổ hợp. Unknown không được publish; NULLS NOT DISTINCT ngăn trùng.
 - score_scales: method + admission_year + code + exam_version. Không suy tương đương từ max_score bằng nhau.
 - cutoff_scores: admission scope + revision. Một current cutoff/scope; học phí, học bổng, URL và thời điểm crawl không thuộc identity này.
 
