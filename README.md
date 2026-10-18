@@ -142,6 +142,21 @@ docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyen
 
 Unknown year/campus/track/language/method/scale/scope giữ unknown. BVH/BVS là hai source campus labels dưới một university proposal; Program/Offering proposals không là canonical IDs. Tuition năm học không biến thành admission year hay phí từng ngành. T08 chỉ có thể nhận packets cần review; cần phê duyệt registry/taxonomy và scale/scope/rules trước publication. Crawl vẫn paused5/5; không tải thêm nguồn.
 
+## Review và publication T08
+
+Đọc [hợp đồng publication](docs/publication-contract.md), [quy trình review](docs/review-workflow.md) và [báo cáo pilot](docs/reports/publication-pilot.md). Module `services/data/publication` chạy local, không mở endpoint mutation. Migration additive `0003_publication` thêm guards, không đổi raw/T05–T07. Chỉ publish cutoff đã review; tuition nhóm/năm học vẫn blocked.
+
+```powershell
+uv run alembic upgrade head
+uv run python -m services.data.publication list --output state/publication/list.json
+uv run python -m services.data.publication inspect --resolution 97259d1b-894c-4637-9e09-8c237ce15c78 --candidate 857495c2612874e9c1e25b2705660fe920db5a76f35bbe81cade944d9b451277 --output state/publication/inspect.json
+uv run python -m services.data.publication plan --resolution 97259d1b-894c-4637-9e09-8c237ce15c78 --candidate 857495c2612874e9c1e25b2705660fe920db5a76f35bbe81cade944d9b451277 --output state/publication/plan.json
+```
+
+Plan packet là read-only, chưa là approval. Sau khi người phụ trách xác minh hồ sơ và soạn ReviewCommand riêng: `uv run python -m services.data.publication plan --file state/publication/review.json`, rồi `uv run python -m services.data.publication apply --file state/publication/review.json` bằng dedicated reviewer login. Apply action publish chỉ tạo quyết định; publisher dùng `uv run python -m services.data.publication apply --decision $decision` với UUID thực, correction thêm expected revision đã duyệt. `uv run python -m services.data.publication replay --decision $decision` kiểm lại lineage/versions và idempotency. Xem workflow cho export registry, chạy T07 mới và quyền DB.
+
+Actor lấy từ PostgreSQL session_user, không nhận reviewer tự nhập; superuser bị chặn apply. Chưa provision login/approval thật. Ba hồ sơ THPT2024 đã chuẩn bị ở ignored `state/publication/review-batch.md`; canonical cutoffs vẫn 0. Không dùng dữ liệu/approvals TEST ONLY cho pilot. Secrets, quyết định và output chứa dữ liệu nguồn luôn ngoài Git. Local role grants/guards đã có tests riêng; production OIDC/RBAC, withdrawal governance đầy đủ, refresh worker/release builder và UI còn ở các task sau.
+
 ## Kiểm thử và CI
 
 ```powershell

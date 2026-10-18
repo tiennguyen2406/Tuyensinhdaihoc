@@ -67,3 +67,7 @@ Hợp đồng chi tiết: normalization-contract.md. T06 giữ nguyên observati
 ## Lát cắt T07
 
 Hợp đồng: entity-resolution-contract.md. Mỗi normalization candidate có resolution/lineage riêng trong envelope dẫn xuất mới; không sửa raw/T06. Registry/aliases có provenance, review và versions; pending proposal keys không phải approved canonical UUIDs. Entity recognition không xác minh fact hoặc publication. Đếm riêng raw/normalization/resolution envelopes, candidates và canonical. Không sửa cutoff_scores/catalog_state/releases; tuition academic year không là admission year, mã xét tuyển không là taxonomy major code.
+
+## T08 publication pilot
+
+Xem [publication contract](publication-contract.md) cho gates theo fact_kind, admission/fact/bundle fingerprints, review binding, scope basis replacement và transaction version/refresh. Chỉ canonical current verified cutoffs đủ publication mới thuộc quota; observations/evidence/review jobs không tăng quota. Major nullable không chặn cutoff nhưng thiếu scale/basis/scope vẫn chặn. Thiếu scoring rule được ghi unavailable_rule, không suy công thức. Tuition academic-year group giữ staging, chưa có publisher tương thích để điền admission_year. Registry approval qua bootstrap có DB actor/audit, không sửa pending JSON bằng tay.
