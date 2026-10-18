@@ -143,3 +143,32 @@ B2/B3/C còn conditional; D recipes chưa có IDs/binding T07 mới. Không kế
 Health/live vàready kiểm qua ASGI TestClient với DB hiện tại đều200; cổng HTTP8000 chưa kết nối được ở lượt kiểm trước, không báo là server đang chạy. Không thay implementation/dependencies/schema nên không có regression code mới cần viết.
 
 Checks chạy mới trong lượt apply: `uv run pytest -q` **525passed183.28s**, fixtures dùng database test riêng; `uv run ruff check .` pass; `uv run ruff format --check .` pass128files; `uv run mypy` pass55sourcefiles; `uv lock --check`87packages, lockfile không đổi; `uv run alembic current`0003head; `uv run alembic check`no new upgrade operations; `git diff --check`pass. Không thêm tests/envelopes để tăng số lượng. Staged chỉ ba tài liệu vận hành, không credentials/raw/private decisions; exact-SHA push/CI được kiểm và ghi trong bàn giao.
+
+## Cập nhật: B1 đã được duyệt/apply, B2 chờ duyệt riêng
+
+Điểm xuất phát lượt này: commit07ad75a25684b55a98def7f55fa9299949812dcf, nhánh/origin đúng, chỉ .vscode/ chưa tracked. Các mục A2/B1 phía trên là hồ sơ lịch sử của lượt trước. Người dùng đã duyệt riêng B1 đúng SHA `932a5f3c215e816916fba4e79241fe5d90f6c6c913b7deecd3b1adb3be7482ea`, request `23977c8a-d4f5-4b56-a1cc-9040d843167a`; không duyệt B2/B3/C/D. File/reason đã được duyệt giữ nguyên bytes.
+
+Đã kiểm lại provenance đặc tả, schema0003head, packet/binding/expected registry và alias heads, University ID/manifest A2 thật, dedicated reviewer không privileged/không member publisher. Raw PDF2024 snapshotf31d55ba-cbc7-42e0-9a02-c5a7c285abc3 khớp SHA1b1e3741108ce5711bc61823200d4acaa534082a70b769894ec61d28fbb167c3 và byte size; render mới từ raw và đọc trực quan p11/p12/p13/p20, không OCR hoặc HTTP. BVH header ởp11 nối bảng sangp12: QTKD7340101 row12; p20 danh mục chung row13. BVS có header riêng và QTKD7340101 row8 ởp13. Không suy curriculum/tuition hai cơ sở bằng nhau từ danh mục này.
+
+| Tác động B1 | Expected | Actual |
+|---|---|---|
+| Program / Offering |+1/+1|0→1Program;0→1Offering BVH2024; không có BVS |
+| Quan hệ/context |PTIT→QTKD→BVH2024/7340101|Đúng parent IDs, năm/mã/campus và business unique keys |
+| Trường chưa biết |MajorNULL,track/language unknown|MajorNULL; DB UNSPECIFIED, registry null; không suy MAIN/GENERAL |
+| Jobs / audit |+2/+3|37→39jobs;14→17audit, đúng request/reason/actor/evidence |
+| Scale/scope/cutoff/evidence/releases |0new|Tất cả vẫn0 |
+| Catalog dataset_version |0delta|0→0 |
+
+Apply chỉ dùng CLI/ReviewService bằng `db:eduradar_dev_reviewer`, không SQL nghiệp vụ thủ công/superuser hoặc thay architecture/code/migration. Actual decision `684a8f28-1faa-54d9-a57a-cfca85820cc2`; registry manifest job `bd0c37a0-0036-432a-9391-c5e451a4dc21`; Program QTKD `cf5b839c-2c74-57b2-a97c-6bb563edbbf6`; Offering BVH `b957f9b2-ec7b-5f3f-b8ee-c1f3e9b1cf3e`; University giữ ID `d7bfe9d8-6f23-57a8-bc41-b3caa7ea2f07`. Registry head `registry/ptit-programs/20261018-b1`; alias head giữ `aliases/ptit-identities-authority/20261018-r2`. Canonical registry targets/provenance/parent/unknown metadata khớp DB.
+
+Gọi lại cùng bootstrap request bằng **apply --file** trả result giống hệt; cả34tables/rows/jobs/audit/version không đổi. Đối chiếu trước/sau B1: mọi rows đã có, gồm645observations/37jobs/22snapshots và7source authorities A2, giữ nguyên digest;22raws khớp checksum/size;238tệp lịch sử private giữ nguyên. Chỉ thêm đúng hai canonical rows/hai jobs/ba audits được duyệt. Export CLI từ manifest thật thành private `state/publication/b1-approved-20261018/registry-b1-applied.json`, digest khớp manifest; không dùng preview registry. Không resume crawl, thay budget, fetch hoặc rerun T07.
+
+### B2 đã materialize, chưa được duyệt/apply
+
+File private `state/publication/b1-approved-20261018/decision-b2.draft.json`; SHA `563d6a93777d4e7c205ce42f917871dfa50333a39d420b758e58061a4f5ed5a0`; request `f59e9c89-a7dd-40a7-8038-5b19f612f6fb`. Giữ nguyên conditional draft cũ, dùng request mới, Program/University IDs và registry/alias heads thật từ B1. Packet BVS được kiểm riêng, không dùng packet BVH để bypass context.
+
+Đề nghị **chỉ tạo Offering QTKD BVS/2024/mã7340101**, thuộc Program QTKD thật từ B1; không tạo Program mới. Track/language vẫn unknown theo biểu diễn schema/registry; không merge Offering BVH/BVS. Evidence riêng p13 row8/header BVS vàp20 row13 của PDF cache trên. B1 approval không tự duyệt Offering BVS hoặc sự tương đương curriculum. Plan dedicated reviewer read-only: can_apply/preview_only=true,1operation,catalog delta0. Prechecks kiểm parent Program cùng University, year2024, các trường bắt buộc, unique key chưa trùng và source catalog authority đúng BVS/snapshot. Không giả lập toàn bộ SQL insert.
+
+Nếu sau này người dùng duyệt và revalidate còn hợp lệ: expected **+1Offering/+2jobs/+2audit**,0Program/scale/scope/cutoff/release/dataset delta. New registry dự kiến `registry/ptit-programs/20261018-b2`, alias không đổi. IDs trong plan chưa tồn tại; chỉ dùng IDs đã apply của B1 làm parents. Chưa apply B2/B3/C/D hoặc T09. Sau các bootstrap được duyệt mới export/T07 mới rồi materialize D theo binding thật và review từng fact. Phase1/T07/T08 chưa được đánh dấu hoàn tất.
+
+Checks mới của lượt B1: `uv run pytest -q tests/publication tests/integration/test_health.py tests/integration/test_health_schema.py`: **62passed109.61s**, database test riêng. Không chạy lại toàn bộ pytest local vì không đổi code; con số525 của lượt A2 là lịch sử, CI trên commit tài liệu mới được kiểm riêng khi bàn giao. Ruff check/format128files, mypy55sourcefiles, uv lock87packages, Alembic current0003head/check no new operations và git diff --check đều pass. ASGI health/live vàready200 với DB thật; HTTP8000 chưa kết nối được. Sau tests,34tables vẫn đúng trạng thái sau B1; reviewer vẫn không privileged/không publisher/không DELETE Offering. Chỉ cập nhật tài liệu vận hành tracked, private decisions/raw/exports/credentials và .vscode/ không stage.

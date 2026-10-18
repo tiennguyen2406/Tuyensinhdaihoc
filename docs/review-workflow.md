@@ -1,6 +1,6 @@
 # Review workflow T08 — CLI quản trị local
 
-Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2 đúng hash/request; A2 đã apply/replay/export, chi tiết ở mục cập nhật cuối tài liệu. B/C/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
+Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2 và B1 đúng hash/request; cả hai đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. B2/B3/C/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
 
 ## Quan sát và preview
 
@@ -121,3 +121,11 @@ Các mục chuẩn bị phía trên là hồ sơ lịch sử. Người dùng đ�
 Manifest registry thật: `0f12e947-9355-4bc2-8a05-309474c2415f`; decision thật: `426241ec-ba2c-5923-9e96-1e8461d571b3`. Export và checkpoints private ở `state/publication/a2-approved-20261018/`; không overwrite các manifests/conditional drafts cũ. Xem reports/ptit-blocker-decisions.md về IDs, counters và ranh giới approval.
 
 B1 mới tại `state/publication/a2-approved-20261018/decision-b1.draft.json`, request `23977c8a-d4f5-4b56-a1cc-9040d843167a`, dùng parent/head A2 thật và đã qua plan read-only. **Chưa được duyệt/apply**. Người phụ trách cần duyệt chính file/hash/phạm vi B1 trước khi apply; B2/B3/C giữ conditional. Không dùng kết quả plan hoặc approval A2 để apply B1. Sau mỗi parent được apply, materialize quyết định kế tiếp bằng IDs/head thật và request riêng, giữ bản cũ.
+
+## Cập nhật sau approval B1
+
+Mục B1 chờ duyệt phía trên là trạng thái lịch sử tại commit07ad75a. Người dùng đã phê duyệt riêng B1 SHA `932a5f3c215e816916fba4e79241fe5d90f6c6c913b7deecd3b1adb3be7482ea`, request `23977c8a-d4f5-4b56-a1cc-9040d843167a`. Đã đọc lại PDF cache p12/p20 và header BVH ởp11, kiểm hash/binding/head/parent/role/schema rồi apply qua CLI reviewer. Kiểm expected/actual và gọi lại apply cùng file/request không thêm dữ liệu.
+
+Decision thật `684a8f28-1faa-54d9-a57a-cfca85820cc2`; registry manifest thật `bd0c37a0-0036-432a-9391-c5e451a4dc21`. Checkpoints và export CLI ở private `state/publication/b1-approved-20261018/`. Không tạo script vận hành mới hoặc thay CLI/framework; các thao tác ghi nghiệp vụ đều qua CLI hiện có.
+
+B2 mới tại `state/publication/b1-approved-20261018/decision-b2.draft.json`, request `f59e9c89-a7dd-40a7-8038-5b19f612f6fb`, dùng Program ID và registry head B1 thật. Đã đọc riêng BVS PDFp13/p20 và chạy plan read-only, **chưa approval/apply**. Nếu được duyệt, kiểm lại exact file/hash/request/head/packet/evidence/role rồi mới apply; B3/C/D không được kế thừa approval. Không dùng publication replay cho bootstrap; chỉ gọi lại apply cùng request đã được duyệt để kiểm idempotency.
