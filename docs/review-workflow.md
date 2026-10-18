@@ -1,6 +1,6 @@
 # Review workflow T08 — CLI quản trị local
 
-Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2/B1/B2/B3 đúng hash/request; đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. C1/C2/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
+Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2/B1/B2/B3/C1 đúng hash/request; đã apply/replay/export, chi tiết ở các mục cập nhật cuối tài liệu. C2/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
 
 ## Quan sát và preview
 
@@ -147,3 +147,13 @@ Decision `4c2eb582-b43a-51a6-bbad-5cb2c137a116`; registry manifest `c4420433-a88
 C1 mới `decision-c1.draft.json` trong thư mục private trên, request `7025e964-946c-447f-a0a1-12c64e165587`, đã qua plan read-only, **chưa approval/apply**. Primary snapshot chuyển từ anchor HTML của conditional cũ sang PDFgốcp16 có max30; basis evidence thêm locators đúng hai thông báo gốc. Min0 được trình là derivation miền, không ngưỡng xét tuyển hoặc source quotation; không duyệt công thức/rounding/scoring DSL.
 
 Scale schema khóa method/year, không có Offering membership FK: ba Offering IDs ghi trong command/basis_description là phạm vi đề nghị duyệt, không giả constraint mới. Khi review D vẫn cần source authority đúng context, active scale review và quyết định fact/scope riêng; không dùng can_apply của C1 như quyền publication. C2 round/population/source_aggregate/TTNV vẫn chưa duyệt; named-notice round không là “đợt1”, TTNV chỉ tại điểm bằng cutoff. Xem reports/ptit-blocker-decisions.md về hash/impact và C2.
+
+## Cập nhật sau approval C1 và lượt T07 mới
+
+Người dùng đã duyệt riêng C1 SHA `3c59223370b303878c4cacf88bdcfaf4f448e38f8c75adf5cfa45b815ef3197e`, request `7025e964-946c-447f-a0a1-12c64e165587`; mục C1 chờ duyệt phía trên là lịch sử tại commit0ba67cb. Đã revalidate bằng heads từ B3 manifest thật, method/evidence/Decimal/schema/reviewer, apply đúng CLI rồi replay cùng file/request không thêm rows/jobs/audit/version. Scale thật `76ea9a26-6e77-594c-94f7-fae053e0c148`; decision `b1df9c1b-6b87-5fdd-90a6-5b7e1ecdb650`; registry manifest `15dab0fb-8dc6-464e-8a5f-a0de4d855c87`.
+
+Export registry thật ở private `state/publication/c1-approved-20261018/registry-c1-applied.json`. T07 CLI preview/run trên T06job7bc439bf-a6d7-4beb-bf03-bb47956c5383 tạo job `75f10ef6-57a1-4fb2-a331-ec6334912819`; replay job này0insert. Giữ old namespace/outputs; dùng registry C1/aliasr2, không thay resolver. Các thao tác run/replay không approve facts.
+
+Gói C2 `decision-c2.packet.json` và D1–D3 `decision-d1.draft.json`…`decision-d3.draft.json` cùng thư mục private có exact hashes/requests trong `decision-batch.readiness.json`. Mỗi D dùng binding T07 mới, IDs thật và field evidence, plan read-only đã đạt. Đây **không là approval C2 hoặc D**. C2 chỉ là hồ sơ quyết định scope, không phải ReviewCommand có action scope bootstrap; duyệt C2 đơn lẻ không ghi DB. Scope chỉ được tạo trong publisher transaction của D hợp lệ sau các approval riêng.
+
+Khi được người dùng duyệt rõ đúng nội dung: revalidate gói C2/D hashes, heads/packets/environment/evidence/roles, rồi mới apply từng review command được duyệt bằng reviewer; publisher riêng áp dụng từng decision hợp lệ. Chưa dùng apply --file D hoặc apply --decision từ trạng thái preview. Nếu scope/nội dung thay đổi, giữ bản cũ và tạo file/request/binding phù hợp, không kế thừa approval. TTNV missing tại biên giữ insufficient input theo gói C2; chưa có evaluator, computation giữ unavailable_aggregate_scope. Không đổi named notice thành ordinal1 hoặc nhân source_aggregate thành nhiều cutoff.

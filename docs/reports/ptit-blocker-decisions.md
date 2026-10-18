@@ -242,3 +242,37 @@ Plan reviewer read-only can_apply/preview_only=true,1operation,0catalogdelta; b�
 Private c2-pending-decisions.json giữ nguyên proposals với approvalfalse, không actor/decision giả hoặc canonical scope mới. C1 approval nếu có không duyệt C2 hay ba cutoffs. Sau C được duyệt/apply phù hợp mới export/T07 namespace mới trên T06 input, materialize D riêng bằng IDs/bindings thật; chưa T09 hoặc nghiệm thu toànT07/T08/Phase1/quota20.000.
 
 Checks local mới:62tests publication/health passed108.51s trên DB test riêng; Ruff check/format128files, mypy55sourcefiles, lock87packages, Alembic current0003head/check và diff checks đạt. Không đổi code nên không chạy full pytest local; CI trên SHA tài liệu mới được kiểm riêng khi bàn giao. ASGI live/ready200 với DB thật; HTTP8000 chưa kết nối. Sau tests,34tables đúng trạng thái B3, reviewer vẫn không privileged/publisher/DELETE. Chỉ tài liệu vận hành tracked thay đổi; secrets/raw/private decisions/exports và .vscode/ không stage.
+
+## Cập nhật: C1 đã apply; T07 namespace mới; C2/D chỉ preview
+
+Baseline lượt này: commit0ba67cba9b335443456fcda55d59d3d836d38d6f, đúng nhánh/origin, chỉ .vscode/ chưa tracked. Người dùng duyệt riêng exact C1 SHA `3c59223370b303878c4cacf88bdcfaf4f448e38f8c75adf5cfa45b815ef3197e`, request `7025e964-946c-447f-a0a1-12c64e165587`; không duyệt C2/D. Không sửa bytes/reason của C1. Đã kiểm heads từ actual B3manifest, packet/method,3evidence snapshots/checksum/locators, Decimal0/30, basis/schema0003head và dedicated reviewer không privileged/không publisher ngay trước apply.
+
+| Giai đoạn | Expected | Actual |
+|---|---|---|
+| Bootstrap C1 |+1scale/+2jobs/+2audit,0observations|Scale0→1,jobs43→45,audit22→24,observations645 giữ nguyên |
+| C1 ngoài phạm vi |Program/Offering2/3,0rules/scopes/cutoffs/releases/catalogdelta|Đúng; min/max NUMERIC0.00000/30.00000, từng field/basis/primary snapshot đúng draft |
+| Bootstrap replay |Không thêm rows/jobs/audit/version|Cùng apply --file trả result cũ;34tables giữ nguyên |
+| T07 riêng |Run offline trên215T06envelopes, old outputs giữ nguyên|+215resolution observations/+1job; observations645→860,jobs45→46,audit24 giữ nguyên |
+| T07 replay |0insert, không thêm job|cachedtrue/inserted0;34tables giữ nguyên |
+
+Scale ID `76ea9a26-6e77-594c-94f7-fae053e0c148`; C1decision `b1df9c1b-6b87-5fdd-90a6-5b7e1ecdb650`; registry manifest `15dab0fb-8dc6-464e-8a5f-a0de4d855c87`. MethodTHPT giữ IDd391066d-0c18-579e-82fb-4398b1f9cd30; scale year2024/codePTIT_THPT_SUM30_2024/exam_versionTHPT2024; primary snapshotf31d55ba-cbc7-42e0-9a02-c5a7c285abc3. Registry export CLI thật ở private `state/publication/c1-approved-20261018/registry-c1-applied.json`, head `registry/ptit-scale/20261018-c1`, alias `aliases/ptit-identities-authority/20261018-r2`; digest/targets khớp actual manifest/DB.
+
+T07job `75f10ef6-57a1-4fb2-a331-ec6334912819`, input T06job7bc439bf-a6d7-4beb-bf03-bb47956c5383. Namespace `resolution/1;resolver/1.0.0;registry/ptit-scale/20261018-c1;aliases/ptit-identities-authority/20261018-r2;input=9d6bd3816f4d1aac2ddd9ddc1fcdc252f0a33290a384a07e4212f42e135b28e4`. Resolver/config/lock không thay; git at execution0ba67cb, dirty do .vscode/ chưa tracked, ghi thật trong manifest.215inputs/95candidates,91partial/4ambiguous/0eligible; university95resolved, major95unresolved, program91unresolved/4ambiguous, offering/method/scope95unresolved.118T06blocked attempts giữ nguyên. T08 contract kiểm approved registry/field review độc lập với trạng thái tổng T07; preview không sửa resolver hoặc giả các candidates đã resolved.
+
+Mọi rows có trước C1 gồm645observations/43jobs/canonical A–B/sources/snapshots giữ row digests;308tệp lịch sử và22raws nguyên checksum/size. Chỉ mutations C1/T07 ở bảng trên. Không tải nguồn, đổi crawl runs/budgets, scoring/evaluator, migration hoặc code/script vận hành mới. Tổng hiện860observations/46jobs/24audit,2Program/3Offering/1scale; scoring_rules/scopes/cutoffs/evidence/releases0, catalog0. Database không có approval publish nào.
+
+### Gói C2 và ba D previews bằng bindings thật — chưa approval
+
+Private C2file `state/publication/c1-approved-20261018/decision-c2.packet.json`, SHA `335f124fd2da7261e9e5b0c4ed8505b2001a39c897bc850c2d67e3d0595a840d`, request `b72d93e4-d0a8-4cac-b166-84e23ddd87c4`. Gói chứa scale/Offering IDs thật, registry/alias heads, T07job/namespace, row digests, environment digests và ba command hashes/bindings. Không có actor/chữ ký/approval giả. C2 approval đơn lẻ có0DBmutations, không invent CLI bootstrap scope; scope chỉ được publisher tạo khi D hợp lệ sau approval riêng.
+
+Scope proposal giữ named notices28701(BVH)/28700(BVS), ordinalunknown, không đợt1; populationPTIT_THPT2024_REGULAR_VALID_APPLICANTS theo PDFp9/p10; source_aggregate QTKD A00/A01/D01 và CNTT A00/A01 theo PDFp16/p20. TTNV≤13/3/5 chỉ khi score==cutoff; bằng thiếu preference_order phải insufficient_input, không mặc định thỏa. Gói giữ boundary semantics/truth table là đề nghị review, chưa evaluatorT12; computation cả baD là unavailable_aggregate_scope. Source literal/row/header/priority locators được reselect từ raw HTML đúng hash, thêm exact row text digest cho từng fact trong C2packet.
+
+| Draft private | Request | File SHA-256 | Fact / binding T07 mới |
+|---|---|---|---|
+|decision-d1.draft.json|fd4490e7-845d-4829-b62b-291650dd497c|09da357722b73968371904b8b5e37b54e467ead9fedef6b61f79380513361ac9|QTKD/BVH25.17,TTNV≤13; resolution4479f158-62b5-4955-b0fe-f8ceffc29f44 |
+|decision-d2.draft.json|4580ff33-33d7-49b3-a972-6ebcc26b7519|7b96d14a30dabcb6c7b33e8d0b771797616b110d205b60e575e70151460cd51e|QTKD/BVS18.4,TTNV≤3; resolution68bd322c-3811-4445-8a87-c2e41db4591c |
+|decision-d3.draft.json|8248f122-8389-43d1-a379-f20005b6095e|8c72b5095b32abe2d941831ea9f7d1b51d318b5764e163a955abd173b0161ddc|CNTT/BVH26.4,TTNV≤5; resolution8032958a-61fa-4515-84a4-c20a9ff219d9 |
+
+Files cùng thư mục C2; full candidate keys/packet SHA/evidence và actual CLI plans trong packets/drafts/readiness. Tất cả plan dedicated reviewer preview_only/can_applytrue, không approval/apply. Nếu một D sau này được duyệt: review phase dự kiến+1reviewjob/+1audit, chưa cutoff/catalog; first publisher phase khi vẫn mới dự kiến+1scope/+1current cutoff revision1/+1primary cutoff_evidence/+1validated observation/+2jobs(publication_request+refresh)/+3audit/catalog+1. Field-level supporting refs không được đếm thành nhiều cutoff_evidence rows. C2 một mình không tạo ba scopes; mỗi D cần quyết định riêng, replay/current/evidence/catalog/outbox còn phải kiểm thực tế khi có quyền. Không triển khai T09 chỉ vì preview đạt.
+
+Checks mới: `uv run pytest -q tests/publication tests/resolution tests/integration/test_health.py tests/integration/test_health_schema.py`:374passed114.31s trên DB test riêng; Ruff check/format128files, mypy55sourcefiles, lock87packages, Alembic current0003head/check và diff checks đạt. ASGI live/ready200 với DB thật; HTTP8000 chưa kết nối. Không đổi code, không chạy full pytest local; exact-SHA CI tài liệu mới kiểm riêng khi bàn giao. Một lỗi serialization ở dòng in kết quả của wrapper private sau khi cả3CLIplans đã thành công không thay DB hoặc drafts; gói C2 cuối dùng bindings JSON từ ReviewCommand đã kiểm hash/schema. Không giả lỗi ứng dụng để sửa code hoặc tăng tests.
