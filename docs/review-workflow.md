@@ -1,6 +1,6 @@
 # Review workflow T08 — CLI quản trị local
 
-Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; chưa gán một người phụ trách nghiệp vụ hoặc tạo approval. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
+Đã provision hai danh tính kỹ thuật DEV theo ủy quyền 18/10/2026; bản thân provisioning không tạo approval. Người dùng sau đó đã duyệt riêng A2 đúng hash/request; A2 đã apply/replay/export, chi tiết ở mục cập nhật cuối tài liệu. B/C/D chưa được duyệt. Không dùng tài khoản kỹ thuật như bằng chứng người phụ trách đã duyệt. Đọc publication-contract.md trước khi thực hiện; fixtures tests không dùng làm hồ sơ thật.
 
 ## Quan sát và preview
 
@@ -113,3 +113,11 @@ uv run python -m services.data.publication plan --file state/publication/blocker
 Trước apply ở lượt được duyệt: so file SHA, input/evidence checksums/locator, expected registry/alias heads và DB role. Nếu đổi nội dung phải request/version mới, giữ bản cũ, xin duyệt đúng bản mới. Không gọi apply từ prompt “tiếp tục”. B1/B2/B3/C1 là typed conditional commands với @refs, chưa plan/apply được trước A2 và từng parent head. Không dùng preview IDs để điền canonical_id. Sau bootstrap thực mới export registry/T07 namespace mới trên jobT06cũ; D recipes phải materialize ReviewCommand mới bằng IDs/binding thực và approval riêng từng cutoff. Named-notice round ở C2 là lựa chọn identity cần duyệt, không claim round1.
 
 Reviewer không kiêm publisher qua login migration. Bootstrap approval không cấp fact/rule/license approval. Source authorities ngoài bindings hoặc snapshot mới cần review phù hợp, không sửa SQL trực tiếp để vượt gate. Sau mỗi apply đã được duyệt: kiểm fields/parents/business unique keys/audit/jobs/catalog và replay cùng request; sau publication kiểm thêm revision/current/evidence/refresh. Không triển khai release builder trong lô này.
+
+## Cập nhật sau approval A2
+
+Các mục chuẩn bị phía trên là hồ sơ lịch sử. Người dùng đã duyệt đúng A2 SHA `b032e83495c619177c3aa22442f79fefc2c0405f0d4000ba70db6bbad41863fd`, request `95b1d889-09d3-40e2-8d17-1063e4a73e7a`. Đã apply bằng reviewer DEV, kiểm expected/actual và gọi lại **apply --file cùng request**: không thêm rows/jobs/audit/version. Không dùng lệnh publication replay cho bootstrap.
+
+Manifest registry thật: `0f12e947-9355-4bc2-8a05-309474c2415f`; decision thật: `426241ec-ba2c-5923-9e96-1e8461d571b3`. Export và checkpoints private ở `state/publication/a2-approved-20261018/`; không overwrite các manifests/conditional drafts cũ. Xem reports/ptit-blocker-decisions.md về IDs, counters và ranh giới approval.
+
+B1 mới tại `state/publication/a2-approved-20261018/decision-b1.draft.json`, request `23977c8a-d4f5-4b56-a1cc-9040d843167a`, dùng parent/head A2 thật và đã qua plan read-only. **Chưa được duyệt/apply**. Người phụ trách cần duyệt chính file/hash/phạm vi B1 trước khi apply; B2/B3/C giữ conditional. Không dùng kết quả plan hoặc approval A2 để apply B1. Sau mỗi parent được apply, materialize quyết định kế tiếp bằng IDs/head thật và request riêng, giữ bản cũ.

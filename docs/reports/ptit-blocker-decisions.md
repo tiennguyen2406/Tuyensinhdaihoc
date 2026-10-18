@@ -101,3 +101,45 @@ Mốc tiếp theo là approval đúng A2, rồi các quyết định phụ thu�
 - Bốn SourceProfiles mới qua schema; kiểm kê distinct university_key thay vì cộng mỗi profile version như trường mới. `git diff --check` pass; staged secret/path audit và exact-SHA CI được kiểm ở bước Git, kết quả cụ thể trong bàn giao.
 
 A2 review file SHA-256: `b032e83495c619177c3aa22442f79fefc2c0405f0d4000ba70db6bbad41863fd`. Scope/operations described above; approval applies only to this exact version.
+
+## Cập nhật: A2 được duyệt và apply, B1 chờ duyệt riêng
+
+Các mục trước ghi lại đợt chuẩn bị tại commit c22ea79, khi chưa có approval. Sau đó người dùng đã phê duyệt nghiệp vụ riêng A2 đúng file/hash phía trên và request `95b1d889-09d3-40e2-8d17-1063e4a73e7a`. Approval chỉ identities/authority; không cấp quyền tái phân phối hoặc duyệt B/C/D. Không sửa bytes/reason của A2, migrations, code hay outputs T05–T07.
+
+Ngay trước apply đã kiểm lại SHA, request, packet binding, expected registry/alias heads, raw checksum/size, schema0003head và reviewer capability. Actor thực là `db:eduradar_dev_reviewer`, không superuser/CREATEROLE/CREATEDB/BYPASSRLS. CLI plan vẫn preview_only/can_apply=true,13operations,catalog delta0. Apply chạy qua CLI/ReviewService với transaction/audit hiện có, không ghi SQL nghiệp vụ thủ công.
+
+| Tác động | Expected | Actual sau apply |
+|---|---|---|
+| University / method / admission-year partial / aliases | +1/+1/+1/+3 | +1/+1/+1/+3 |
+| Sources |7updates,0new|7updates,0new; university/verified/authority_scope đúng draft, các cột khác giữ nguyên |
+| Jobs / audit |+2/+14|35→37jobs;0→14audit, đúng request/actor |
+| Program / Offering / scale / scope / cutoff / evidence / release |0new|Tất cả vẫn0 |
+| Catalog dataset_version |0delta|0→0 |
+
+Một University PTIT dùng khóa nội bộ; chỉ một canonical method THPT. Registry giữ mã nguồn100 trong hệ `ptit:admission-method-code`, PTIT/2024; BVH/BVS vẫn là context Offering proposals của cùng trường, chưa là canonical Offering. Bảy source authority khớp nguyên publication_bindings đã duyệt, không mở rộng năm/method/offering/campus/snapshot. Source authority không tự duyệt fact hoặc scoring rule.
+
+IDs đã tồn tại trong DB:
+
+- Review decision: `426241ec-ba2c-5923-9e96-1e8461d571b3`.
+- Registry manifest job: `0f12e947-9355-4bc2-8a05-309474c2415f`.
+- University: `d7bfe9d8-6f23-57a8-bc41-b3caa7ea2f07`; THPT method: `d391066d-0c18-579e-82fb-4398b1f9cd30`.
+- Admission-year partial2024 dùng khóa ghép `(university_id=d7bfe9d8-6f23-57a8-bc41-b3caa7ea2f07, admission_year=2024)`, không có cột UUID id. UUID operation trong CLI/audit không phải canonical ID của hàng admission_years.
+- Registry/alias heads: `registry/ptit-identities-authority/20261018-r2`, `aliases/ptit-identities-authority/20261018-r2`.
+
+Chạy lại cùng A2 bằng **apply --file**, không dùng publication replay: result giống hệt; row digests của cả34tables, jobs/audit/version không đổi. Đối chiếu baseline trước apply: mọi hàng cũ giữ nguyên ngoài đúng7source updates được duyệt;645observations/35jobs cũ/22snapshots không sửa hoặc xóa.22raws vẫn khớp hash/kích thước;221tệp lịch sử private được kiểm nguyên digest. Không fetch, resume crawl, thay cap hoặc chạy T07 mới.
+
+Export CLI từ registry manifest thật thành private `state/publication/a2-approved-20261018/registry-a2-applied.json`; registry digest khớp manifest và validate_targets khớp canonical DB. Không dùng preview registry. Checkpoints trước/sau, apply result, replay proof và B1 nằm trong cùng thư mục ignored, không đưa vào Git.
+
+### B1 đã materialize, chưa được duyệt/apply
+
+Draft mới giữ conditional B1 cũ nguyên bytes, có request mới và parent University thật; expected heads đúng A2. File: `state/publication/a2-approved-20261018/decision-b1.draft.json`; SHA-256 `932a5f3c215e816916fba4e79241fe5d90f6c6c913b7deecd3b1adb3be7482ea`; request `23977c8a-d4f5-4b56-a1cc-9040d843167a`.
+
+Đề nghị tạo **một Program QTKD cấp Học viện**, canonical_key nội bộ `ptit-regular-7340101`, và **một Offering BVH/2024/mã7340101**. Evidence giữ snapshot PDF2024 `f31d55ba-cbc7-42e0-9a02-c5a7c285abc3`, p12/p20; đây là đối chiếu trực quan đã ghi nhận, không OCR. Program ở mức danh mục chính quy của Học viện, không khẳng định curriculum/tuition hai cơ sở giống nhau; việc thêm Offering BVS vẫn cần B2 riêng. MajorNULL, track/language unknown biểu diễn UNSPECIFIED trong schema và null trong registry; Chính quy có evidence.
+
+Plan bằng dedicated reviewer: preview_only/can_apply=true,2operations,catalog delta0. Prechecks read-only kiểm parent year2024 thật, registry targets, mandatory columns, chưa trùng program/offering business keys, source catalog authority đúng context/snapshot và registry version đích chưa dùng. Đây không phải mô phỏng đầy đủ SQL insert hoặc approval. Nếu được duyệt/apply sau revalidation, expected +1Program/+1Offering/+2jobs/+3audit,0cutoff/0catalog delta; Offering ref Program tạo trong cùng transaction. UUID trong plan chưa tồn tại và không được trình như canonical IDs thật.
+
+B2/B3/C còn conditional; D recipes chưa có IDs/binding T07 mới. Không kế thừa approval A2. Sau B/C được duyệt/apply mới export và chạy T07 version mới, materialize từng D rồi review/publish riêng. Chỉ đề xuất T09 khi có lô canonical thật đã kiểm chứng; vẫn chưa nghiệm thu toànT07/T08/Phase1 hoặc quota20.000.
+
+Health/live vàready kiểm qua ASGI TestClient với DB hiện tại đều200; cổng HTTP8000 chưa kết nối được ở lượt kiểm trước, không báo là server đang chạy. Không thay implementation/dependencies/schema nên không có regression code mới cần viết.
+
+Checks chạy mới trong lượt apply: `uv run pytest -q` **525passed183.28s**, fixtures dùng database test riêng; `uv run ruff check .` pass; `uv run ruff format --check .` pass128files; `uv run mypy` pass55sourcefiles; `uv lock --check`87packages, lockfile không đổi; `uv run alembic current`0003head; `uv run alembic check`no new upgrade operations; `git diff --check`pass. Không thêm tests/envelopes để tăng số lượng. Staged chỉ ba tài liệu vận hành, không credentials/raw/private decisions; exact-SHA push/CI được kiểm và ghi trong bàn giao.
