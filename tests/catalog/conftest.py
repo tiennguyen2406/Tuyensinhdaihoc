@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 from services.api.db.models import metadata
 from services.api.db.session import alembic_config
+from services.data.normalization.values import text
 from tests.fixtures import make_scope
 
 
@@ -29,7 +30,12 @@ def catalog_db(database_factory):
                 metadata.tables["universities"]
                 .update()
                 .where(metadata.tables["universities"].c.id == f["university"])
-                .values(name=name, university_code=code, verification_status="verified")
+                .values(
+                    name=name,
+                    normalized_name=text(name).search_key,
+                    university_code=code,
+                    verification_status="verified",
+                )
             )
             c.execute(
                 metadata.tables["program_years"]

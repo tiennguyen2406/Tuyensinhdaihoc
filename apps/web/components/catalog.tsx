@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type {
+  AdmissionYearStatus,
   CatalogData,
   Cutoff,
   Filters,
@@ -14,6 +15,14 @@ import type {
 } from "../lib/contracts";
 import { CatalogError, fetchJson, loadCatalog } from "../lib/api";
 import { filterQuery, filtersFrom } from "../lib/filters";
+
+const yearStatusLabels: Record<AdmissionYearStatus, string> = {
+  unknown: "Chưa xác định",
+  partial: "Đã thu thập một phần",
+  published: "Đã công bố",
+  verified: "Đã xác minh",
+  not_collected: "Chưa thu thập năm này",
+};
 
 export function Catalog(props: {
   initial: CatalogData | null;
@@ -238,7 +247,29 @@ export function Catalog(props: {
         </div>
       )}
       <div aria-busy={state.pending}>
-        {metadata && <MetadataNotice metadata={metadata} />}
+        {metadata && (
+          <>
+            <MetadataNotice metadata={metadata} />
+            <div
+              className="metadata"
+              role="group"
+              aria-label="Trạng thái năm của các trường trong phạm vi tra cứu"
+            >
+              <p>Trạng thái năm của các trường trong phạm vi tra cứu:</p>
+              <ul>
+                {(Object.keys(yearStatusLabels) as AdmissionYearStatus[]).map(
+                  (status) => (
+                    <li key={status}>
+                      {yearStatusLabels[status]}:{" "}
+                      {metadata.coverage.admission_year_status_counts[status]}
+                    </li>
+                  ),
+                )}
+              </ul>
+              <p>Độc lập với bộ lọc phương thức, cơ sở và số mốc điểm chuẩn.</p>
+            </div>
+          </>
+        )}
         {data?.universities && (
           <section aria-label="Kết quả trường đại học">
             {data.universities.items.length === 0 ? (
@@ -262,6 +293,7 @@ export function Catalog(props: {
                       {[item.province, item.type].filter(Boolean).join(" · ") ||
                         "Chưa có thông tin địa phương / loại hình"}
                     </p>
+                    <YearStatus status={item.data_status} />
                     <dl className="counts">
                       <div>
                         <dt>Chương trình</dt>
@@ -295,6 +327,7 @@ export function Catalog(props: {
                 <strong>{data.university.item.code}</strong> · Năm{" "}
                 {data.university.item.selected_year}
               </p>
+              <YearStatus status={data.university.item.data_status} />
               <Sources sources={data.university.item.sources} />
             </section>
             <section aria-labelledby="offerings-title">
@@ -491,6 +524,19 @@ function message(error: unknown) {
   return error instanceof CatalogError
     ? error.message
     : "Không thể tải dữ liệu. Vui lòng thử lại.";
+}
+function YearStatus({ status }: { status: AdmissionYearStatus }) {
+  return (
+    <div className="muted">
+      <p>Trạng thái năm: {yearStatusLabels[status]}</p>
+      {status === "verified" && (
+        <p>
+          Trạng thái đã xác minh không khẳng định đã thu thập đầy đủ dữ liệu
+          tuyển sinh của năm.
+        </p>
+      )}
+    </div>
+  );
 }
 function Empty() {
   return (

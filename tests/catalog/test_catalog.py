@@ -146,23 +146,43 @@ def test_disputed_noncurrent_withdrawn_are_excluded(catalog_client):
 def test_publication_during_response_keeps_repeatable_snapshot(catalog_client, monkeypatch):
     from services.api.catalog import queries
 
-    client, db, _ = catalog_client
-    original = queries.facts
+    client, db, fixtures = catalog_client
+    original = queries.version
     called = False
 
-    def publish_after_version_read(c, params, status="verified"):
+    def publish_after_version_read(c):
         nonlocal called
+        value = original(c)
         if not called:
             called = True
             with db.begin() as writer:
-                make_scope(writer)
+                added = make_scope(writer)
+                writer.execute(
+                    metadata.tables["universities"]
+                    .update()
+                    .where(metadata.tables["universities"].c.id == added["university"])
+                    .values(verification_status="verified")
+                )
+                writer.execute(
+                    metadata.tables["admission_years"]
+                    .update()
+                    .where(
+                        metadata.tables["admission_years"].c.university_id
+                        == fixtures[0]["university"]
+                    )
+                    .values(status="partial")
+                )
                 writer.execute(metadata.tables["catalog_state"].update().values(dataset_version=4))
-        return original(c, params, status)
+        return value
 
-    monkeypatch.setattr(queries, "facts", publish_after_version_read)
+    monkeypatch.setattr(queries, "version", publish_after_version_read)
     response = client.get("/api/v1/cutoffs", params={"year": 2026}).json()
     assert response["dataset_version"] == 3 and len(response["items"]) == 4
-    assert client.get("/api/v1/cutoffs", params={"year": 2026}).json()["dataset_version"] == 4
+    assert response["coverage"]["canonical_cutoff_count"] == 4
+    assert response["coverage"]["admission_year_status_counts"]["partial"] == 0
+    next_response = client.get("/api/v1/cutoffs", params={"year": 2026}).json()
+    assert next_response["dataset_version"] == 4 and len(next_response["items"]) == 5
+    assert next_response["coverage"]["admission_year_status_counts"]["partial"] == 1
 
 
 def test_live_version_does_not_mislabel_old_release_and_reader_is_scoped(release_db, tmp_path):

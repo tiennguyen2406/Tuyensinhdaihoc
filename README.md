@@ -185,6 +185,13 @@ dataset_version là canonical hiện hành, release ID chỉ đính kèm khi ver
 Năm2025/2026 chưa có dữ liệu đã xác minh; không fallback2024. Decimal/TTNV/scope giữ
 nguyên, không tính hoặc so sánh điểm. Release3 cũ không rebuild vì sửa code.
 
+Trạng thái năm lấy từ admission_years: PTIT2024 vẫn **partial** dù ba cutoff đã verified.
+SQL filters/keyset limit+1, batch evidence theo trang và aggregate coverage thay cách
+materialize toàn bộ facts. Cursor/2 từ chối cursor sort cũ rõ ràng. Xem
+[báo cáo SQL/year-status và benchmark synthetic](docs/reports/t10-sql-year-status.md).
+Synthetic20k/50k không cộng vào quota; đề xuất bước tiếp theo là
+[T09 đa nguồn/T11 review](docs/plans/2026-10-19-t09-multisource-next.md), chưa chuyển sang T12.
+
 Node24.22.0/pnpm11.25.0; cài `pnpm --dir apps/web install --frozen-lockfile`, chạy
 `pnpm --dir apps/web dev --port 3000` ở terminal riêng sau API. Credentials reader,
 cách nạp env/chạy API/dừng hidden pilot processes và checks đầy đủ ở runbook trên.

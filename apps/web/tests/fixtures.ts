@@ -1,4 +1,9 @@
-import type { ListEnvelope, University } from "../lib/contracts";
+import type {
+  Cutoff,
+  ListEnvelope,
+  Offering,
+  University,
+} from "../lib/contracts";
 
 export const source = {
   snapshot_id: "11111111-1111-4111-8111-111111111111",
@@ -16,7 +21,7 @@ export const university: University = {
   province: null,
   type: null,
   selected_year: 2024,
-  data_status: "verified",
+  data_status: "partial",
   program_count: 1,
   offering_count: 1,
   cutoff_count: 1,
@@ -44,6 +49,78 @@ export function list<T>(items: T[]): ListEnvelope<T> {
       tuition_status: "not_available_in_slice",
       scholarship_status: "not_available_in_slice",
       computation_unavailable_count: 0,
+      admission_year_status_counts: {
+        unknown: 0,
+        partial: items.length,
+        published: 0,
+        verified: 0,
+        not_collected: 0,
+      },
     },
   };
 }
+
+export const offering: Offering = {
+  program_id: "44444444-4444-4444-8444-444444444444",
+  program_name: "Y khoa",
+  program_year_id: "55555555-5555-4555-8555-555555555555",
+  offering_code: "YK24",
+  offering_name: "Y khoa tiêu chuẩn",
+  year: 2024,
+  university_id: university.id,
+  university_name: university.name,
+  campus: "Cơ sở 1",
+  track: null,
+  language: "Tiếng Việt",
+  major_id: null,
+  major_name: null,
+  method_codes: ["THPT"],
+  cutoff_count: 1,
+  tuition: null,
+  scholarships: null,
+  sources: [source],
+};
+export const cutoff: Cutoff = {
+  id: "66666666-6666-4666-8666-666666666666",
+  program_id: offering.program_id,
+  program_year_id: offering.program_year_id,
+  university_id: university.id,
+  program_name: offering.program_name,
+  offering_code: offering.offering_code,
+  offering_name: offering.offering_name,
+  campus: offering.campus,
+  year: 2024,
+  method: {
+    id: "77777777-7777-4777-8777-777777777777",
+    code: "THPT",
+    name: "Thi tốt nghiệp THPT",
+  },
+  score: "27.50",
+  max_score: "30.00",
+  scale: {
+    id: "88888888-8888-4888-8888-888888888888",
+    code: "THPT30",
+    exam_version: "2024",
+    min_score: "0",
+    max_score: "30",
+    basis_description: "Tổng ba môn theo nguồn",
+  },
+  basis_version: "2024-v1",
+  scope: {
+    id: "99999999-9999-4999-8999-999999999999",
+    combination_id: null,
+    combination_status: "aggregate",
+    round_key: "1",
+    population_key: "all",
+    condition_text: "TTNV = 1",
+    conditions: { op: "eq", field: "TTNV", value: 1 },
+    aggregation_basis: "all_combinations",
+  },
+  revision: 1,
+  verification_status: "verified",
+  computation_status: "unavailable_aggregate_scope",
+  sources: [source],
+  source_published_at: "2024-08-20T00:00:00Z",
+  effective_from: null,
+  updated_at: "2024-08-21T00:00:00Z",
+};

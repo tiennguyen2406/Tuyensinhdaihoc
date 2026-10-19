@@ -30,7 +30,7 @@ def binding(endpoint: str, params: dict[str, Any]) -> str:
     values = {k: str(v) if v is not None else None for k, v in params.items() if k != "cursor"}
     if "query" in values:
         values["query"] = text(values["query"] or "").search_key
-    raw = json.dumps([endpoint, values, "name_uuid/1"], sort_keys=True).encode()
+    raw = json.dumps([endpoint, values, "sql_keyset/2"], sort_keys=True).encode()
     return hashlib.sha256(raw).hexdigest()
 
 
@@ -45,8 +45,18 @@ def after(cursor: str | None, expected_binding: str, version: int) -> tuple[str,
         if b64(raw) != encoded:
             raise ValueError("encoding")
         p = json.loads(raw)
+        if not isinstance(p, dict):
+            raise ValueError("payload")
+        if p.get("contract") == "cursor/1":
+            raise HTTPException(
+                422,
+                detail={
+                    "code": "UNSUPPORTED_CURSOR",
+                    "message": "Cursor cũ; bắt đầu lại danh sách.",
+                },
+            )
         if (
-            p["contract"] != "cursor/1"
+            p["contract"] != "cursor/2"
             or p["binding"] != expected_binding
             or not isinstance(p["after"], list)
             or not all(isinstance(x, str) for x in p["after"])

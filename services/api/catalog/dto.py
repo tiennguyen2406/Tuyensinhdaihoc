@@ -8,6 +8,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Year = Annotated[int, Field(ge=2024, le=2026)]
+YearStatus = Literal["unknown", "partial", "published", "verified", "not_collected"]
 
 
 class Params(BaseModel):
@@ -81,7 +82,7 @@ class University(BaseModel):
     province: str | None
     type: str | None
     selected_year: Year
-    data_status: str
+    data_status: YearStatus
     program_count: int
     offering_count: int
     cutoff_count: int
@@ -181,11 +182,12 @@ class Coverage(BaseModel):
     tuition_status: Literal["not_available_in_slice"] = "not_available_in_slice"
     scholarship_status: Literal["not_available_in_slice"] = "not_available_in_slice"
     computation_unavailable_count: int
+    admission_year_status_counts: dict[YearStatus, int]
 
 
 class AdmissionYear(BaseModel):
     year: Year
-    data_status: str
+    data_status: YearStatus
     cutoff_count: int
     offering_count: int
 

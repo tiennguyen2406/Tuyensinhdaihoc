@@ -16,6 +16,9 @@ def provision_reader(c: Connection) -> None:
     c.exec_driver_sql(
         "GRANT SELECT (id,snapshot_id,record_locator) ON observations TO eduradar_reader"
     )
+    c.exec_driver_sql(
+        "GRANT SELECT (university_id,admission_year,status) ON admission_years TO eduradar_reader"
+    )
     actor = "db:" + str(c.exec_driver_sql("SELECT session_user").scalar_one())
     audit(
         c,
@@ -27,6 +30,7 @@ def provision_reader(c: Connection) -> None:
         {
             "capability": "eduradar_reader",
             "observation_columns": ["id", "snapshot_id", "record_locator"],
+            "admission_year_columns": ["university_id", "admission_year", "status"],
         },
         "T10 read-only lookup, no raw observation bodies/jobs/audit privileges",
         "T10:catalog/1:reader",

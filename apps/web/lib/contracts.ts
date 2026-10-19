@@ -6,6 +6,8 @@ export interface Source {
   locator: string | null;
   source_type: string;
 }
+export type AdmissionYearStatus =
+  "unknown" | "partial" | "published" | "verified" | "not_collected";
 export interface Coverage {
   year: number;
   canonical_cutoff_count: number;
@@ -18,6 +20,7 @@ export interface Coverage {
   tuition_status: "not_available_in_slice";
   scholarship_status: "not_available_in_slice";
   computation_unavailable_count: number;
+  admission_year_status_counts: Record<AdmissionYearStatus, number>;
 }
 export interface Metadata {
   dataset_version: number;
@@ -47,7 +50,7 @@ export interface University {
   province: string | null;
   type: string | null;
   selected_year: number;
-  data_status: string;
+  data_status: AdmissionYearStatus;
   program_count: number;
   offering_count: number;
   cutoff_count: number;

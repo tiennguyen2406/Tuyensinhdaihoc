@@ -5,12 +5,22 @@ test("SSR search → university → offering cutoff, source and equality conditi
   request,
 }) => {
   const response = await request.get("/universities?year=2024");
-  expect(await response.text()).toContain("Trường Tổng hợp Mẫu");
+  const html = await response.text();
+  expect(html).toContain("Trường Tổng hợp Mẫu");
+  expect(html).toContain("Đã thu thập một phần");
   await page.goto(
     "/universities?year=2024&method=THPT&campus=C%C6%A1+s%E1%BB%9F+1",
   );
+  await expect(
+    page.getByText("Trạng thái năm: Đã thu thập một phần", { exact: true }),
+  ).toBeVisible();
   await page.getByRole("link", { name: /Trường Tổng hợp Mẫu/ }).click();
   await expect(page).toHaveURL(/year=2024.*method=THPT.*campus=/);
+  await expect(
+    page
+      .getByRole("region", { name: "Thông tin trường" })
+      .getByText("Trạng thái năm: Đã thu thập một phần", { exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Y khoa tiêu chuẩn", exact: true }),
   ).toBeVisible();
@@ -31,6 +41,7 @@ test("SSR search → university → offering cutoff, source and equality conditi
     page.getByRole("cell", { name: /^27\.50 \/ 30\.00/ }),
   ).toBeVisible();
   await expect(page.getByText("TTNV = 1", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Xác minh: verified/)).toBeVisible();
   await expect(
     page.getByText("Tổng ba môn theo nguồn", { exact: true }),
   ).toBeHidden();
@@ -61,9 +72,18 @@ test("year URL, empty/error/retry and browser back keep current results", async 
   page,
 }) => {
   await page.goto("/universities?year=2024");
+  await page.getByLabel("Năm tuyển sinh").selectOption("2025");
+  await expect(
+    page.getByText("Trạng thái năm: Chưa xác định", { exact: true }),
+  ).toBeVisible();
   await page.getByLabel("Năm tuyển sinh").selectOption("2026");
   await expect(page).toHaveURL(/year=2026/);
+  await expect(
+    page.getByText("Trạng thái năm: Chưa thu thập năm này", { exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Tên hoặc mã trường").fill("none");
   await expect(page.getByText(/Chưa có dữ liệu đã thu thập/)).toBeVisible();
+  await page.getByLabel("Tên hoặc mã trường").fill("");
   await page.getByLabel("Năm tuyển sinh").selectOption("2024");
   await page.getByLabel("Tên hoặc mã trường").fill("error");
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
