@@ -3,6 +3,11 @@
 Đây là đề xuất sau lát cắt T10 SQL/year-status, chưa là approval nguồn/fact hoặc lệnh crawl.
 DEV vẫn3/20.000; release3 bất biến. Không chuyển thẳng sang T12.
 
+Tiến độ bounded task riêng19/10: bootstrap invalidation đã sửa, UIT/DUT17/30HTTP;
+DUT9staging gates/0typedcutoff/0T08factpacket. Chưa đạt5–10cutoff records do format/access;
+xem reports/bootstrap-invalidation-intake.md. Không coi phần còn lại của proposal dưới
+đây đã được thực thi hoặc được duyệt nghiệp vụ.
+
 1. Chọn2–3 trường bổ sung từ inventory12, ưu tiên nguồn chính thức có bảng cutoff rõ
    năm/phương thức/campus và có thể đối chiếu độc lập. HUST/DUT/UIT là candidates để
    review, chưa có robots/storage/authority approval được suy từ PTIT. Chỉ chốt danh sách

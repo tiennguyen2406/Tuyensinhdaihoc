@@ -45,9 +45,10 @@ def test_first_publication_scope_evidence_version_jobs_and_replay(prepared):
         from services.data.publication.publish import Publisher
 
         result = Publisher(c).publish(draft, None)
-        assert result.status == "published" and result.revision == 1 and result.dataset_version == 1
+        # Bootstrap already exposed the verified university and Program at serving version 1.
+        assert result.status == "published" and result.revision == 1 and result.dataset_version == 2
         replay = Publisher(c).publish(draft, None)
-        assert replay.cached and replay.dataset_version == 1
+        assert replay.cached and replay.dataset_version == 2
         assert c.scalar(sa.text("SELECT count(*) FROM cutoff_scores WHERE is_current")) == 1
         assert c.scalar(sa.text("SELECT count(*) FROM cutoff_evidence")) == 1
         assert (
@@ -56,7 +57,7 @@ def test_first_publication_scope_evidence_version_jobs_and_replay(prepared):
                     "SELECT count(*) FROM ingest_jobs WHERE job_type='refresh_serving' AND status='queued'"
                 )
             )
-            == 1
+            == 2
         )
         assert c.scalar(sa.text("SELECT score FROM cutoff_scores")) == Decimal("24.5")
         assert c.scalar(sa.text("SELECT major_id FROM programs")) is None
@@ -145,7 +146,7 @@ def test_three_sources_are_one_current_revision_with_three_evidence(prepared):
     with e.connect() as c:
         assert c.scalar(sa.text("SELECT count(*) FROM cutoff_scores")) == 1
         assert c.scalar(sa.text("SELECT count(*) FROM cutoff_evidence")) == 3
-        assert c.scalar(sa.text("SELECT dataset_version FROM catalog_state")) == 3
+        assert c.scalar(sa.text("SELECT dataset_version FROM catalog_state")) == 4
 
 
 def test_correction_history_stale_revision_and_official_conflict(prepared):
@@ -271,7 +272,7 @@ def test_mid_transaction_failure_rolls_back_every_publication_side_effect(prepar
         with pytest.raises(sa.exc.DBAPIError):
             Publisher(c).publish(draft, None)
         assert {t: c.scalar(sa.text("SELECT count(*) FROM " + t)) for t in before} == before
-        assert c.scalar(sa.text("SELECT dataset_version FROM catalog_state")) == 0
+        assert c.scalar(sa.text("SELECT dataset_version FROM catalog_state")) == 1
 
 
 def test_db_guards_stop_core_history_and_audit_rewrites(prepared):
@@ -600,7 +601,7 @@ def test_approving_alias_for_serving_university_updates_version_and_refresh(
         )
         assert (
             c.scalar(sa.text("SELECT count(*) FROM ingest_jobs WHERE job_type='refresh_serving'"))
-            == 2
+            == 3
         )
 
 

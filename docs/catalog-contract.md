@@ -12,6 +12,13 @@ version đang phục vụ. `release` chỉ có `{id,version}` nếu dataset_rele
 version đó, nếu không là null. Release3 là baseline kiểm chứng; serving4 không mang
 nhãn release3. API đọc canonical hiện hành, không đọc frozen release để giả dữ liệu mới.
 
+Catalog version cũng invalidates khi bootstrap thay đổi identity/year status/search alias
+đang được T10 phục vụ dù chưa có cutoff. Policy chung cho plan/apply nằm trong
+publication/serving.py, liệt kê ở publication-contract.md. Registry metadata-only không
+tự tăng version; một bootstrap transaction tăng tối đa một lần, atomic cùng audit và
+refresh job. Cursor trước mutation nhận409. Không đổi endpoint visibility hoặc sửa
+historical versions/results/releases vì policy mới.
+
 Chỉ current verified cutoffs thuộc published scope, Offering đúng năm2024–2026,
 university verified. Disputed/noncurrent/withdrawn không xuất hiện như verified.
 Explicit DTO allowlist; không serialize ORM rows hoặc raw source bodies, credentials,

@@ -17,6 +17,7 @@ from services.api.db.validators import (
     validate_authority_scope,
 )
 from services.data.publication.contract import ReviewCommand, SourceRelationship, json_value
+from services.data.publication.serving import affects_serving
 from services.data.resolution.registry import EntityRegistry
 from services.data.resolution.store import validate_targets
 
@@ -105,6 +106,8 @@ def operations(
     reg = seed.frozen()
     ids = {e.key: e.canonical_id for e in seed.entities if e.canonical_id}
     effects = []
+    verified_universities: set[UUID] = set()
+    serving_changed = False
     for op in sorted(cmd.operations, key=lambda o: ORDER.index(o.kind)):
         evidence_sources = set()
         for evidence in op.evidence:
@@ -245,6 +248,11 @@ def operations(
                 c.execute(table.insert().values(**values))
         assert identifier is not None
         ids[op.key] = identifier
+        if op.kind == "university":
+            verified_universities.add(identifier)
+        serving_changed = serving_changed or affects_serving(
+            c, op.kind, op.mode, old, values, verified_universities
+        )
         if op.kind == "combination":
             if not isinstance(subjects, list) or len(set(subjects)) != 3:
                 raise ValueError("Three explicit combination subjects required")
@@ -326,29 +334,8 @@ def operations(
     if write:
         validate_targets(c, registry)
     return dict(
-        registry=registry.frozen(), effects=effects, ids={k: str(v) for k, v in ids.items()}
+        registry=registry.frozen(),
+        effects=effects,
+        ids={k: str(v) for k, v in ids.items()},
+        catalog_version_delta=int(serving_changed),
     )
-
-
-def alias_affects_serving(c: Connection, cmd: ReviewCommand, effect: dict[str, Any]) -> bool:
-    from services.api.db.models import cutoff_scores, program_admissions, program_years
-
-    for op in cmd.operations:
-        if op.kind != "alias" or op.mode != "create":
-            continue
-        owner = op.values.get("university_id")
-        if isinstance(owner, str) and owner.startswith("@"):
-            owner = effect["ids"].get(owner[1:])
-        if owner is None:
-            continue
-        exists = c.scalar(
-            sa.select(sa.func.count())
-            .select_from(cutoff_scores.join(program_admissions).join(program_years))
-            .where(
-                cutoff_scores.c.is_current.is_(True),
-                program_years.c.university_id == UUID(str(owner)),
-            )
-        )
-        if exists:
-            return True
-    return False

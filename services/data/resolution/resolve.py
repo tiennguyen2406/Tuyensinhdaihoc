@@ -1,5 +1,6 @@
 """Envelope adapter. Source-specific proposals never become canonical by generation."""
 
+import re
 from urllib.parse import urlsplit
 
 from services.data.normalization.store import digest
@@ -12,7 +13,24 @@ from services.data.resolution.contract import (
     State,
 )
 from services.data.resolution.matching import match
-from services.data.resolution.registry import EntityRegistry
+from services.data.resolution.registry import Entity, EntityRegistry
+
+
+def table_program_code_system(owner: Entity | None) -> str | None:
+    if owner is None:
+        return None
+    if "table_program_code_system" in owner.attributes:
+        system = owner.attributes["table_program_code_system"]
+        if not isinstance(system, str) or not re.fullmatch(
+            r"[a-z][a-z0-9_.-]*:[a-z0-9_.:-]+", system
+        ):
+            raise ValueError("Invalid source table program code system")
+        return system
+    if owner.key == "proposal:ptit" or any(
+        code.system == "ptit:campus-admission-label" for code in owner.codes
+    ):
+        return "ptit:table-program-label"
+    return None
 
 
 def propose_registry(seed: EntityRegistry, inputs: list[ResolutionInput]) -> EntityRegistry:
@@ -29,6 +47,9 @@ def propose_registry(seed: EntityRegistry, inputs: list[ResolutionInput]) -> Ent
         if len(owners) != 1:
             continue
         owner = owners[0]
+        code_system = table_program_code_system(owner)
+        if code_system is None:
+            continue
         for c in source.envelope.candidates:
             if c.fact_kind != "cutoff" or c.admission_year is None:
                 continue
@@ -71,7 +92,7 @@ def propose_registry(seed: EntityRegistry, inputs: list[ResolutionInput]) -> Ent
                         attributes=attrs,
                         codes=[
                             {
-                                "system": "ptit:table-program-label",
+                                "system": code_system,
                                 "value": code,
                                 "from_year": c.admission_year,
                                 "to_year": c.admission_year,
@@ -147,6 +168,7 @@ def resolve(
         }
         matches = {"university": match(queries["university"], entity_registry)}
         owner = suggestion(matches["university"])
+        code_system = table_program_code_system(entity_registry.entry(owner) if owner else None)
         name = (c.scope.get("program_name") or {}).get("display")
         queries["program"] = EntityQuery(
             kind="program", name=name, university_key=owner, attributes=attrs
@@ -165,20 +187,25 @@ def resolve(
             kind="offering",
             name=name,
             code=(c.scope.get("offering_code") or {}).get("display"),
-            code_system="ptit:table-program-label",
+            code_system=code_system,
             university_key=owner,
             program_key=pk,
             attributes=attrs,
         )
-        matches["offering"] = (
-            match(
+        if c.fact_kind != "cutoff":
+            matches["offering"] = EntityMatch(
+                kind="offering", reasons=["TUITION_GROUP_NOT_OFFERING"]
+            )
+        elif code_system is None:
+            matches["offering"] = EntityMatch(
+                kind="offering", reasons=["OFFERING_CODE_SYSTEM_MISSING"]
+            )
+        else:
+            matches["offering"] = match(
                 queries["offering"],
                 entity_registry,
                 allow_link=matches["university"].status == matches["program"].status == "resolved",
             )
-            if c.fact_kind == "cutoff"
-            else EntityMatch(kind="offering", reasons=["TUITION_GROUP_NOT_OFFERING"])
-        )
         queries["method"] = EntityQuery(
             kind="method",
             name=c.method.display if c.method else None,

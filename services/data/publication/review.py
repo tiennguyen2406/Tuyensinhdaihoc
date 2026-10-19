@@ -10,7 +10,7 @@ from services.api.db.models import ingest_jobs, quality_issues
 from services.api.db.validators import record
 from services.data.normalization.store import digest
 from services.data.publication.access import require
-from services.data.publication.bootstrap import alias_affects_serving, audit, operations
+from services.data.publication.bootstrap import audit, operations
 from services.data.publication.contract import ReviewCommand, ValidatedDraft, json_value
 from services.data.publication.packets import checked_packet
 from services.data.resolution.registry import EntityRegistry
@@ -71,7 +71,6 @@ class ReviewService:
         effect: dict[str, Any] = {}
         if cmd.action == "bootstrap":
             effect = operations(self.c, cmd, reg, actor, identifier, packet, write=False)
-            effect["catalog_version_delta"] = int(alias_affects_serving(self.c, cmd, effect))
         elif cmd.action == "publish":
             from services.data.publication.validate import build_draft
 
@@ -155,7 +154,6 @@ class ReviewService:
             if cmd.action == "bootstrap":
                 effect = operations(self.c, cmd, reg, actor, identifier, packet, write=True)
                 result.update(effect)
-                result["catalog_version_delta"] = int(alias_affects_serving(self.c, cmd, effect))
                 if result["catalog_version_delta"]:
                     from services.data.publication.publish import advance_serving
 

@@ -140,6 +140,32 @@ def test_pending_registry_does_not_create_canonical_catalogs_or_release(db):
     )
 
 
+def test_new_source_namespace_is_frozen_and_replay_does_not_duplicate(db):
+    from tests.resolution.test_envelope import pending_uit_registry
+
+    job = t06(db)
+    registry = pending_uit_registry("test:table-program-label").frozen()
+    registry["entities"][0]["domains"] = ["example.invalid"]
+    store = ResolutionStore(db)
+    first = store.run(job, EntityRegistry.model_validate(registry))
+    manifest = db.execute(
+        sa.select(ingest_jobs.c.payload).where(ingest_jobs.c.id == first["job_id"])
+    ).scalar_one()
+    offering = next(e for e in manifest["registry"]["entities"] if e["kind"] == "offering")
+    assert offering["codes"][0]["system"] == "test:table-program-label"
+    assert offering["canonical_id"] is None
+    before = [dict(r) for r in db.execute(sa.select(observations)).mappings()]
+    replay = store.replay(first["job_id"])
+    assert replay["cached"] and replay["inserted"] == 0
+    assert [dict(r) for r in db.execute(sa.select(observations)).mappings()] == before
+    assert (
+        db.execute(
+            sa.select(ingest_jobs.c.payload).where(ingest_jobs.c.id == first["job_id"])
+        ).scalar_one()
+        == manifest
+    )
+
+
 def test_approved_canonical_id_must_exist_in_database(db):
     from tests.resolution.test_matcher import entity, registry
 

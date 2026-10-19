@@ -17,6 +17,12 @@ REPEATABLE READ READ ONLY. Catalog version/changed_at, `count_canonical_cutoffs(
 facts, labels, scales/rules, evidence/source metadata, lineage và coverage cùng snapshot.
 Predicate đúng helper: current + verified + published scope + offering year 2024–2026.
 Không join evidence khi count; SQL count = exported unique cutoff IDs = manifest count.
+
+Catalog version còn theo dõi bootstrap changes thuộc live T10 serving surface (verified
+University/Program, year status, approved search alias/source reference), kể cả chưa có
+cutoff. Vì vậy version tăng không bắt buộc cutoff_count tăng; builder vẫn xuất đúng tập
+canonical cutoff đã định nghĩa trong snapshot/version thật. Policy ở publication-contract.md.
+Không gán lại version/rebuild release3 để phản ánh code policy mới hoặc staging intake.
 Publication đồng thời được phép: snapshot cũ giữ version cũ, không đọc version mới để đổi nhãn.
 Không tái dựng version 1/2 từ current data. Snapshot không giới hạn theo ba UUID PTIT.
 

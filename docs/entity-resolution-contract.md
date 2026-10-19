@@ -19,6 +19,16 @@ Pipeline pilot: job T06 → kiểm hash/membership/lineage → registry frozen +
 
 Registry DTOs ở registry.py, curated seed ở config/entities/ptit-v1.json. Entity giữ key/name, parent refs, attributes, code bindings, domains, review và canonical_id tùy trạng thái. Alias giữ target/value/kind, code_system, owner, hiệu lực, attributes và review. Code giữ system/value/from_year/to_year/attributes/evidence. Không có phép đồng nhất code ở các hệ khác nhau. Unknown là null hoặc absent, không điền MAIN/GENERAL/Chính quy/campus/language mặc định.
 
+Từ resolver/1.0.1, pending University của nguồn bổ sung khai báo explicit
+attributes.table_program_code_system (ví dụ dut:table-program-label). Cùng helper dùng
+cho generated Offering proposals và EntityQuery; không mặc định nguồn mới vào namespace
+PTIT. Chỉ key PTIT đã biết hoặc existing PTIT campus-code binding giữ legacy fallback.
+Thiếu namespace ở owner khác: không sinh Program/Offering pair, Offering unresolved
+với OFFERING_CODE_SYSTEM_MISSING; namespace sai bị từ chối. Đây là code-system metadata
+review-only, không xác minh source/canonical mapping hoặc biến offering code thành Major.
+Không sửa manifests/outputs resolver1.0.0 lịch sử; namespace mới có replay/idempotency
+riêng. Không khẳng định executable replay namespace cũ tương thích với code mới.
+
 Approved yêu cầu canonical UUID và reviewer/date/evidence; pending/revoked không được mang canonical UUID. Đây là kiểm tra tính đầy đủ của hồ sơ, **không xác thực chữ ký hoặc tự cấp quyền review**. Store còn kiểm approved UUID thực sự tồn tại trong đúng bảng, university verified, các parent/context/method semantics khớp DB. Synthetic registry bị từ chối ở project store. Approved Offering phải có admission_year và khai báo campus/track/language (null được giữ unknown); metadata này đối chiếu DB, null chỉ tương thích sentinel UNSPECIFIED của DDL. Sentinel không là bằng chứng campus chính.
 
 Bộ seed pilot hoàn toàn pending, không reviewer/date/approval giả. BVH/BVS cùng trỏ proposal:ptit trong hệ `ptit:campus-admission-label`, hiệu lực2024, có evidence heading từng cơ sở; không là hai trường. Hệ `ptit:table-program-label` của Offering chỉ ghi nhãn trong bảng nguồn, không tuyên bố đó là taxonomy ngành hay mã chính thức toàn quốc.

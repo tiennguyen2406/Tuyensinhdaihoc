@@ -21,6 +21,7 @@ def seed_registry():
                     kind="university",
                     name="TEST ONLY",
                     domains=["example.invalid"],
+                    attributes={"table_program_code_system": "test:table-program-label"},
                     review=dict(status="pending", evidence=["fixture://TEST-ONLY"]),
                 ),
                 dict(

@@ -1,6 +1,8 @@
 from copy import deepcopy
 from uuid import uuid4
 
+import pytest
+
 from services.data.normalization.contract import NormalizationContext
 from services.data.normalization.normalize import normalize
 from services.data.resolution.contract import ResolutionInput
@@ -34,6 +36,8 @@ def test_real_pilot_seed_is_pending_and_bvh_bvs_are_one_proposal():
         c = result.candidates[0]
         assert c.status == "unresolved" and not c.publication_eligible
         assert c.entities["university"].options[0].proposal_key == "proposal:ptit"
+        assert c.queries["offering"].code_system == "ptit:table-program-label"
+        assert c.entities["offering"].options
         assert c.input_envelope_id == row.envelope_id
         assert c.candidate_key == row.envelope.candidates[0].candidate_key
         assert c.admission_year == 2024
@@ -71,7 +75,11 @@ def test_group_tuition_does_not_create_offering_or_admission_year():
 def test_partial_identity_does_not_imply_complete_fact_or_release_blocked_attempts():
     row = input_row()
     # Reviewed synthetic university/domain binding only; no source method/scale approval.
-    e = entity("u:test", domains=["tuyensinh.ptit.edu.vn"])
+    e = entity(
+        "u:test",
+        domains=["tuyensinh.ptit.edu.vn"],
+        attributes={"table_program_code_system": "test:table-program-label"},
+    )
     reg = EntityRegistry.model_validate(
         dict(
             version="registry/test/1",
@@ -112,3 +120,54 @@ def test_exact_provisional_program_limits_offering_suggestions_without_auto_link
     assert len(result.entities["program"].options) > 1
     assert result.entities["offering"].options
     assert result.entities["offering"].canonical_id is None
+
+
+def pending_uit_registry(code_system=None):
+    attributes = {} if code_system is None else {"table_program_code_system": code_system}
+    return EntityRegistry.model_validate(
+        dict(
+            version="registry/uit-fixture/1",
+            alias_version="aliases/uit-fixture/1",
+            classification="pilot_pending",
+            entities=[
+                dict(
+                    key="proposal:uit",
+                    kind="university",
+                    name="Synthetic UIT fixture",
+                    domains=["tuyensinh.uit.edu.vn"],
+                    attributes=attributes,
+                    review={"status": "pending", "evidence": ["fixture://uit-owner"]},
+                )
+            ],
+        )
+    )
+
+
+def test_pending_new_source_uses_its_own_offering_code_namespace():
+    row = input_row().model_copy(update={"final_url": "https://tuyensinh.uit.edu.vn/fixture"})
+    full = propose_registry(pending_uit_registry("uit:table-program-label"), [row])
+    offering = next(e for e in full.entities if e.kind == "offering")
+    assert offering.codes[0].system == "uit:table-program-label"
+    assert all(e.canonical_id is None and e.review.status == "pending" for e in full.entities)
+    result = resolve(row, full).candidates[0]
+    assert result.queries["offering"].code_system == "uit:table-program-label"
+    assert result.entities["offering"].options
+    assert result.status == "unresolved" and not result.publication_eligible
+
+
+def test_unknown_source_without_code_namespace_cannot_inherit_ptit_offerings():
+    row = input_row().model_copy(update={"final_url": "https://tuyensinh.uit.edu.vn/fixture"})
+    full = propose_registry(pending_uit_registry(), [row])
+    assert [e.kind for e in full.entities] == ["university"]
+    result = resolve(row, full).candidates[0]
+    assert result.queries["offering"].code_system is None
+    assert result.entities["offering"].status == "unresolved"
+    assert not result.entities["offering"].options
+    assert "OFFERING_CODE_SYSTEM_MISSING" in result.entities["offering"].reasons
+
+
+@pytest.mark.parametrize("namespace", ["", " uit:table-program-label", "uit", 7])
+def test_invalid_explicit_source_code_namespace_is_rejected(namespace):
+    row = input_row().model_copy(update={"final_url": "https://tuyensinh.uit.edu.vn/fixture"})
+    with pytest.raises(ValueError, match="code system"):
+        propose_registry(pending_uit_registry(namespace), [row])

@@ -1,0 +1,63 @@
+{
+  "profile_id": "dut-linked-cutoff2026-intake-20261019-preview-v2",
+  "university_key": "dut",
+  "allowed_hosts": [
+    "tuyensinh.dut.udn.vn"
+  ],
+  "allowed_document_hosts": [
+    "drive.google.com"
+  ],
+  "seed_urls": [
+    "https://tuyensinh.dut.udn.vn/bai-viet-tuyen-sinh/26"
+  ],
+  "years": [
+    2024,
+    2025,
+    2026
+  ],
+  "authority_scope": {
+    "years": [
+      2024,
+      2025,
+      2026
+    ],
+    "fact_kinds": [
+      "cutoff"
+    ]
+  },
+  "parser": "raw_http",
+  "include_path_patterns": [
+    "^/bai-viet-tuyen-sinh/26$",
+    "^/file/d/1lA61owjugdtThiLVHMZj6SltbZiaJG4x/preview$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 0,
+  "max_discovery_urls": 1,
+  "max_query_variants_per_path": 1,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "eligible",
+  "access_basis": "2026-10-19 task-authorized bounded internal public technical intake only; first-party DUT seed from inventory; robots HTTP200 reviewed with minimum interval2s; no source authority or publication approval.",
+  "snapshot_basis": "User authorizes private raw snapshots for this bounded internal technical task; publisher automation/storage/redistribution license not asserted.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "https://tuyensinh.dut.udn.vn/so-tay-tuyen-sinh",
+    "https://tuyensinh2025.dut.udn.vn/",
+    "snapshot:7a3c1499-bf97-4ebb-9176-459a8436fa5c#robots.txt SHA256 f5230e917f2f6ed23e0c20a1803552c5ac992f24fb958dab50c05a4d7cb4fe3d",
+    "task-budget:multisource-20261019:30",
+    "snapshot:85947e7c-45de-4676-8718-d6bf909e6b1c#html:a[href=/diem-chuan-cac-nam] label Điểm trúng tuyển 2 năm gần nhất; scope is intake metadata only, not authority approval",
+    "snapshot:85947e7c-45de-4676-8718-d6bf909e6b1c#html:a[href=https://tuyensinh.dut.udn.vn/bai-viet-tuyen-sinh/26] title Điểm trúng tuyển ... chính quy năm2026",
+    "snapshot:36448ed7-c81b-4ac8-ac3b-8170adaf2187#html:html:nth-of-type(1) > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > iframe:nth-of-type(1) target=https://drive.google.com/file/d/1lA61owjugdtThiLVHMZj6SltbZiaJG4x/preview; exact official embedding relationship only, third-party host not official authority approval",
+    "snapshot:4c3606ce-187d-4bf8-81cb-482b7c273d64#robots.txt SHA256 87cecc58fb663a3f8650a3a88eb59c1ecaae20d063dcd6d50ab39f73167d4af4 exact /file/d/.../preview allowed; no login/download-host expansion"
+  ],
+  "observed_years": [
+    2025
+  ],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400
+}

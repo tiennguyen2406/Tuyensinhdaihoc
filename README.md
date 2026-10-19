@@ -2,6 +2,13 @@
 
 Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler, Alembic, health checks và CI. Pipeline raw → parser → normalization → entity resolution → reviewed publication đã có pilot DEV với ba cutoff PTIT2024 được duyệt. T09 có immutable release nội bộ; T10 thêm API và Next.js tra cứu trường → Offering → cutoff đúng năm. Chưa Score Engine/SNA hoặc nghiệm thu Phase 1/quota20.000.
 
+Bootstrap invalidation nay bao phủ verified trường/Program, năm và approved alias chưa
+có cutoff; policy và regressions ở [báo cáo intake](docs/reports/bootstrap-invalidation-intake.md).
+Pilot bổ sung kiểm UIT/DUT dùng17/30HTTP requests, giữ raw riêng; DUT có9staging review
+gates qua T05/T06/T07 nhưng0typedcutoffs/0T08factpackets do format/access blockers.
+Chưa đạt mục tiêu lô5–10cutoffs, không tự approve/publish. DEV vẫn catalog3/canonical3;
+release3 bất biến. Không cộng27staging envelopes/observations vào quota20.000.
+
 ## Cài đặt (PowerShell tại gốc repository)
 
 Cần Docker Desktop chạy Linux containers, uv 0.13.1 và Python 3.12.15. Giữ nguyên .env đã có:

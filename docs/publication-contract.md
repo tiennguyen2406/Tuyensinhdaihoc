@@ -48,7 +48,33 @@ Không HTTP/OCR trong transaction. Shared registry advisory lock ngăn bootstrap
 7. Evidence envelope mới có namespace `validated/1;publication/1.2.0`, liên kết raw/decision; không sửa raw/T05/T06/T07.
 8. Fact/evidence/audit/publication_request, catalog increment và queued `refresh_serving:<version>` cùng transaction. Rollback/crash không để fact thiếu refresh. Refresh pending chưa là release T09.
 
-Serving thay đổi khi thêm fact, correction, conflict/dispute, evidence công khai mới hoặc alias của trường đã có current cutoff; tăng dataset_version một lần và enqueue refresh. Bootstrap nội bộ/approval chưa publication/alias của trường chưa serving/replay no-op không tăng version. Request ID retry idempotent; cùng ID khác nội dung bị từ chối. Conflict governance nhiều quyết định độc lập không thay thế workflow giải quyết/withdrawal đầy đủ.
+Serving thay đổi khi thêm fact, correction, conflict/dispute hoặc evidence công khai mới;
+bootstrap cũng phải xét toàn bộ surface T10 đang phục vụ, không chỉ trường có cutoff.
+Policy chung ở publication/serving.py được operations() dùng cho cả plan/apply:
+
+| Bootstrap effect | Catalog version delta |
+|---|---:|
+| Tạo verified University, dù chưa có cutoff/năm | 1 |
+| Tạo Program thuộc verified University (detail có thể rỗng) | 1 |
+| Thêm admission-year2024–2026 của verified University | 1 |
+| Thêm approved university alias có hiệu lực overlap2024–2026 cho verified University | 1 |
+| Source trở nên verified và làm xuất hiện source reference hợp lệ của eligible fact, primary hoặc supporting evidence | 1 |
+| Registry metadata-only link; năm/alias ngoài phạm vi; Offering chưa có eligible fact; source authority metadata không đổi DTO | 0 |
+| Approval chưa apply serving mutation, hoặc replay cùng request | 0 |
+
+Delta là boolean cho **toàn transaction bootstrap**, không cộng theo số operations.
+Canonical mutation/audit/version increment/refresh_serving outbox cùng transaction;
+enqueue thất bại rollback tất cả. Cursor trước serving change nhận409 DATASET_CHANGED.
+Không ẩn University/Program đang được phép tra cứu để tránh invalidation. Các link
+ngoài source vẫn yêu cầu canonical context bằng nhau, không là đường sửa row tùy ý.
+Request ID retry trả nguyên result lịch sử, không recompute/rewrite approvals/results
+đã đóng băng. Cùng ID khác nội dung bị từ chối. Conflict governance nhiều quyết định
+độc lập không thay thế workflow giải quyết/withdrawal đầy đủ.
+
+Fixtures mới bắt đầu empty catalog: bootstrap có visible identities nay tạo version1,
+publication đầu thành2; assertions/replay được kiểm theo delta này. Không viết lại
+bootstrap lịch sử PTIT hoặc release3 để phản ánh policy mới. DEV task intake không
+apply business bootstrap nên catalog vẫn3. Chi tiết: reports/bootstrap-invalidation-intake.md.
 
 ## Quyền và lịch sử
 

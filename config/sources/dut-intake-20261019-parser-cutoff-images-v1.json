@@ -1,0 +1,70 @@
+{
+  "profile_id": "dut-intake-20261019-parser-cutoff-images-v1",
+  "university_key": "dut",
+  "allowed_hosts": [
+    "tuyensinh.dut.udn.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.dut.udn.vn/diem-chuan-cac-nam"
+  ],
+  "years": [
+    2024,
+    2025,
+    2026
+  ],
+  "authority_scope": {
+    "years": [
+      2024,
+      2025,
+      2026
+    ],
+    "fact_kinds": [
+      "cutoff"
+    ]
+  },
+  "parser": "raw_http",
+  "include_path_patterns": [
+    "^/diem-chuan-cac-nam$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 0,
+  "max_discovery_urls": 1,
+  "max_query_variants_per_path": 1,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "eligible",
+  "access_basis": "2026-10-19 task-authorized bounded internal public technical intake only; first-party DUT seed from inventory; robots HTTP200 reviewed with minimum interval2s; no source authority or publication approval.",
+  "snapshot_basis": "User authorizes private raw snapshots for this bounded internal technical task; publisher automation/storage/redistribution license not asserted.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "https://tuyensinh.dut.udn.vn/so-tay-tuyen-sinh",
+    "https://tuyensinh2025.dut.udn.vn/",
+    "snapshot:7a3c1499-bf97-4ebb-9176-459a8436fa5c#robots.txt SHA256 f5230e917f2f6ed23e0c20a1803552c5ac992f24fb958dab50c05a4d7cb4fe3d",
+    "task-budget:multisource-20261019:30",
+    "snapshot:85947e7c-45de-4676-8718-d6bf909e6b1c#html:a[href=/diem-chuan-cac-nam] label Điểm trúng tuyển 2 năm gần nhất; scope is intake metadata only, not authority approval"
+  ],
+  "observed_years": [
+    2025
+  ],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400,
+  "parser_options": {
+    "html_content_selectors": [
+      ".frame-96-xxUGVO.frame-96"
+    ],
+    "html_exclude_selectors": [
+      "nav",
+      "aside",
+      "footer",
+      "script",
+      "style",
+      ".modal"
+    ]
+  }
+}
