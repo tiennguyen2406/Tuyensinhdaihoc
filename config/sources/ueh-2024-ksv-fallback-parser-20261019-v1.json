@@ -1,0 +1,61 @@
+{
+  "profile_id": "ueh-2024-ksv-fallback-parser-20261019-v1",
+  "university_key": "ueh",
+  "allowed_hosts": [
+    "tuyensinh.ueh.edu.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.ueh.edu.vn/bai-viet/ueh-cong-bo-diem-chuan-cac-phuong-thuc-xet-tuyen-dai-hoc-chinh-quy-2024-ke-hoach-nhap-hoc-va-chuong-trinh-hoc-bong-tin-dung-hoc-tap/"
+  ],
+  "years": [
+    2024
+  ],
+  "authority_scope": {
+    "years": [
+      2024
+    ],
+    "fact_kinds": [
+      "cutoff"
+    ]
+  },
+  "parser": "ueh_2024_html",
+  "include_path_patterns": [
+    "^/bai\\-viet/ueh\\-cong\\-bo\\-diem\\-chuan\\-cac\\-phuong\\-thuc\\-xet\\-tuyen\\-dai\\-hoc\\-chinh\\-quy\\-2024\\-ke\\-hoach\\-nhap\\-hoc\\-va\\-chuong\\-trinh\\-hoc\\-bong\\-tin\\-dung\\-hoc\\-tap/$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 0,
+  "max_discovery_urls": 1,
+  "max_query_variants_per_path": 1,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "eligible",
+  "access_basis": "Owner-authorized bounded technical fallback after primary HTTP404; exact fallback robots checked from valid cache, TLS verified by safe downloader. No business authority or redistribution approval.",
+  "snapshot_basis": "No explicit automation/storage grant found. Restricted internal technical evaluation only after robots review; redistribution permission unresolved.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "https://tuyensinh.ueh.edu.vn/bai-viet/ueh-cong-bo-diem-chuan-cac-phuong-thuc-xet-tuyen-dai-hoc-chinh-quy-2024-ke-hoach-nhap-hoc-va-chuong-trinh-hoc-bong-tin-dung-hoc-tap/",
+    "robots sha256:208dd58a297578f35c6720e6af0fad603116374a8c18f37ffef5a19a470e185a; preflight run:78e014f8-6878-476f-9e50-828fe24ae38f",
+    "Local immutable snapshot:67f11fe2-3a23-4d3a-8d67-fb468f66ec54 sha256:09ad02da8c2f5b0b86cfce711017541d029d9c0731c9027ade9b317e15bc9207; KSV section 2.2, two physical header rows; fallback publication is not additional-round results."
+  ],
+  "observed_years": [],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400,
+  "parser_options": {
+    "html_content_selectors": [
+      ".elementor-widget-theme-post-content > .elementor-widget-container"
+    ],
+    "html_exclude_selectors": [
+      "nav",
+      "aside",
+      "footer",
+      "script",
+      "style"
+    ]
+  }
+}

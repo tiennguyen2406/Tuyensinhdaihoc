@@ -65,7 +65,7 @@ class ParserJobs:
         limits: ParseLimits | None = None,
     ) -> UUID:
         ref = self.snapshot(identifier)
-        version = parser_version(ref, revision)
+        version = parser_version(ref, revision, profile)
         limits = limits or ParseLimits()
         config_hash = hashlib.sha256(
             json.dumps(

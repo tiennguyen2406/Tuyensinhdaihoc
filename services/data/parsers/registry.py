@@ -17,6 +17,8 @@ from services.data.parsers.html import VERSION as HTML_VERSION
 from services.data.parsers.html import parse_html
 from services.data.parsers.pdf import VERSION as PDF_VERSION
 from services.data.parsers.pdf import parse_pdf
+from services.data.parsers.ueh import VERSION as UEH_VERSION
+from services.data.parsers.ueh import parse_ueh
 
 ADAPTERS: dict[str, tuple[str, Callable[..., ParseResult]]] = {
     "text/html": (HTML_VERSION, parse_html),
@@ -36,9 +38,13 @@ def profile_hash(profile: SourceProfile) -> str:
     ).hexdigest()
 
 
-def parser_version(snapshot: SnapshotRef, revision: str = "1") -> str:
+def parser_version(
+    snapshot: SnapshotRef, revision: str = "1", profile: SourceProfile | None = None
+) -> str:
     if not re.fullmatch(r"[A-Za-z0-9_.-]{1,32}", revision):
         raise ValueError("Invalid parser revision")
+    if profile and profile.parser == "ueh_2024_html" and snapshot.media_type == "text/html":
+        return UEH_VERSION + "+" + revision
     return ADAPTERS.get(snapshot.media_type, ("unsupported/1.0.0", None))[0] + "+" + revision
 
 
@@ -59,8 +65,10 @@ def extract(
         not in profile.allowed_hosts + profile.allowed_document_hosts
     ):
         raise ValueError("Snapshot host outside source profile")
-    version = parser_version(snapshot, revision)
+    version = parser_version(snapshot, revision, profile)
     adapter = ADAPTERS.get(snapshot.media_type)
+    if profile.parser == "ueh_2024_html" and snapshot.media_type == "text/html":
+        adapter = (UEH_VERSION, parse_ueh)
     if adapter is None:
         result = ParseResult()
         result.issue(

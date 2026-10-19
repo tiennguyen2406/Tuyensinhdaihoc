@@ -117,6 +117,7 @@ def table_rows(
     ctx: list[dict[str, str]],
     budget: int,
     version: str,
+    header_row_count: int = 0,
 ) -> int:
     loc = locator(table)
     if table.find("table"):
@@ -130,7 +131,8 @@ def table_rows(
     for r, row in enumerate(rows):
         cells = row.find_all(["td", "th"], recursive=False)
         is_header = (
-            row.find_parent("thead") is not None
+            r < header_row_count
+            or row.find_parent("thead") is not None
             or bool(cells)
             and all(c.name == "th" for c in cells)
         )

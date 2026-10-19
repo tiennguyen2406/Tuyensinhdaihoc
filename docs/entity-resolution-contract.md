@@ -29,6 +29,13 @@ review-only, không xác minh source/canonical mapping hoặc biến offering co
 Không sửa manifests/outputs resolver1.0.0 lịch sử; namespace mới có replay/idempotency
 riêng. Không khẳng định executable replay namespace cũ tương thích với code mới.
 
+UEH pilot uses resolver/1.0.2 because the implementation digest includes the new
+normalization module. Matching logic remains unchanged. A pending UEH owner explicitly
+uses `ueh:admission-code`; PT6 is a source/year-specific method proposal. University,
+Program/Offering and Major remain unapproved; source admission code suffixes are not
+taxonomy. Footnotes and unresolved round/scale/basis/conditions survive T07 lineage.
+Only new UEH namespaces are replayed with current code; historical manifests stay frozen.
+
 Approved yêu cầu canonical UUID và reviewer/date/evidence; pending/revoked không được mang canonical UUID. Đây là kiểm tra tính đầy đủ của hồ sơ, **không xác thực chữ ký hoặc tự cấp quyền review**. Store còn kiểm approved UUID thực sự tồn tại trong đúng bảng, university verified, các parent/context/method semantics khớp DB. Synthetic registry bị từ chối ở project store. Approved Offering phải có admission_year và khai báo campus/track/language (null được giữ unknown); metadata này đối chiếu DB, null chỉ tương thích sentinel UNSPECIFIED của DDL. Sentinel không là bằng chứng campus chính.
 
 Bộ seed pilot hoàn toàn pending, không reviewer/date/approval giả. BVH/BVS cùng trỏ proposal:ptit trong hệ `ptit:campus-admission-label`, hiệu lực2024, có evidence heading từng cơ sở; không là hai trường. Hệ `ptit:table-program-label` của Offering chỉ ghi nhãn trong bảng nguồn, không tuyên bố đó là taxonomy ngành hay mã chính thức toàn quốc.

@@ -38,3 +38,14 @@ No migrations changed. No writes to crawl_runs, cutoff_scores, catalog_state or 
 ## T06 context correction
 
 HTML implementation now html/1.0.1. Regression tests cover numbered business chapter resets even when HTML heading levels are inconsistent, and footnotes stopping at h5/h6 boundaries. T06 dry-replay uses revision t06-context with this version and records local result/provenance; no old raw observation/parse job is overwritten or closed. Historical T05 report/version remains historical. Normalization of the215original raw inputs never inherits a historical method from the stale2026method context. See normalization-contract.md and reports/normalization-pilot.md.
+
+## Bounded UEH 2024 fallback
+
+An explicit parser-only profile with `parser=ueh_2024_html` selects
+`html-ueh-2024/1.0.0` for text/html; crawler profiles remain raw_http. This narrow
+adapter validates the exact fallback URL, local2024/PT6/KSV sections and two bold TD
+header rows, then reuses physical-cell extraction with header_row_count=2. Generic
+HTML defaults remain unchanged. Six selected rows retain snapshot SHA, original
+row/header/score locators and the conditional starred-program note. Future additional
+round/threshold paragraphs do not label the preceding table. No formula/subject names
+are inferred from the generic weighting note. See reports/t09-ueh-html-pilot.md.

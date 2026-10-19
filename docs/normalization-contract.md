@@ -47,3 +47,16 @@ Manifest giữ input_ids/input SHA-256, config/context/code digest/lock digest, 
 Chạy lại cùng input/config/version kiểm fingerprint và payload; no-op inserted=0,cached=true. Nội dung khác cùng unique key bị chặn; không UPDATE output/parent. Replay đọc manifest input IDs/config, không chọn lại output hoặc tải nguồn. Mặc định run chọn tất cả raw-only inputs; nếu có nhiều parser versions cùng locator, cần operator chọn bộ input đã review qua store API thay vì dùng số hàng làm số facts. Pilot này giữ đúng215input gốc, parser sửa chỉ dry-replay, không persist parser version mới.
 
 Không ghi cutoff_scores/catalog_state/dataset_releases hoặc canonical_fact. Không coi envelopes/candidates là quota20.000. Reports chứa raw/display chi tiết chỉ lưu ignored state/ hoặc ngoài checkout. Fixtures synthetic, không đưa raw nguồn/secrets/dữ liệu cá nhân vào Git.
+
+## Source-specific UEH draft namespace
+
+`normalizer/ueh-2024-ksv/1.0.0` consumes only the dedicated UEH T05 binding; global
+header-local-year/BVH/BVS rules are unchanged. Explicit publication/method/section
+evidence supplies2024/Chính quy/PT6/KSV, bound to snapshot/table/column locators.
+All mapped code/program/combination/score header paths are checked; no positional
+fallback across changed semantics. Decimal values and complete admission codes remain
+unverified. Local total-row-without-value diagnostics remain open without suppressing
+other physical rows. Scale/basis, named weighted subjects/formula, formal round,
+population/conditions/combination identities remain unreviewed/null; source evidence
+survives lineage. The authorized fallback does not establish additional-round cutoffs.
+Historical outputs/digests are immutable; use historical code for old executable replay.
