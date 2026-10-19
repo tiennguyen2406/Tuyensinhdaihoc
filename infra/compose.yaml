@@ -1,6 +1,8 @@
 services:
   postgres:
     image: postgres:17
+    # Retained test catalogs and parallel aggregate queries exceed Docker's 64MiB default.
+    shm_size: 512mb
     environment:
       POSTGRES_DB: tuyensinhdaihoc
       POSTGRES_USER: tuyensinh

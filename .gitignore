@@ -10,7 +10,11 @@ __pycache__/
 .mypy_cache/
 
 node_modules/
+.pnpm-store/
 .next/
+playwright-report/
+test-results/
+*.tsbuildinfo
 
 state/
 data/raw/

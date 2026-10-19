@@ -30,7 +30,12 @@ def test_all_real_inventory_profiles_validate_and_schema_is_current():
     from services.api.source_profiles import SourceProfile
 
     paths = [p for p in Path("config/sources").glob("*.json") if p.name != "profile.schema.json"]
-    assert 10 <= len(paths) <= 15
+    # Versioned evidence/preflight profiles do not create additional universities.
+    universities = {
+        SourceProfile.model_validate_json(p.read_text(encoding="utf-8")).university_key
+        for p in paths
+    }
+    assert 10 <= len(universities) <= 15
     for path in paths:
         profile = SourceProfile.model_validate_json(path.read_text(encoding="utf-8"))
         assert profile.verified is False

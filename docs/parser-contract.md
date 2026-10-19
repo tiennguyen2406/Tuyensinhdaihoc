@@ -33,3 +33,8 @@ Existing unique key `(snapshot_id,record_locator,parser_version,transform_versio
 Existing ingest_jobs stores parse_snapshot tasks with unique snapshot/parser/transform key, frozen configuration and implementation/lock digests. Source/profile/code/budget changes require a new revision. Claim uses row lock,5minute lease,30second heartbeat and token fencing. Observation inserts and job completion are one transaction. All output must match the leased snapshot/versions. Retried completed jobs return their original summary; expired leases can recover. Any issue quarantines the job for review while preserving unverified extracted rows. No quality issues are erased to hide failures.
 
 No migrations changed. No writes to crawl_runs, cutoff_scores, catalog_state or dataset_releases. T06–T08 publication/normalization/entity logic is out of this slice. Fixtures in tests/parsers/manifest.json are synthetic, generated locally; no real raw/image/PDF or personal contact data is committed.
+
+
+## T06 context correction
+
+HTML implementation now html/1.0.1. Regression tests cover numbered business chapter resets even when HTML heading levels are inconsistent, and footnotes stopping at h5/h6 boundaries. T06 dry-replay uses revision t06-context with this version and records local result/provenance; no old raw observation/parse job is overwritten or closed. Historical T05 report/version remains historical. Normalization of the215original raw inputs never inherits a historical method from the stale2026method context. See normalization-contract.md and reports/normalization-pilot.md.

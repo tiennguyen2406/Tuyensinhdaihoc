@@ -1,6 +1,6 @@
 # TuyenSinhDaiHoc
 
-Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler bổ sung, Alembic, health checks và CI. Crawler tải raw; lát cắt T05 có parser HTML/PDF số offline và observations chưa xác minh. Chưa có canonical cutoffs production, Score Engine hay giao diện.
+Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler, Alembic, health checks và CI. Pipeline raw → parser → normalization → entity resolution → reviewed publication đã có pilot DEV với ba cutoff PTIT2024 được duyệt. T09 có immutable release nội bộ; T10 thêm API và Next.js tra cứu trường → Offering → cutoff đúng năm. Chưa Score Engine/SNA hoặc nghiệm thu Phase 1/quota20.000.
 
 ## Cài đặt (PowerShell tại gốc repository)
 
@@ -79,18 +79,122 @@ uv run python -m services.data.parsers replay f02f3e8f-b7bb-4e36-a60e-9a683afba0
 
 replay chỉ preview/kiểm hash; --output chứa raw_fields nên chỉ lưu ở state/ bị bỏ qua hoặc ngoài checkout. parse ghi staging observations unverified và durable job; có issue thì job quarantined để review, vẫn giữ các mẩu raw trích được. Các lệnh này dùng profile PTIT mặc định; nguồn khác truyền --profile đường_dẫn_profile.json. Job ID được in khi parse; dùng job JOB_UUID để xem trạng thái. Không chạy trong FastAPI request.
 
-Chạy lại cùng snapshot/parser/transform là idempotent. Thay code/profile/limits phải dùng namespace mới có chủ ý qua --revision 2 (đồng thời ghi version implementation thật), không cập nhật đè observations cũ. Nội dung khác dưới cùng version bị chặn. Thay vì tách mỗi tổ hợp/năm/phương thức, parser giữ quan hệ trong headers/cells/context; chưa có normalization/entity resolution/publication.
+Chạy lại cùng snapshot/parser/transform là idempotent. Thay code/profile/limits phải dùng namespace mới có chủ ý qua --revision 2 (đồng thời ghi version implementation thật), không cập nhật đè observations cũ. Nội dung khác dưới cùng version bị chặn. Thay vì tách mỗi tổ hợp/năm/phương thức, parser giữ quan hệ trong headers/cells/context; T05 chưa thực hiện normalization; T06 bên dưới xử lý riêng, entity resolution/publication còn chờ.
 
 Locator HTML có dạng html:<CSS path> trên DOM gốc; lệnh inspect SNAPSHOT_UUID --locator 'html:...' trả nội dung ô/hàng để đối chiếu. PDF locators có trang/table/row hoặc line index và bbox trong raw_fields; scan trả issue theo trang. Không suy năm từ URL/tên file hoặc ngày đăng thành năm của từng điểm.
 
 Kiểm tra số observations và trạng thái ngay trên DB hiện tại:
 
 ```powershell
-docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT fact_kind, verification_status, count(*) FROM observations GROUP BY 1,2 ORDER BY 1,2;"
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT transform_version, fact_kind, verification_status, count(*) FROM observations GROUP BY 1,2,3 ORDER BY 1,2,3;"
 docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT id, status, attempts, payload->>'snapshot_id' AS snapshot_id FROM ingest_jobs WHERE job_type='parse_snapshot';"
 ```
 
 Không coi cutoff observations là canonical cutoffs: một observation có thể là cả hàng bảng nhiều năm/phương thức, còn giữ giá trị thô. T06–T08 và quota20.000 chưa hoàn thành. Fixtures parser hoàn toàn tự tạo, manifest trong tests/parsers/manifest.json; không đưa PDF/HTML nguồn thật, ảnh render hay thông tin liên hệ cá nhân vào Git.
+
+## Normalization T06: preview/run/replay offline
+
+Đọc docs/normalization-contract.md và docs/reports/normalization-pilot.md. Không resolve entity, thực thi scoring/conversion rules hoặc publish canonical. Chỉ chọn raw-only observations, không normalize lại output. Giữ 215 raw input gốc và normalized_fields={} của chúng; mỗi input tạo một envelope mới theo transform riêng. Số hàng observations sau T06 bao gồm cả raw và envelopes, không là số canonical cutoffs.
+
+```powershell
+uv run python -m services.data.normalization preview --output state/normalization/preview.json
+uv run python -m services.data.normalization preview --snapshot 19a1088e-6412-49e4-b911-73ec9146f4fa
+uv run python -m services.data.normalization run
+uv run python -m services.data.normalization replay --job 7bc439bf-a6d7-4beb-bf03-bb47956c5383
+```
+
+preview dùng transaction read-only, không ghi jobs/observations; --output chi tiết chứa raw/display nên chỉ cho ignored state/ hoặc ngoài checkout. run ghi atomically một batch unverified envelopes và manifest job quarantined. Chạy lại cùng input/config/code/version không thêm hàng. Job UUID được in; dùng `uv run python -m services.data.normalization replay --job JOB_UUID` với UUID thực từ output để kiểm frozen replay. Không tăng revision/version chỉ để có thêm bản ghi. Thay code/config/lock cùng namespace bị từ chối, phải bump normalizer implementation version có chủ ý và review.
+
+```powershell
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT transform_version, count(*), sum(jsonb_array_length(COALESCE(normalized_fields->'candidates','[]'::jsonb))) AS candidates FROM observations GROUP BY 1 ORDER BY 1;"
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT id, status, payload->>'normalizer_version' AS version, payload->'result' AS summary FROM ingest_jobs WHERE job_type='normalize_observations';"
+```
+
+Cutoff draft từ header2024 giữ admission_year2024 dù document_year2026. Thiếu method2025/Điểm TT/ĐGNL,ĐGTD giữ review, không đoán hoặc nhân tổ hợp. Học phí năm học2026–2027 giữ academic_year riêng và qualifiers; không là admission_year2026 hay học phí từng ngành đã xác minh. PDF scan/OCR và các issues cũ vẫn mở.
+
+Parser HTML sửa context/footnotes ở html/1.0.1. Lệnh dry-replay đã kiểm:
+
+```powershell
+uv run python -m services.data.parsers replay 19a1088e-6412-49e4-b911-73ec9146f4fa --revision t06-context --output state/normalization/parser-context-replay.json
+```
+
+Không persist parser sửa trong đợt này;215input gốc vẫn nguyên vẹn. Nếu operator chủ động parse phiên bản mới sau này, phải chọn bộ raw input đã review để tránh normalization nhiều phiên bản cùng locator như facts mới. T06 pilot không đồng nghĩa T05 toàn bộ/T07/T08/quota20.000hoàn thành.
+
+## Entity resolution T07: registry có phiên bản và pilot offline
+
+Đọc [hợp đồng](docs/entity-resolution-contract.md) và [báo cáo](docs/reports/entity-resolution-pilot.md). T07 chỉ nhận normalization envelopes thuộc job đã đóng băng, phân giải từng candidate; không nhận430hàng observations như430facts. Seed config/entities/ptit-v1.json hoàn toàn pending, không có canonical UUID được duyệt. Fuzzy chỉ gợi ý review, không auto-link hoặc publish.
+
+```powershell
+uv run python -m services.data.resolution evaluate --output state/resolution/gold-evaluation.json
+uv run python -m services.data.resolution preview --normalization-job 7bc439bf-a6d7-4beb-bf03-bb47956c5383 --output state/resolution/preview.json
+uv run python -m services.data.resolution run --normalization-job 7bc439bf-a6d7-4beb-bf03-bb47956c5383
+uv run python -m services.data.resolution affected --entry proposal:ptit --output state/resolution/affected.json
+```
+
+Pilot hiện có job `e4ede9f6-feed-4ce9-aac4-fc9237eeee56`; kiểm tra lại bằng `uv run python -m services.data.resolution replay --job e4ede9f6-feed-4ce9-aac4-fc9237eeee56`. run in job_id; replay bằng `uv run python -m services.data.resolution replay --job JOB_UUID` với UUID thật in ở run hoặc báo cáo. Replay giữ registry frozen trong manifest, không lấy alias mới để sửa lịch sử. preview/affected read-only; run/replay là transaction riêng, không chạy trong HTTP FastAPI. Chạy lại cùng versions/code/config/input không thêm hàng. Thay logic/registry/alias cần version mới có chủ ý; thay payload cùng version bị từ chối. --registry FILE chọn registry khác đã validation; approved targets còn phải tồn tại và khớp canonical DB.
+
+--output chỉ cho ignored state/ hoặc ngoài checkout vì chứa evidence/tên nguồn. Không commit output/raw/secrets/dumps. affected trả historical_dependency và có thể potential_registry_change bảo thủ cho entry trong registry mới; đó là danh sách cần đánh giá lại, không tự thu hồi/duyệt fact. Gold280 synthetic cases là kiểm quy tắc, không chứng minh accuracy thực địa99.5%.
+
+```powershell
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT id,status,payload->'result' AS summary FROM ingest_jobs WHERE job_type='resolve_entities';"
+docker compose --env-file .env -f infra/compose.yaml exec postgres psql -U tuyensinh -d tuyensinhdaihoc -c "SELECT normalized_fields->>'schema_version' AS schema,count(*) FROM observations GROUP BY 1;"
+```
+
+Unknown year/campus/track/language/method/scale/scope giữ unknown. BVH/BVS là hai source campus labels dưới một university proposal; Program/Offering proposals không là canonical IDs. Tuition năm học không biến thành admission year hay phí từng ngành. T08 chỉ có thể nhận packets cần review; cần phê duyệt registry/taxonomy và scale/scope/rules trước publication. Crawl vẫn paused5/5; không tải thêm nguồn.
+
+## Review và publication T08
+
+Đọc [hợp đồng publication](docs/publication-contract.md), [quy trình review](docs/review-workflow.md) và [báo cáo pilot](docs/reports/publication-pilot.md). Module `services/data/publication` chạy local, không mở endpoint mutation. Migration additive `0003_publication` thêm guards, không đổi raw/T05–T07. Chỉ publish cutoff đã review; tuition nhóm/năm học vẫn blocked.
+
+```powershell
+uv run alembic upgrade head
+uv run python -m services.data.publication list --output state/publication/list.json
+uv run python -m services.data.publication inspect --resolution 97259d1b-894c-4637-9e09-8c237ce15c78 --candidate 857495c2612874e9c1e25b2705660fe920db5a76f35bbe81cade944d9b451277 --output state/publication/inspect.json
+uv run python -m services.data.publication plan --resolution 97259d1b-894c-4637-9e09-8c237ce15c78 --candidate 857495c2612874e9c1e25b2705660fe920db5a76f35bbe81cade944d9b451277 --output state/publication/plan.json
+```
+
+Plan packet là read-only, chưa là approval. Sau khi người phụ trách xác minh hồ sơ và soạn ReviewCommand riêng: `uv run python -m services.data.publication plan --file state/publication/review.json`, rồi `uv run python -m services.data.publication apply --file state/publication/review.json` bằng dedicated reviewer login. Apply action publish chỉ tạo quyết định; publisher dùng `uv run python -m services.data.publication apply --decision $decision` với UUID thực, correction thêm expected revision đã duyệt. `uv run python -m services.data.publication replay --decision $decision` kiểm lại lineage/versions và idempotency. Xem workflow cho export registry, chạy T07 mới và quyền DB.
+
+Actor lấy từ PostgreSQL session_user, không nhận reviewer tự nhập; superuser bị chặn apply. Ba facts THPT2024 đã được duyệt và publish riêng bằng reviewer/publisher DEV; xem [publication pilot](docs/reports/ptit-publication-pilot.md). Các hồ sơ pending cũ là lịch sử, không thay approval mới. Không dùng dữ liệu/approvals TEST ONLY cho pilot. Secrets, decisions và source outputs luôn ngoài Git. Production OIDC/RBAC, withdrawal governance đầy đủ và UI còn thiếu; refresh/release DEV xem T09 bên dưới.
+
+## Release T09 nội bộ trên DEV
+
+Builder `services/data/releases` materialize toàn bộ current verified published cutoffs
+2024–2026 trong REPEATABLE READ snapshot; manifest/export/coverage bất biến, verified hashes,
+registration và refresh jobs có audit. Dedicated `eduradar_release_builder` tách publisher.
+Đọc [contract và runbook](docs/release-contract.md) trước vận hành; không public distribution.
+
+```powershell
+uv run python -m services.data.releases plan
+uv run python -m services.data.releases build --root state/releases/canonical
+uv run python -m services.data.releases verify --version 3
+uv run python -m services.data.releases replay --version 3
+```
+
+Migration `0004_releases` additive, không viết lại migrations cũ. Owner chỉ migrate/provision;
+build dùng dedicated login và `RELEASE_DB_USER`/`RELEASE_DB_PASSWORD` trong process environment.
+Artifacts/private outputs ở ignored state/. Xem [báo cáo T09](docs/reports/t09-release-pilot.md)
+cho trạng thái pilot thực tế; release ba facts không nghiệm thu toàn T09/Phase 1/quota20.000.
+
+## Tra cứu T10 nội bộ trên DEV
+
+Đọc [catalog contract/runbook](docs/catalog-contract.md) và [báo cáo T10](docs/reports/t10-internal-catalog.md).
+UI tại http://127.0.0.1:3000/universities?year=2024, API tại http://127.0.0.1:8000/api/v1/universities?year=2024.
+API dùng dedicated reader và một read-only REPEATABLE READ snapshot mỗi response;
+dataset_version là canonical hiện hành, release ID chỉ đính kèm khi version khớp.
+Năm2025/2026 chưa có dữ liệu đã xác minh; không fallback2024. Decimal/TTNV/scope giữ
+nguyên, không tính hoặc so sánh điểm. Release3 cũ không rebuild vì sửa code.
+
+Trạng thái năm lấy từ admission_years: PTIT2024 vẫn **partial** dù ba cutoff đã verified.
+SQL filters/keyset limit+1, batch evidence theo trang và aggregate coverage thay cách
+materialize toàn bộ facts. Cursor/2 từ chối cursor sort cũ rõ ràng. Xem
+[báo cáo SQL/year-status và benchmark synthetic](docs/reports/t10-sql-year-status.md).
+Synthetic20k/50k không cộng vào quota; đề xuất bước tiếp theo là
+[T09 đa nguồn/T11 review](docs/plans/2026-10-19-t09-multisource-next.md), chưa chuyển sang T12.
+
+Node24.22.0/pnpm11.25.0; cài `pnpm --dir apps/web install --frozen-lockfile`, chạy
+`pnpm --dir apps/web dev --port 3000` ở terminal riêng sau API. Credentials reader,
+cách nạp env/chạy API/dừng hidden pilot processes và checks đầy đủ ở runbook trên.
 
 ## Kiểm thử và CI
 
@@ -105,7 +209,7 @@ git diff --check
 
 Tests cần PostgreSQL thật và tài khoản CREATEDB; cùng credential .env nhưng tạo DB riêng tuyensinh_test_<loại>_<UUID>. Các DB test mới được giữ lại theo ràng buộc không xóa; không DROP. Dữ liệu fixture là tổng hợp, không phải tuyển sinh thật. Fake HTTP servers chỉ bind loopback trong tests; không có cờ CLI cho phép crawler Internet truy cập private IP. Tests mặc định và CI không dùng Internet/crawl nguồn thật.
 
-GitHub Actions .github/workflows/ci.yml chạy lock sync, Ruff, mypy, Alembic upgrade/check và toàn bộ tests với PostgreSQL 17 riêng. Kết quả chạy thực tế được bàn giao cùng commit push; không suy từ việc có workflow thành CI thành công.
+GitHub Actions .github/workflows/ci.yml chạy lock sync, Ruff, mypy, Alembic upgrade/check và toàn bộ tests với PostgreSQL 17 riêng; web job chạy frozen pnpm lock, lint/format/type/unit/build/Playwright desktop+mobile. Kết quả thực tế được bàn giao cùng commit push; không suy từ việc có workflow thành CI thành công.
 
 ## Tài liệu
 
@@ -118,3 +222,12 @@ GitHub Actions .github/workflows/ci.yml chạy lock sync, Ruff, mypy, Alembic up
 - docs/parser-contract.md và docs/reports/parser-pilot.md: hợp đồng T05, review tài liệu, locator, observations và giới hạn.
 
 T01 cần mở rộng review robots/quyền dùng/coverage trước ingest production. T03/T04 hiện là nền raw HTTP; các adapter và vận hành quy mô lớn cần bổ sung sau. T19 mới là CI nền, chưa có staging/production release.
+
+
+## PTIT — lịch sử lô quyết định
+
+Xem [tiến độ T01–T19](docs/progress-wbs.md), [hồ sơ blocker lịch sử](docs/reports/ptit-blocker-decisions.md)
+và [publication đã duyệt](docs/reports/ptit-publication-pilot.md). A2/B/C/D đã có kết quả
+duyệt/apply riêng được ghi trong publication report; không áp lại hồ sơ pending cũ.
+Hiện canonical3/catalog3/releases1, dataset3/20.000; crawler vẫn paused, raw/history
+giữ nguyên. Lát cắt tra cứu không thay approvals hoặc mở rộng crawler.

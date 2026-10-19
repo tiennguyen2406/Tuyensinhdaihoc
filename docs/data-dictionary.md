@@ -1221,3 +1221,16 @@ CREATE TABLE university_year_features (
 	CONSTRAINT university_year_features_university_id_admission_year_fkey FOREIGN KEY(university_id, admission_year) REFERENCES admission_years (university_id, admission_year)
 );
 ```
+
+## JSON payload T07 (không thay DDL)
+
+- observations.transform_version: namespace resolution/1 + resolver/registry/alias versions và normalizer-namespace digest.
+- raw_fields: input_normalization_envelope_id, normalization_job_id.
+- normalized_fields: EntityResolution schema entity-resolution/1; candidates chứa candidate_key/input/raw/snapshot lineage, entities/queries, options/features/conflicts/missing/dependencies, unresolved_fields và publication_blockers; publication_eligible=false.
+- ingest_jobs.job_type=resolve_entities; payload đóng băng registry, input IDs/digests, versions/config/code/lock/legacy T06 lock, execution Git provenance và result summary. Status quarantined; xem entity-resolution-contract.md.
+- Không thêm bảng/cột hoặc viết lại migrations; các cột canonical giữ nguyên.
+
+
+### Authority scope bổ sung cho review PTIT A2
+
+`sources.authority_scope` giữ years/fact_kinds/universities cũ và optional publication_bindings (admission_year, method_code, offering_code, campus_code, snapshot_ids). Đây là reviewed DB authority, không đổi raw SourceProfile schema. Bindings thu hẹp quyền cho context và snapshot đã duyệt; source metadata/fetch mới không tự cấp quyền. AdmissionMethod canonicalTHPT tách Code100 trong registry binding PTIT2024. Không thêm cột/migration/enum công khai, không thay provenance DDL.
