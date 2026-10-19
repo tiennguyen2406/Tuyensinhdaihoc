@@ -118,6 +118,7 @@ def table_rows(
     budget: int,
     version: str,
     header_row_count: int = 0,
+    score_columns: frozenset[int] = frozenset(),
 ) -> int:
     loc = locator(table)
     if table.find("table"):
@@ -236,7 +237,9 @@ def table_rows(
             )
         row_issues = []
         for slot, path in zip(values, headers):
-            is_score = any(re.search(r"diem|score", folded(h["text"])) for h in path)
+            is_score = slot["column"] in score_columns or any(
+                re.search(r"diem|score", folded(h["text"])) for h in path
+            )
             if kind == "cutoff" and is_score and slot["text"] == "":
                 result.issue(
                     "empty_score_cell",
@@ -247,8 +250,11 @@ def table_rows(
         if kind == "cutoff" and not any(
             isinstance(v["text"], str)
             and re.search(r"\d", v["text"])
-            and any(
-                re.search(r"diem|score|thpt|hsa|tsa", folded(h["text"])) for h in headers[index]
+            and (
+                index in score_columns
+                or any(
+                    re.search(r"diem|score|thpt|hsa|tsa", folded(h["text"])) for h in headers[index]
+                )
             )
             for index, v in enumerate(values)
         ):

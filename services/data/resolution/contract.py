@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from services.data.normalization.contract import NormalizedObservation
 
-VERSION = "resolver/1.0.2"
+VERSION = "resolver/1.0.3"
 Kind = Literal["university", "major", "program", "offering", "method", "scope"]
 State = Literal["resolved", "partial", "ambiguous", "unresolved"]
 

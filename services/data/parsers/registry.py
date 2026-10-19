@@ -19,6 +19,8 @@ from services.data.parsers.pdf import VERSION as PDF_VERSION
 from services.data.parsers.pdf import parse_pdf
 from services.data.parsers.ueh import VERSION as UEH_VERSION
 from services.data.parsers.ueh import parse_ueh
+from services.data.parsers.ueh_supplemental import VERSION as UEH_SUPPLEMENTAL_VERSION
+from services.data.parsers.ueh_supplemental import parse_supplemental
 
 ADAPTERS: dict[str, tuple[str, Callable[..., ParseResult]]] = {
     "text/html": (HTML_VERSION, parse_html),
@@ -45,6 +47,12 @@ def parser_version(
         raise ValueError("Invalid parser revision")
     if profile and profile.parser == "ueh_2024_html" and snapshot.media_type == "text/html":
         return UEH_VERSION + "+" + revision
+    if (
+        profile
+        and profile.parser == "ueh_2024_supplemental_html"
+        and snapshot.media_type == "text/html"
+    ):
+        return UEH_SUPPLEMENTAL_VERSION + "+" + revision
     return ADAPTERS.get(snapshot.media_type, ("unsupported/1.0.0", None))[0] + "+" + revision
 
 
@@ -69,6 +77,8 @@ def extract(
     adapter = ADAPTERS.get(snapshot.media_type)
     if profile.parser == "ueh_2024_html" and snapshot.media_type == "text/html":
         adapter = (UEH_VERSION, parse_ueh)
+    if profile.parser == "ueh_2024_supplemental_html" and snapshot.media_type == "text/html":
+        adapter = (UEH_SUPPLEMENTAL_VERSION, parse_supplemental)
     if adapter is None:
         result = ParseResult()
         result.issue(

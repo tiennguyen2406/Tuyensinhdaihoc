@@ -1,0 +1,63 @@
+{
+  "profile_id": "ueh-2024-supplemental-parser-20261020-v1",
+  "university_key": "ueh",
+  "allowed_hosts": [
+    "tuyensinh.ueh.edu.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.ueh.edu.vn/bai-viet/ueh-cong-bo-diem-trung-tuyen-dot-xet-tuyen-bo-sung-khoa-50-dai-hoc-chinh-quy-tai-phan-hieu-vinh-long-ma-truong-ksv/"
+  ],
+  "years": [
+    2024
+  ],
+  "authority_scope": {
+    "years": [
+      2024
+    ],
+    "fact_kinds": [
+      "cutoff"
+    ]
+  },
+  "parser": "ueh_2024_supplemental_html",
+  "include_path_patterns": [
+    "^/bai\\-viet/ueh\\-cong\\-bo\\-diem\\-trung\\-tuyen\\-dot\\-xet\\-tuyen\\-bo\\-sung\\-khoa\\-50\\-dai\\-hoc\\-chinh\\-quy\\-tai\\-phan\\-hieu\\-vinh\\-long\\-ma\\-truong\\-ksv/$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 0,
+  "max_discovery_urls": 1,
+  "max_query_variants_per_path": 1,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "eligible",
+  "access_basis": "Owner-authorized exact corrected supplemental URL, separate maximum 8 wire requests. Valid robots cache allows exact path; safe downloader retains TLS/SSRF protections. No business approval or redistribution permission.",
+  "snapshot_basis": "No explicit automation/storage grant found. Restricted internal technical evaluation only after robots review; redistribution permission unresolved.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "https://tuyensinh.ueh.edu.vn/bai-viet/ueh-cong-bo-diem-trung-tuyen-dot-xet-tuyen-bo-sung-khoa-50-dai-hoc-chinh-quy-tai-phan-hieu-vinh-long-ma-truong-ksv/",
+    "Robots cache sha256:208dd58a297578f35c6720e6af0fad603116374a8c18f37ffef5a19a470e185a expires2026-10-20T15:42:16Z; checked exact path by preflight run1ccd8258-91a9-4823-ae70-2cbbd16d1b34",
+    "Immutable supplemental snapshot ce858dfc-707a-4e2d-ad3d-a5439807fa1c sha256:51b52957dc76a054a804e93dfc3f13defca46ddbe119c6890bdb1d042c6f4b1d; one TH header row, exact PT6 column5, six physical program rows; supplemental year and date are explicit source content."
+  ],
+  "observed_years": [
+    2024
+  ],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400,
+  "parser_options": {
+    "html_content_selectors": [
+      ".elementor-widget-theme-post-content > .elementor-widget-container"
+    ],
+    "html_exclude_selectors": [
+      "nav",
+      "aside",
+      "footer",
+      "script",
+      "style"
+    ]
+  }
+}

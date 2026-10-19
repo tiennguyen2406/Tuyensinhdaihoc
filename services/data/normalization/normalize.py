@@ -202,6 +202,10 @@ def normalize(obs: RawObservation, context: NormalizationContext) -> NormalizedO
         from services.data.normalization.ueh import normalize_ueh
 
         return normalize_ueh(obs, context)
+    if context.version == "normalizer/ueh-supplemental-2024/1.0.0":
+        from services.data.normalization.ueh_supplemental import normalize_supplemental
+
+        return normalize_supplemental(obs, context)
     result = NormalizedObservation(
         input_observation_id=obs.id,
         snapshot_id=obs.snapshot_id,
