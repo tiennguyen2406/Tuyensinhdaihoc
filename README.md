@@ -1,6 +1,6 @@
 # TuyenSinhDaiHoc
 
-Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler, Alembic, health checks và CI. Pipeline raw → parser → normalization → entity resolution → reviewed publication đã có pilot DEV với ba cutoff PTIT2024 được duyệt. T09 bổ sung immutable release builder nội bộ; chưa Score Engine, Search hoặc giao diện. Xem báo cáo từng lát cắt; chưa nghiệm thu Phase 1 hoặc quota20.000.
+Nền FastAPI/PostgreSQL cho dữ liệu tuyển sinh Việt Nam 2024–2026. Có 31 bảng nghiệp vụ theo DDL EduRadar, 3 bảng vận hành crawler, Alembic, health checks và CI. Pipeline raw → parser → normalization → entity resolution → reviewed publication đã có pilot DEV với ba cutoff PTIT2024 được duyệt. T09 có immutable release nội bộ; T10 thêm API và Next.js tra cứu trường → Offering → cutoff đúng năm. Chưa Score Engine/SNA hoặc nghiệm thu Phase 1/quota20.000.
 
 ## Cài đặt (PowerShell tại gốc repository)
 
@@ -176,6 +176,19 @@ build dùng dedicated login và `RELEASE_DB_USER`/`RELEASE_DB_PASSWORD` trong pr
 Artifacts/private outputs ở ignored state/. Xem [báo cáo T09](docs/reports/t09-release-pilot.md)
 cho trạng thái pilot thực tế; release ba facts không nghiệm thu toàn T09/Phase 1/quota20.000.
 
+## Tra cứu T10 nội bộ trên DEV
+
+Đọc [catalog contract/runbook](docs/catalog-contract.md) và [báo cáo T10](docs/reports/t10-internal-catalog.md).
+UI tại http://127.0.0.1:3000/universities?year=2024, API tại http://127.0.0.1:8000/api/v1/universities?year=2024.
+API dùng dedicated reader và một read-only REPEATABLE READ snapshot mỗi response;
+dataset_version là canonical hiện hành, release ID chỉ đính kèm khi version khớp.
+Năm2025/2026 chưa có dữ liệu đã xác minh; không fallback2024. Decimal/TTNV/scope giữ
+nguyên, không tính hoặc so sánh điểm. Release3 cũ không rebuild vì sửa code.
+
+Node24.22.0/pnpm11.25.0; cài `pnpm --dir apps/web install --frozen-lockfile`, chạy
+`pnpm --dir apps/web dev --port 3000` ở terminal riêng sau API. Credentials reader,
+cách nạp env/chạy API/dừng hidden pilot processes và checks đầy đủ ở runbook trên.
+
 ## Kiểm thử và CI
 
 ```powershell
@@ -189,7 +202,7 @@ git diff --check
 
 Tests cần PostgreSQL thật và tài khoản CREATEDB; cùng credential .env nhưng tạo DB riêng tuyensinh_test_<loại>_<UUID>. Các DB test mới được giữ lại theo ràng buộc không xóa; không DROP. Dữ liệu fixture là tổng hợp, không phải tuyển sinh thật. Fake HTTP servers chỉ bind loopback trong tests; không có cờ CLI cho phép crawler Internet truy cập private IP. Tests mặc định và CI không dùng Internet/crawl nguồn thật.
 
-GitHub Actions .github/workflows/ci.yml chạy lock sync, Ruff, mypy, Alembic upgrade/check và toàn bộ tests với PostgreSQL 17 riêng. Kết quả chạy thực tế được bàn giao cùng commit push; không suy từ việc có workflow thành CI thành công.
+GitHub Actions .github/workflows/ci.yml chạy lock sync, Ruff, mypy, Alembic upgrade/check và toàn bộ tests với PostgreSQL 17 riêng; web job chạy frozen pnpm lock, lint/format/type/unit/build/Playwright desktop+mobile. Kết quả thực tế được bàn giao cùng commit push; không suy từ việc có workflow thành CI thành công.
 
 ## Tài liệu
 
@@ -204,6 +217,10 @@ GitHub Actions .github/workflows/ci.yml chạy lock sync, Ruff, mypy, Alembic up
 T01 cần mở rộng review robots/quyền dùng/coverage trước ingest production. T03/T04 hiện là nền raw HTTP; các adapter và vận hành quy mô lớn cần bổ sung sau. T19 mới là CI nền, chưa có staging/production release.
 
 
-## PTIT — lô quyết định đang chờ duyệt
+## PTIT — lịch sử lô quyết định
 
-Xem [tiến độ T01–T19](docs/progress-wbs.md) và [evidence/blocker decisions](docs/reports/ptit-blocker-decisions.md). Tổng allocation bổ sung17/20requests, các run paused, old pilot5/5giữ nguyên. A2 chuẩn bị13ops identities/canonicalTHPT/authority7sources, chưa apply; B/C phụ thuộc, D chưa có IDs/T07 binding mới. Canonical/catalog/releases vẫn0/0/0. Quy trình chạy plan bằng credentials local tại docs/review-workflow.md; không chạy apply khi chưa duyệt đúng file/hash.
+Xem [tiến độ T01–T19](docs/progress-wbs.md), [hồ sơ blocker lịch sử](docs/reports/ptit-blocker-decisions.md)
+và [publication đã duyệt](docs/reports/ptit-publication-pilot.md). A2/B/C/D đã có kết quả
+duyệt/apply riêng được ghi trong publication report; không áp lại hồ sơ pending cũ.
+Hiện canonical3/catalog3/releases1, dataset3/20.000; crawler vẫn paused, raw/history
+giữ nguyên. Lát cắt tra cứu không thay approvals hoặc mở rộng crawler.

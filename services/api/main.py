@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from services.api.catalog.router import router as catalog_router
 from services.api.db.session import engine, schema_is_current
 
 
@@ -18,6 +19,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="TuyenSinhDaiHoc API", version="0.1.0", lifespan=lifespan)
+app.include_router(catalog_router)
 
 
 @app.get("/health/live", tags=["Health"])

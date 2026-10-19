@@ -4,6 +4,12 @@
 Một catalog version chỉ có một dataset release toàn bộ, không filtered releases.
 Đây là snapshot canonical nội bộ, không public distribution hoặc Phase 1 acceptance.
 
+T10 regression fixes giữ nguyên contract này: builder_version là provenance không rỗng,
+không phải yêu cầu bằng version implementation đang verify. Compatibility dựa trên
+schema/filter contract được hỗ trợ; schema lạ và checksum sai vẫn bị chặn. Không sửa
+manifest/hash/provenance đã đăng ký. Combination subjects liên kết subject_code với
+subjects.code, giữ position; source_aggregate vẫn không nhân fact theo tổ hợp.
+
 ## Snapshot và dữ liệu
 
 Builder lấy session advisory lock riêng T09, commit lock acquisition rồi mở transaction

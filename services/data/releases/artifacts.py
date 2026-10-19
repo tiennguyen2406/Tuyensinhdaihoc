@@ -90,7 +90,9 @@ def verify_bundle(path: Path, expected_hash: str | None = None) -> dict[str, Any
         manifest = json.loads(raw)
         if (
             manifest["schema_version"] != SCHEMA
-            or manifest["builder_version"] != BUILDER
+            # Builder identity is frozen provenance; schema and filters define compatibility.
+            or not isinstance(manifest["builder_version"], str)
+            or not manifest["builder_version"]
             or manifest["filters"] != FILTER
         ):
             raise ValueError("Integrity conflict: unsupported manifest contract")

@@ -67,6 +67,108 @@ def test_snapshot_count_fidelity_and_frozen_coverage(release_db, tmp_path):
         assert verify(c, 3)["coverage"] == coverage
 
 
+def test_combination_subjects_export_by_code_in_position_order(release_db, tmp_path):
+    from services.data.releases.builder import build, verify
+
+    admin, runner, reader, f = release_db
+    with admin.begin() as c:
+        combinations = metadata.tables["combinations"]
+        combination_id = c.execute(
+            combinations.insert()
+            .values(code="TEST-A00", name="TEST ONLY A00")
+            .returning(combinations.c.id)
+        ).scalar_one()
+        # Insertion order and lexical code order both differ from subject position.
+        for code, name, position in [
+            ("CHEM", "Hóa học thử nghiệm", 3),
+            ("MATH", "Toán thử nghiệm", 1),
+            ("PHYS", "Vật lý thử nghiệm", 2),
+        ]:
+            c.execute(metadata.tables["subjects"].insert().values(code=code, name=name))
+            c.execute(
+                metadata.tables["combination_subjects"]
+                .insert()
+                .values(combination_id=combination_id, subject_code=code, position=position)
+            )
+        c.execute(
+            metadata.tables["program_admissions"]
+            .update()
+            .where(metadata.tables["program_admissions"].c.id == f["scope"])
+            .values(combination_id=combination_id)
+        )
+    result = build(runner, tmp_path)
+    path = manifest_path(result)
+    before = {p.name: p.read_bytes() for p in path.parent.iterdir()}
+    payload = json.loads(before["cutoffs.json"])
+    manifest = json.loads(before["manifest.json"])
+    coverage = json.loads(before["coverage.json"])
+    assert result["cutoff_count"] == manifest["counts"]["canonical_cutoffs"] == 1
+    assert coverage["canonical_cutoffs"] == len(payload["records"]) == 1
+    record = payload["records"][0]
+    assert record["combination"]["code"] == "TEST-A00"
+    assert [
+        (s["subject_code"], s["subject"]["code"], s["subject"]["name"], s["position"])
+        for s in record["combination_subjects"]
+    ] == [
+        ("MATH", "MATH", "Toán thử nghiệm", 1),
+        ("PHYS", "PHYS", "Vật lý thử nghiệm", 2),
+        ("CHEM", "CHEM", "Hóa học thử nghiệm", 3),
+    ]
+    with reader.begin() as c:
+        assert verify(c, 3)["verified"]
+    replay = build(runner, tmp_path, version=3)
+    assert replay["cached"] and replay["release_id"] == result["release_id"]
+    assert replay["cutoff_count"] == 1
+    assert {p.name: p.read_bytes() for p in path.parent.iterdir()} == before
+
+
+def test_supported_contract_accepts_older_builder_provenance(release_db, tmp_path, monkeypatch):
+    from services.data.releases import artifacts
+    from services.data.releases.builder import build, verify
+
+    admin, runner, reader, _ = release_db
+    result = build(runner, tmp_path)
+    path = manifest_path(result)
+    before = path.read_bytes()
+    old_manifest = json.loads(before)
+    with admin.connect() as c:
+        audit_count = c.scalar(sa.text("SELECT count(*) FROM audit_events"))
+    # Simulate upgrading the implementation while retaining the supported wire contract.
+    monkeypatch.setattr(artifacts, "BUILDER", "release-builder/1.1.0")
+    bundle = artifacts.verify_bundle(path, result["manifest_sha256"])
+    assert bundle["manifest"] == old_manifest
+    assert bundle["manifest"]["builder_version"] == "release-builder/1.0.0"
+    with reader.begin() as c:
+        assert verify(c, 3)["verified"]
+    replay = build(runner, tmp_path, version=3)
+    assert replay["cached"] and replay["release_id"] == result["release_id"]
+    assert replay["manifest_sha256"] == result["manifest_sha256"]
+    assert path.read_bytes() == before
+    with admin.connect() as c:
+        assert c.scalar(sa.text("SELECT count(*) FROM audit_events")) == audit_count
+        assert c.scalar(sa.text("SELECT count(*) FROM dataset_releases")) == 1
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("schema_version", "canonical-release/999"), ("filters", {"years": [2026]})],
+)
+def test_unsupported_bundle_contract_is_rejected(release_db, tmp_path, field, value):
+    from services.data.releases.artifacts import encode, sha, verify_bundle
+    from services.data.releases.builder import build
+
+    _, runner, _, _ = release_db
+    result = build(runner, tmp_path)
+    path = manifest_path(result)
+    manifest = json.loads(path.read_bytes())
+    manifest[field] = value
+    raw = encode(manifest)
+    path.write_bytes(raw)
+    # The checksum is correct: rejection must be based on the unsupported contract.
+    with pytest.raises(ValueError, match="unsupported manifest contract"):
+        verify_bundle(path, sha(raw))
+
+
 @pytest.mark.parametrize("excluded", ["unverified", "noncurrent", "withdrawn", "year"])
 def test_excludes_noncanonical_inputs(release_db, tmp_path, excluded):
     from services.data.releases.builder import build

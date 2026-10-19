@@ -244,13 +244,21 @@ def capture(c: Connection) -> dict[str, Any]:
         )
         subjects = []
         if combination:
-            cs = t["combination_subjects"]
+            cs, subject = t["combination_subjects"], t["subjects"]
             for s in c.execute(
-                sa.select(cs)
+                sa.select(cs, subject.c.code, subject.c.name)
+                .select_from(cs.join(subject, cs.c.subject_code == subject.c.code))
                 .where(cs.c.combination_id == combination["id"])
-                .order_by(cs.c.subject_id)
+                .order_by(cs.c.position)
             ).mappings():
-                subjects.append(dict(s) | {"subject": get("subjects", s["subject_id"])})
+                subjects.append(
+                    dict(
+                        combination_id=s["combination_id"],
+                        subject_code=s["subject_code"],
+                        position=s["position"],
+                        subject=dict(code=s["code"], name=s["name"]),
+                    )
+                )
         aggregate = admission["condition_dsl"].get("combination_status") == "source_aggregate"
         records.append(
             dict(
