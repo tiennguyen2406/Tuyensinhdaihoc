@@ -17,6 +17,8 @@ from services.data.parsers.html import VERSION as HTML_VERSION
 from services.data.parsers.html import parse_html
 from services.data.parsers.pdf import VERSION as PDF_VERSION
 from services.data.parsers.pdf import parse_pdf
+from services.data.parsers.ptit_2026 import VERSION as PTIT_2026_VERSION
+from services.data.parsers.ptit_2026 import parse_ptit_2026
 from services.data.parsers.ueh import VERSION as UEH_VERSION
 from services.data.parsers.ueh import parse_ueh
 from services.data.parsers.ueh_batch import VERSION as UEH_BATCH_VERSION
@@ -49,6 +51,12 @@ def parser_version(
 ) -> str:
     if not re.fullmatch(r"[A-Za-z0-9_.-]{1,32}", revision):
         raise ValueError("Invalid parser revision")
+    if (
+        profile
+        and profile.parser == "ptit_2026_multimethod_html"
+        and snapshot.media_type == "text/html"
+    ):
+        return PTIT_2026_VERSION + "+" + revision
     if profile and profile.parser == "ueh_2024_pt345_html" and snapshot.media_type == "text/html":
         return UEH_PT345_VERSION + "+" + revision
     if profile and profile.parser == "ueh_2024_html" and snapshot.media_type == "text/html":
@@ -87,6 +95,8 @@ def extract(
         raise ValueError("Snapshot host outside source profile")
     version = parser_version(snapshot, revision, profile)
     adapter = ADAPTERS.get(snapshot.media_type)
+    if profile.parser == "ptit_2026_multimethod_html" and snapshot.media_type == "text/html":
+        adapter = (PTIT_2026_VERSION, parse_ptit_2026)
     if profile.parser == "ueh_2024_pt345_html" and snapshot.media_type == "text/html":
         adapter = (UEH_PT345_VERSION, parse_pt345)
     if profile.parser == "ueh_2024_html" and snapshot.media_type == "text/html":

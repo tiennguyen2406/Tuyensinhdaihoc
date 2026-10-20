@@ -92,6 +92,17 @@ Chi tiết reports/t08-ueh-controlled-batch-bootstrap.md; private state/review/u
 
 ## Mốc chuyển tiếp
 
+PTIT2026 multi-method batch: official cutoff/convert/method sources thu4/6HTTP,
+HTTP200/0redirect/0retry,allruns paused. DOM63programrows(BVH44/BVS19),567physical
+methodslots=519numeric+48dash;9scorecolumnsriêng,khôngfanout,khôngscaleconversion.
+519newlogicalsourcecandidates,0approval/publication. Resource-limit fail-closed fix
+cóRED/GREEN;2immutabletechnicalattempts(6processingjobs/378observations) chỉ519logical,
+khôngđếm1038;finalparser/normalizer1.0.1,resolver1.0.7. Pending9Method+63Program/
+63Offering;2024campuscodeapprovalkhôngtựmởrộng2026. Sourceauthority/rights,identity,
+scale/basis/tie-break/scopevẫngates;formulaimageskhôngOCR/execution. Full715backend
+testsđạt;DEVcanonical3/catalog3/audit47/releasev3giữnguyên. Chi tiết
+reports/t09-ptit-2026-multimethod-full-batch.md;private state/intake/ptit-2026-full-multimethod/.
+
 UEH August PT3/PT4/PT5 full batch:211/211numeric physicalcells =71PT3+71PT4+69PT5;
 KSA-main162/ISB4/KSV45,2ISB-PT5structurallyabsent ngoài denominator,23noncutoffrows
 táchriêng. Một wrapper dùng physical-grid/headerguards PT6 cũ nguyên; một normalizer
