@@ -92,6 +92,19 @@ Chi tiết reports/t08-ueh-controlled-batch-bootstrap.md; private state/review/u
 
 ## Mốc chuyển tiếp
 
+UEH supporting-evidence task đã thu2official HTML snapshots(A15/2,B19/7) qua existing
+crawler,2/6HTTP,robotscachevalid,mọi runpaused; không tạo cutoff/approval mới.
+247evidence records/54reconciliation rows:54code+base-label matches với February,
+53July threshold names direct+1engineering-qualifier held.13/14Auguststarred rows có
+hỗ trợ Toán;7220201 giữ English(**)/S→generic(*) conflict;8marker variants giữreview.
+257physical historical scorecells giữ2023, không thành2024cutoffs.7/19decision dossiers
+được bổsungcoverage,0overallreadiness promotion/approval; rights/formalbasis/priority
+vẫn mở. DEV45sources/38snapshots/1127observations/85jobs,canonical3/catalog3/audit47/
+releasev3 nguyên;33tables existingrows nguyên,UEHhost limiter đổi cógiải trình,
+772historicalfiles giữhash. Chi tiết reports/t08-ueh-ksa-2024-supporting-evidence.md;
+private state/evidence/ueh-2024-ksa-pt6-supporting-sources/. Bước kế làreview variants/
+quyền và exact supporting rule evidence còn thiếu,không tựapply/publish/T12.
+
 UEH KSA-main signoff tranche đã kiểm đủ54/54 August PT6 packets/physical cells,
 không re-ingest hay tính lại77candidates. Private owner sheet có19shared decisions
 (3source-complete/8reviewer/7external/1technical) và54row identity decisions;
