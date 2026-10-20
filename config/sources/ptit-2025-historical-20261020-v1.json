@@ -1,0 +1,73 @@
+{
+  "profile_id": "ptit-2025-historical-20261020-v1",
+  "university_key": "ptit",
+  "allowed_hosts": [
+    "tuyensinh.ptit.edu.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.ptit.edu.vn/gioi-thieu/xem-diem-cac-nam-truoc/diem-trung-tuyen-nam-2025/",
+    "https://tuyensinh.ptit.edu.vn/thong-bao-diem-chuan-trung-tuyen-vao-dai-hoc-he-chinh-quy-nam-2025/",
+    "https://tuyensinh.ptit.edu.vn/diem-trung-tuyen-cac-phuong-thuc-xet-tuyen-dai-hoc-he-chinh-quy-dot-1-nam-2025/",
+    "https://tuyensinh.ptit.edu.vn/bang-quy-doi-tuong-duong-diem-trung-tuyen-giua-cac-phuong-thuc-xet-tuyen-dai-hoc-he-chinh-quy-dot-1-nam-2025/"
+  ],
+  "years": [
+    2025
+  ],
+  "authority_scope": {
+    "years": [
+      2025
+    ],
+    "fact_kinds": [
+      "cutoff",
+      "catalog"
+    ]
+  },
+  "parser": "raw_http",
+  "parser_options": {
+    "html_content_selectors": [
+      "article.post-wrap",
+      "#main-content .ova_dir_content"
+    ],
+    "html_exclude_selectors": [
+      "nav",
+      "aside",
+      "footer",
+      "script",
+      "style",
+      ".posts-sidebar",
+      ".order_ticket"
+    ]
+  },
+  "include_path_patterns": [
+    "^/gioi\\-thieu/xem\\-diem\\-cac\\-nam\\-truoc/diem\\-trung\\-tuyen\\-nam\\-2025/$",
+    "^/thong\\-bao\\-diem\\-chuan\\-trung\\-tuyen\\-vao\\-dai\\-hoc\\-he\\-chinh\\-quy\\-nam\\-2025/$",
+    "^/diem\\-trung\\-tuyen\\-cac\\-phuong\\-thuc\\-xet\\-tuyen\\-dai\\-hoc\\-he\\-chinh\\-quy\\-dot\\-1\\-nam\\-2025/$",
+    "^/bang\\-quy\\-doi\\-tuong\\-duong\\-diem\\-trung\\-tuyen\\-giua\\-cac\\-phuong\\-thuc\\-xet\\-tuyen\\-dai\\-hoc\\-he\\-chinh\\-quy\\-dot\\-1\\-nam\\-2025/$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 0,
+  "max_discovery_urls": 4,
+  "max_query_variants_per_path": 20,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "eligible",
+  "access_basis": "Owner-authorized exact PTIT2025 pilot, maximum7 additional requests; no discovery/login/approval.",
+  "snapshot_basis": "Private immutable technical evidence only; commercial/redistribution rights unresolved.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "https://tuyensinh.ptit.edu.vn/gioi-thieu/xem-diem-cac-nam-truoc/diem-trung-tuyen-nam-2025/",
+    "https://tuyensinh.ptit.edu.vn/thong-bao-diem-chuan-trung-tuyen-vao-dai-hoc-he-chinh-quy-nam-2025/",
+    "https://tuyensinh.ptit.edu.vn/diem-trung-tuyen-cac-phuong-thuc-xet-tuyen-dai-hoc-he-chinh-quy-dot-1-nam-2025/",
+    "https://tuyensinh.ptit.edu.vn/bang-quy-doi-tuong-duong-diem-trung-tuyen-giua-cac-phuong-thuc-xet-tuyen-dai-hoc-he-chinh-quy-dot-1-nam-2025/",
+    "preflight.json: existing robots cache valid and allows all4paths; no robots request used"
+  ],
+  "observed_years": [],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400
+}

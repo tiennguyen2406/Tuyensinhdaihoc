@@ -92,6 +92,23 @@ Chi tiết reports/t08-ueh-controlled-batch-bootstrap.md; private state/review/u
 
 ## Mốc chuyển tiếp
 
+PTIT2025 historical intake:4/7HTTP,4officialHTMLsnapshots/448270bytes,
+robotscachecònhạn,0redirect/retry,allruns paused. Archive2tables/BVH28+BVS13:
+47physicalrows=41programs+2headers+4sections;41numeric=41newtyped/0existing/
+0blocked. One published score/row,method=None; không biến thành9methods hoặc tự
+gánTHPTgốc. TTNV36`<=`/5`=` giữraw/operator/equal-cutoffcontext. B22/8scale30/priority,
+C23/8rawTHPT,D23/7conversion táchsource;image-backedtables chưa kiểm số/khôngOCR.
+T05/06/07 mỗi1job/41records,41conditionalT08packets/0eligible,replay0insert;
+pending41Program/41Offering/0Method,approvedregistry/aliasesheadnguyên.
+Crossyear2024:3code+nameproposals;2026:25proposals/2labelvariants/14nomatch,
+khôngmerge/canonicalreuse. DEV52sources/45snapshots/1841observations/104jobs,
+canonical3/catalog3/audit47/releasev3nguyên;34tablesoldrows/1354historicalfiles
+giữdigestngoạitrừhostlimiterPTIT. Logicalsourcecandidates939 không phải canonical
+facts;519technicalreextractions không đếm lại. Authority/rights/2025identity/
+method-basis/scope vẫn cầnreview; không hoàn tấtT08/T09/T11/Phase1.
+Chi tiết reports/t09-ptit-2025-historical-full-batch.md;
+private state/intake/ptit-2025-full-historical/.
+
 PTIT2026 multi-method batch: official cutoff/convert/method sources thu4/6HTTP,
 HTTP200/0redirect/0retry,allruns paused. DOM63programrows(BVH44/BVS19),567physical
 methodslots=519numeric+48dash;9scorecolumnsriêng,khôngfanout,khôngscaleconversion.
