@@ -92,6 +92,19 @@ Chi tiết reports/t08-ueh-controlled-batch-bootstrap.md; private state/review/u
 
 ## Mốc chuyển tiếp
 
+UEH August PT3/PT4/PT5 full batch:211/211numeric physicalcells =71PT3+71PT4+69PT5;
+KSA-main162/ISB4/KSV45,2ISB-PT5structurallyabsent ngoài denominator,23noncutoffrows
+táchriêng. Một wrapper dùng physical-grid/headerguards PT6 cũ nguyên; một normalizer
+multicandidate,3jobs/213technical observations,211T08conditional packets/0eligible.
+Dùnglại71Program/Offeringreviewfamilies,khôngthêmProgram/Offering;3Methodpending riêng,
+khôngscaleconversion/PT6combinations/notes leakage/autoMajor. Augustp41giữcontext
+PT2–5đãcôngbố20/6/2024,khôngtựRound1/đợtmới/correction. Replay0duplicate,77PT6packets
+exactnguyên,34tablesoldrows/833filesgiữdigest. DEV1340observations/88jobs,
+45sources/38snapshots,canonical3/catalog3/audit47/releasev3nguyên;0HTTP/0approval.
+Authority/rights/identity/methodscale-basis/earlyscope vẫnreviewgates,khôngnghiệmthu
+toànT08/T09/T11. Chi tiết reports/t09-ueh-2024-pt345-full-batch.md;
+private state/intake/ueh-2024-pt345-full-batch/.
+
 UEH supporting-evidence task đã thu2official HTML snapshots(A15/2,B19/7) qua existing
 crawler,2/6HTTP,robotscachevalid,mọi runpaused; không tạo cutoff/approval mới.
 247evidence records/54reconciliation rows:54code+base-label matches với February,

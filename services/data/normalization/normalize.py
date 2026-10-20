@@ -198,6 +198,10 @@ def lineage(
 def normalize(obs: RawObservation, context: NormalizationContext) -> NormalizedObservation:
     if obs.transform_version != TRANSFORM_VERSION or obs.normalized_fields:
         raise ValueError("Normalization input must be raw-only, never normalizer output")
+    if context.version == "normalizer/ueh-2024-pt345/1.0.0":
+        from services.data.normalization.ueh_pt345 import normalize_pt345
+
+        return normalize_pt345(obs, context)
     if context.version == "normalizer/ueh-2024-pt6-batch/1.0.0":
         from services.data.normalization.ueh_batch import normalize_batch
 
