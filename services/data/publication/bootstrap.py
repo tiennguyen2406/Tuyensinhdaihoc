@@ -104,11 +104,17 @@ def operations(
     ):
         raise ValueError("Alias approval needs a new alias version")
     reg = seed.frozen()
+    from services.data.publication.integration import check_operation, operation_packets
+
+    bound_packets = operation_packets(c, cmd)
+    primary_packet = packet
     ids = {e.key: e.canonical_id for e in seed.entities if e.canonical_id}
     effects = []
     verified_universities: set[UUID] = set()
     serving_changed = False
     for op in sorted(cmd.operations, key=lambda o: ORDER.index(o.kind)):
+        packets = bound_packets[op.key] if bound_packets is not None else [primary_packet]
+        packet = packets[0]
         evidence_sources = set()
         for evidence in op.evidence:
             if not evidence.startswith("snapshot:") or "#" not in evidence:
@@ -187,6 +193,8 @@ def operations(
                 values[key] = decimal_value(Decimal(value), 5)
             if isinstance(col.type, sa.Date) and isinstance(value, str):
                 values[key] = date.fromisoformat(value)
+        if bound_packets is not None:
+            check_operation(op, packets, seed, ids, values, cmd)
         if op.kind == "offering":
             for key in ["campus_code", "track_code", "language_code"]:
                 if key not in values:

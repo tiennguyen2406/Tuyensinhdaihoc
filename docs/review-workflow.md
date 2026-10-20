@@ -174,3 +174,15 @@ ID396ccd8b-1193-43dd-a08a-bb19e639dd56. Không xin lại hoặc thay A2/B/C/D, k
 Dedicated release login/capability tách reviewer/publisher, không owner application runner.
 Contract/runbook:release-contract.md; actual verification/replay:reports/t09-release-pilot.md.
 Vẫn thiếu19.997canonical và chưa nghiệm thu toànT09/Phase1/đa nguồn hoặc public deployment.
+
+## Controlled batch preparation (20/10/2026)
+
+The existing publication CLI now supports read-only `integrate --file` using a typed
+IntegrationRequest with actual packet bindings, selected pending keys and expected
+registry/alias/base hashes. Output is a proposed overlay, never approval or a head update.
+UEH's complete77candidate package is private at `state/review/ueh-2024-batch-bootstrap/`.
+Shared evidence is grouped; each future bootstrap operation must retain its own exact
+packet bindings. A later explicitly approved batch file requires `--file-sha256` at apply.
+Existing PTIT approvals/commands remain valid and are not requested again. Missing rights,
+identity/label decisions and scale/admission scope still block real command preparation.
+See [task report](reports/t08-ueh-controlled-batch-bootstrap.md) for limits and evidence.

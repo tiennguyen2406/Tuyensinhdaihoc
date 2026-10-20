@@ -100,3 +100,20 @@ Các guards, expected versions/digests và append-only history không bị bỏ 
 Supporting source khác host phải có `registry_fields.source_relationship={snapshot_id,locator,target_host}` và ref tương ứng trong op.evidence: parent cached phải official/cùng publisher/domain/finalhost như packet host; own supporting snapshot vẫn bắt buộc. Semantic relationship/authority được người phụ trách review, code không coi locator đơn thuần là chứng minh nội dung. Những lời reason không thay bindings/grants.
 
 Field authority: score/publication/correction cầncutoff; scale/basis/combination_aggregation nhậncutoff hoặcscoring_rule; metadata fields khác nhậncutoff hoặccatalog. Source active review vẫn bắt buộc. Approval environment hash thêm tất cả supporting evidence source rows; authority đổi thì re-review, không silent widen. Không approve scoring DSL qua scale/basis evidence. Xem reports/ptit-blocker-decisions.md về A2/B/C/D, THPT canonical code và named-notice round proposal chưa được duyệt.
+
+## Controlled proposal integration (20/10/2026)
+
+Read-only CLI `integrate --file <IntegrationRequest>` builds a deterministic overlay
+against exact expected registry/alias/base hashes, importing only pending keys supported
+by frozen packet lineage. It preserves the approved head and aliases; proposal overlays
+are not registered or approved. Manifest includes exact per-key bindings and diff.
+
+Optional `ReviewCommand.proposal_integration` and `operation_bindings` extend bootstrap
+only. New empty fields are omitted from serialized commands, preserving historical
+command digests. Each operation checks its own source context, original parents and
+snapshot; frozen identity metadata cannot be silently replaced. Batch authority requires
+exact source/year/method/campus/code/snapshot bindings and cannot cover foreign owners.
+Batch CLI apply requires `--file-sha256` of reviewed exact bytes. All execution remains
+explicitly human-authorized through the existing transaction, roles, audit and replay.
+Source rights and Program-label governance are separate unresolved gates. See
+[controlled UEH report](reports/t08-ueh-controlled-batch-bootstrap.md).

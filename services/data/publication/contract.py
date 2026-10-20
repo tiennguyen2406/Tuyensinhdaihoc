@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer
 
 VERSION = "publication/1.2.0"
 
@@ -68,6 +68,23 @@ class Binding(Frozen):
     resolution_id: UUID
     candidate_key: str
     packet_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class ProposalIntegration(Frozen):
+    version: str = Field(min_length=1)
+    base_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    bindings: list[Binding] = Field(min_length=1, max_length=1000)
+    proposal_keys: list[str] = Field(min_length=1, max_length=5000)
+    registry_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class IntegrationRequest(Frozen):
+    version: str
+    expected_registry_version: str
+    expected_alias_version: str
+    base_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    bindings: list[Binding] = Field(min_length=1, max_length=1000)
+    proposal_keys: list[str] = Field(min_length=1, max_length=5000)
 
 
 class SourceRelationship(Frozen):
@@ -151,6 +168,18 @@ class ReviewCommand(Frozen):
     fact: CutoffSpec | None = None
     expected_revision: int | None = Field(default=None, ge=1)
     revokes_decision_id: UUID | None = None
+    proposal_integration: ProposalIntegration | None = None
+    operation_bindings: dict[str, list[Binding]] = Field(default_factory=dict)
+
+    @model_serializer(mode="wrap")
+    def legacy_payload(self, handler: Any) -> dict[str, Any]:
+        value: dict[str, Any] = handler(self)
+        # Historical command digests include original defaults; omit only new defaults.
+        if self.proposal_integration is None:
+            value.pop("proposal_integration", None)
+        if not self.operation_bindings:
+            value.pop("operation_bindings", None)
+        return value
 
     @field_validator("reason")
     @classmethod

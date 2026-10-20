@@ -42,6 +42,14 @@ class ReviewService:
             reg.alias_version,
         ):
             raise ValueError("Stale expected registry/alias version")
+        if cmd.proposal_integration is not None:
+            if cmd.action != "bootstrap":
+                raise ValueError("Proposal integration is bootstrap-only")
+            if cmd.new_registry_version == reg.version:
+                raise ValueError("Bootstrap needs a new registry version beyond its base head")
+            from services.data.publication.integration import checked_integration
+
+            reg = checked_integration(self.c, reg, cmd.proposal_integration)
         return reg
 
     def revoked(self, decision_id: UUID) -> bool:
@@ -137,6 +145,14 @@ class ReviewService:
                     raise ValueError("Request ID reused for changed decision")
                 if self.revoked(old["id"]):
                     raise ValueError("Decision revoked")
+                if cmd.proposal_integration:
+                    from services.data.publication.packets import checked_packets
+
+                    checked_packets(self.c, cmd.proposal_integration.bindings)
+                if cmd.operation_bindings:
+                    from services.data.publication.integration import operation_packets
+
+                    operation_packets(self.c, cmd)
                 return old["payload"]["result"]
             reg = self.versions(cmd, packet)
             self.plan(cmd)
@@ -171,8 +187,8 @@ class ReviewService:
                             registry=effect["registry"],
                             registry_sha256=digest(effect["registry"]),
                             decision_id=str(identifier),
-                            parent_registry_version=reg.version,
-                            parent_alias_version=reg.alias_version,
+                            parent_registry_version=cmd.expected_registry_version,
+                            parent_alias_version=cmd.expected_alias_version,
                         ),
                     )
                 )

@@ -1,4 +1,4 @@
-# Tiến độ EduRadar T01–T19 — UEH full PT6 batch 20/10/2026
+# Tiến độ EduRadar T01–T19 — controlled UEH registry preparation 20/10/2026
 
 Phase hiện tại: **Phase 1 — Data**. Lát cắt publication pilot PTIT có ba current verified published canonical cutoffs sau approval riêng C2/D1/D2/D3, apply/replay thực tế. Chưa nghiệm thu toàn T07/T08/Phase1/quota20.000. Chi tiết: reports/ptit-publication-pilot.md; không quy đổi tests/envelopes thành phần trăm hoàn thành.
 
@@ -57,6 +57,17 @@ full-row validator, private CSV/JSON/replay; xem reports/t09-ueh-2024-pt6-full-b
 UEH tổng77logical candidates không cộng quota. Authority/rights, identity, scale/basis,
 scope và controlled registry integration vẫn cần review; không đóngT09/T11/Phase1.
 
+T08controlled integration mới:77/77August+Septemberbindings và150pending keys kiểm đủ;
+overlay deterministic giữ exactapprovedPTIT/aliases, không thayDEVhead. Optional typed
+per-operation bindings dùng existing bootstrap transaction; exactfileSHA/stale/hash/
+owner/parent/campus/snapshot guards, replay/rollback testDB riêng. Curated63codefamilies
+(52distinct sourceOfferings/3sameProgramproposals/8unresolved),71Offering-contextgroups;
+9same-label/different-code alternatives khôngmerge.16shareddecisions+77dependencyrows.
+Các mã7340201_01/_02/_03 khác tên giữaKSA/KSV, khônggộp theo code. Previewcommands=[],
+0approval/0DEVwrites/0HTTP;34table digests/631files nguyên. Source rights/authority,
+identity/label strategy,scale/basis/scope vẫn chặn thật; không gọi overlayexecution-ready.
+Chi tiết reports/t08-ueh-controlled-batch-bootstrap.md; private state/review/ueh-2024-batch-bootstrap/.
+
 | Task | Đã triển khai kỹ thuật | Kiểm chứng dữ liệu thật | Điều kiện nghiệm thu đã có | Còn thiếu/chưa bắt đầu |
 |---|---|---|---|---|
 | T01 | Contract/dictionary/count policy, inventory12trường, SourceProfile có phiên bản | Authority pilot PTIT2024 đã duyệt theo7source bindings;3facts có evidence | Checksum/locators và canonical count3 kiểm SQL | Quyền thương mại/tái phân phối và các nguồn khác chưa được suy thành approved |
@@ -66,10 +77,10 @@ scope và controlled registry integration vẫn cần review; không đóngT09/T
 | T05 | HTML/digitalPDF adapters, locators/footnotes/resource limits/review |215raw observations pilot; scan2024/2025 đọc trực quan có ghi nhãn | Lát cắt HTML/PDF có lineage và giữ raw | XLSX/JSON typed/OCR/SPA và source adapters còn thiếu; scan visual không là OCR pipeline |
 | T06 | NFC/search/Decimal/year/unit/method/scope envelopes có version |215envelopes,95draft candidates (91cutoff2024+4tuition academic2026–27) | Pilot giữ năm/locale và ambiguity |118blocked attempts,166untyped inputs và fact review chưa xử lý xong |
 | T07 | Registry/aliases/resolver/version/replay/impact; gold synthetic | Frozen T07 vẫn91partial/4ambiguous/0eligible;3facts có approved mapping được T08 review riêng | Namespace/lineage giữ nguyên; B1/B2 xác định D2 BVS về Program QTKD thật | Không sửa auto-resolution hoặc giải phóng118blocked attempts; taxonomy/đa nguồn còn thiếu |
-| T08 | Review/auth/audit, publisher transaction/revisions/evidence/catalog/outbox; UEH packet evidence inspection |3scopes/3current verified published cutoffs revision1/3evidence,catalog3; UEH71August+6September unverified packets không là approvals/facts; DEV1127observations/83jobs/47audit | Exact PTIT approvals/replay/SQLcount3; full August71packets/physical cells kiểm;23original cross-round decisions giữ nguyên | Chỉ đạt lát cắt publication pilot; UEH authority/rights/identity/scale/scope và registry-integration gaps; toànT08 chưa nghiệm thu |
+| T08 | Review/auth/audit, publisher transaction/revisions/evidence/catalog/outbox; controlled pending integration và per-operation packet binding |3scopes/3current verified published cutoffs revision1/3evidence,catalog3; UEH77unverified packets/150pending keys; DEV1127observations/83jobs/47audit | Exact PTIT approvals/8commandhashes; real77binding checks; isolated apply/replay/rollback/stale/tamper tests;0DEVwrite | Chỉ đạt lát cắt publication pilot; UEH authority/rights/identity/label/scale/scope choices còn chặn; overlay chưaexecution-ready, toànT08 chưa nghiệm thu |
 | T09 | RR builder/immutable artifacts/CLI/guards; bounded intake và full-source UEH PT6 shared physical-grid adapter | Release3/count3/hash nguyên; UIT/DUT0typed; August71=6existing+65new+0blocked,September6riêng; task mới0HTTP | 100% August row reconciliation,23non-cutoff tách riêng; T05/06/07 mỗi1job, replay0insert, old packets/history nguyên | Authority/identity/scale/basis/scope review và registry integration; đa nguồn canonical/load/restore/remote storage/quota20.000;3facts/thiếu19.997 |
 | T10 | Live RO RR API catalog/1; year status từ admission_years; SQL filtering/keyset/cursor2, page batch sources/SQL aggregate coverage; SSR/URL/stale guard | PTIT2024 partial+3verifiedcutoffs,2025/26missing; synthetic20k/50k tách DEV, SQL11/10/11 mỗi trang,30HTTP requests/browser DEV đúng |596backend/44catalog,18frontend unit/6E2E; fullchecks/build pass, CI exact SHA xem checkpoint bàn giao | Mới lookup+SQL/yearstatus slice;50k/20concurrent TCP search p95=2625,4ms chưa đạt500ms; coverage aggregate/temp spill còn là bottleneck; rich filters/fees/fuzzy/security/auth production/đa nguồn còn mở |
-| T11 | DEV roles/local CLI review; shared serving policy; Vietnamese UEH business-decision dossier |3immutable fact decisions nguyên;9DUT staging gates;12UEH packet bindings/23original IDs/6additional gaps,0approval | 23readiness:1supported/13business/8external/1blocked; source-rights,identity/round matrices và publication dependencies | Owner/reviewer field decisions; controlled UEH proposal integration và Program alias support chưa có; OIDC/RBAC production/admin UI/withdrawal governance chưa nghiệm thu |
+| T11 | DEV roles/local CLI review; shared serving policy; UEH dossier và controlled batch integration preparation |3immutable fact decisions nguyên;9DUT staging gates;77UEH bindings/150pending keys/16shared decisions,0approval | Deterministic pendingoverlay, per-operation packet guards, legacy8commandhashes exact;63reviewfamilies/8unresolved/71Offeringcontexts; readonlyDEVpreservation | Owner/reviewer field decisions và Program label governance còn thiếu; overlay chưaexecution-ready; OIDC/RBAC production/admin UI/withdrawal governance chưa nghiệm thu |
 | T12 | Schema scale/rule/validators, chưa evaluator | THPT2024scale[0,30] và3TTNV predicates đã lưu; computation unavailable_aggregate_scope | Chỉ evidence/semantic scope phục vụ publication, không tính/so sánh điểm | DSL execution/priority/eligibility/rounding/traces/golden rules |
 | T13 | Schema conversion và kiểm scale/method/year/authority | Chỉ fixtures ràng buộc, không quy đổi nguồn thật | Chưa | Registry kỳ thi/version và official conversion execution |
 | T14 | Chưa | Chưa | Chưa | Historical recommendation API/buckets/paging/explanations |

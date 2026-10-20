@@ -1,6 +1,7 @@
 """Trusted local CLI. Review identity comes from DB authentication, never a JSON actor."""
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -13,7 +14,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from services.api.db.session import ROOT, engine, schema_is_current
 from services.api.db.validators import record
-from services.data.publication.contract import ReviewCommand
+from services.data.publication.contract import IntegrationRequest, ReviewCommand
 from services.data.publication.packets import inspect_packet, list_packets
 from services.data.publication.publish import Publisher
 from services.data.publication.review import ReviewService
@@ -72,21 +73,39 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Local reviewed T08 CLI; no production OIDC/API or implicit approvals"
     )
-    parser.add_argument("command", choices=["list", "inspect", "plan", "apply", "replay", "export"])
+    parser.add_argument(
+        "command", choices=["list", "inspect", "plan", "apply", "replay", "export", "integrate"]
+    )
     parser.add_argument("--resolution", type=UUID)
     parser.add_argument("--candidate")
     parser.add_argument("--file", type=Path)
+    parser.add_argument("--file-sha256", help="SHA-256 of exact human-reviewed file bytes")
     parser.add_argument("--decision", type=UUID)
     parser.add_argument("--registry-job", type=UUID)
     parser.add_argument("--expected-revision", type=int)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     output = private_path(args.output) if args.output else None
+    body = private_path(args.file).read_bytes() if args.file else None
+    if args.file_sha256 and (body is None or hashlib.sha256(body).hexdigest() != args.file_sha256):
+        raise ValueError("Reviewed file digest changed")
     command = (
-        ReviewCommand.model_validate_json(private_path(args.file).read_text(encoding="utf-8"))
-        if args.file
+        ReviewCommand.model_validate_json(body) if body and args.command != "integrate" else None
+    )
+    integration = (
+        IntegrationRequest.model_validate_json(body)
+        if body and args.command == "integrate"
         else None
     )
+    if args.command == "integrate" and (integration is None or output and output.exists()):
+        raise ValueError("Integration requires an input file and a fresh immutable output path")
+    if (
+        command
+        and args.command == "apply"
+        and (command.proposal_integration or command.operation_bindings)
+        and not args.file_sha256
+    ):
+        raise ValueError("Batch bootstrap apply requires --file-sha256 of human-reviewed bytes")
     user = os.getenv("PUBLICATION_DB_USER")
     password = os.getenv("PUBLICATION_DB_PASSWORD")
     if bool(user) != bool(password):
@@ -103,12 +122,29 @@ def main() -> int:
     result: Any
     try:
         with db.begin() as c:
-            if args.command in {"list", "inspect", "plan", "export"}:
+            if args.command in {"list", "inspect", "plan", "export", "integrate"}:
                 c.exec_driver_sql("SET TRANSACTION READ ONLY")
             if not schema_is_current(c):
                 raise ValueError("Schema is not current; CLI never migrates automatically")
             svc = ReviewService(c)
-            if args.command == "list":
+            if args.command == "integrate":
+                from services.data.publication.integration import prepare_integration
+
+                assert integration is not None
+                result = prepare_integration(
+                    c, integration.bindings, integration.proposal_keys, integration.version
+                )
+                if (
+                    result["expected_registry_version"],
+                    result["expected_alias_version"],
+                    result["spec"]["base_sha256"],
+                ) != (
+                    integration.expected_registry_version,
+                    integration.expected_alias_version,
+                    integration.base_sha256,
+                ):
+                    raise ValueError("Stale integration registry/alias/base hash")
+            elif args.command == "list":
                 result = list_packets(c)
             elif args.command in {"inspect", "plan"}:
                 if command and args.command == "plan":

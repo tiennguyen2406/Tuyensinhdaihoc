@@ -36,7 +36,9 @@ def seed_registry():
     )
 
 
-def input_packet(db, registry=None, score="24,50", source_type="university"):
+def input_packet(
+    db, registry=None, score="24,50", source_type="university", campus="BVH", host="example.invalid"
+):
     from services.api.db.models import metadata
     from services.data.normalization.store import NormalizationStore
     from services.data.parsers.contract import ExtractedObservation, ParseResult
@@ -52,8 +54,8 @@ def input_packet(db, registry=None, score="24,50", source_type="university"):
         .insert()
         .values(
             id=sid,
-            canonical_url="https://example.invalid/" + str(sid),
-            domain="example.invalid",
+            canonical_url="https://" + host + "/" + str(sid),
+            domain=host,
             publisher="TEST ONLY",
             source_type=source_type,
         )
@@ -66,12 +68,14 @@ def input_packet(db, registry=None, score="24,50", source_type="university"):
             source_id=sid,
             raw_hash=uuid4().hex * 2,
             raw_uri="fixture://TEST-ONLY",
-            final_url="https://example.invalid/pilot",
+            final_url="https://" + host + "/pilot",
             media_type="text/html",
             byte_size=0,
         )
     )
-    raw = raw_row(score=score).model_copy(update={"snapshot_id": snap, "source_id": sid})
+    raw = raw_row(score=score, campus=campus).model_copy(
+        update={"snapshot_id": snap, "source_id": sid}
+    )
     ObservationStore(db).save(
         ParseResult(
             observations=[

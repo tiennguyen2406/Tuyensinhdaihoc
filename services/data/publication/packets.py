@@ -33,7 +33,13 @@ def list_packets(c: Connection) -> list[dict[str, Any]]:
     ]
 
 
-def inspect_packet(c: Connection, resolution_id: UUID, candidate_key: str) -> dict[str, Any]:
+def inspect_packet(
+    c: Connection,
+    resolution_id: UUID,
+    candidate_key: str,
+    *,
+    _parents: dict[str, list[dict[str, Any]]] | None = None,
+) -> dict[str, Any]:
     row = dict(record(c, "observations", resolution_id))
     out = row["normalized_fields"]
     if out.get("schema_version") != "entity-resolution/1":
@@ -53,7 +59,22 @@ def inspect_packet(c: Connection, resolution_id: UUID, candidate_key: str) -> di
         raise ValueError("Unique frozen T07 job required")
     job = jobs[0]
     p = job["payload"]
-    _, parents, _ = ResolutionStore(c).inputs(p["normalization_job_id"])
+    registry = p["registry"]
+    if (
+        digest(registry) != p["registry_sha256"]
+        or digest(registry["entities"]) != p["registry_entities_sha256"]
+        or digest(registry["aliases"]) != p["alias_entries_sha256"]
+    ):
+        raise ValueError("Frozen T07 registry manifest mismatch")
+    cache = _parents if _parents is not None else {}
+    normal_job = p["normalization_job_id"]
+    if normal_job not in cache:
+        _, cache[normal_job], _ = ResolutionStore(c).inputs(normal_job)
+    parents = cache[normal_job]
+    if digest(parents) != p["input_sha256"] or sorted(str(r["id"]) for r in parents) != sorted(
+        p["input_envelope_ids"]
+    ):
+        raise ValueError("Frozen T07 parent manifest mismatch")
     parent = next(r for r in parents if r["id"] == parent_id)
     signature = {
         k: p[k]
@@ -125,3 +146,20 @@ def checked_packet(c: Connection, binding: Binding) -> dict[str, Any]:
     if value["packet_sha256"] != binding.packet_sha256:
         raise ValueError("Review input digest changed")
     return value
+
+
+def checked_packets(c: Connection, bindings: list[Binding]) -> list[dict[str, Any]]:
+    """Bounded batch inspection; parent validation cached only within this call."""
+    if not bindings or len(bindings) > 1000:
+        raise ValueError("Nonempty bounded packet batch required")
+    keys = [(b.resolution_id, b.candidate_key) for b in bindings]
+    if len(set(keys)) != len(keys):
+        raise ValueError("Duplicate candidate binding")
+    parents: dict[str, list[dict[str, Any]]] = {}
+    packets = []
+    for b in bindings:
+        p = inspect_packet(c, b.resolution_id, b.candidate_key, _parents=parents)
+        if p["packet_sha256"] != b.packet_sha256:
+            raise ValueError("Review input digest changed")
+        packets.append(p)
+    return packets
