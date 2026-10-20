@@ -19,6 +19,8 @@ from services.data.parsers.pdf import VERSION as PDF_VERSION
 from services.data.parsers.pdf import parse_pdf
 from services.data.parsers.ueh import VERSION as UEH_VERSION
 from services.data.parsers.ueh import parse_ueh
+from services.data.parsers.ueh_batch import VERSION as UEH_BATCH_VERSION
+from services.data.parsers.ueh_batch import parse_batch
 from services.data.parsers.ueh_supplemental import VERSION as UEH_SUPPLEMENTAL_VERSION
 from services.data.parsers.ueh_supplemental import parse_supplemental
 
@@ -49,6 +51,12 @@ def parser_version(
         return UEH_VERSION + "+" + revision
     if (
         profile
+        and profile.parser == "ueh_2024_pt6_batch_html"
+        and snapshot.media_type == "text/html"
+    ):
+        return UEH_BATCH_VERSION + "+" + revision
+    if (
+        profile
         and profile.parser == "ueh_2024_supplemental_html"
         and snapshot.media_type == "text/html"
     ):
@@ -77,6 +85,8 @@ def extract(
     adapter = ADAPTERS.get(snapshot.media_type)
     if profile.parser == "ueh_2024_html" and snapshot.media_type == "text/html":
         adapter = (UEH_VERSION, parse_ueh)
+    if profile.parser == "ueh_2024_pt6_batch_html" and snapshot.media_type == "text/html":
+        adapter = (UEH_BATCH_VERSION, parse_batch)
     if profile.parser == "ueh_2024_supplemental_html" and snapshot.media_type == "text/html":
         adapter = (UEH_SUPPLEMENTAL_VERSION, parse_supplemental)
     if adapter is None:
