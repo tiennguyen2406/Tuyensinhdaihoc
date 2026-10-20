@@ -92,6 +92,20 @@ Chi tiết reports/t08-ueh-controlled-batch-bootstrap.md; private state/review/u
 
 ## Mốc chuyển tiếp
 
+UEH KSA-main signoff tranche đã kiểm đủ54/54 August PT6 packets/physical cells,
+không re-ingest hay tính lại77candidates. Private owner sheet có19shared decisions
+(3source-complete/8reviewer/7external/1technical) và54row identity decisions;
+13KSA–KSV shared-profile relationships chỉ là đề xuất,1same-name relationship mở.
+Đính chính báo cáo trước:7340201_02 KSA=Thuế/KSV=Tài chính; frozen packets vẫn đúng.
+Một University-only draft bind54packets qua controlled integration hiện hữu;
+readonly plan hợp lệ,can_apply=false,chưaapproved. Nếu apply sau này sẽ hiệnUniversity
+trongcatalog và tăngversion, không coi làmetadata vô hình. Các factcommands vẫn0
+vì thiếu identity/authority/rights/scale/basis/round/population/conditions decisions.
+0HTTP/0DEVwrite;34table digests/663historicalfiles nguyên,canonical3/catalog3/audit47/
+releasev3 khôngđổi. Chi tiết reports/t08-ueh-ksa-2024-pt6-signoff.md; bước kế là
+owner trảlời exactdecisionhash/phươngán và evidence thiếu, không tựapply/T12.
+Không nghiệm thu toànT08/T09/T11/Phase1 từ bộhồsơ này.
+
 1. A2–C1 bootstrap đã apply; C2 scope được ghi private, không tự ghi DB. D1/D2/D3 đã duyệt riêng, reviewer apply và publisher apply tuần tự; expected/actual khớp, replay cả hai pha không ghi thêm.
 2. Sau T09:863observations/55jobs/45audit,2Program/3Offering/1scale,3scopes/3canonical revision1/3evidence,catalog3,1release.9audit kỹ thuật mới giải thích trong báo cáo; raw/history giữ nguyên.
 3. Release pilot version3/ID396ccd8b-1193-43dd-a08a-bb19e639dd56 verified, frozen coverage và replay; jobs1/2coalesced vào3,job3built. Không tạo releases1/2.
