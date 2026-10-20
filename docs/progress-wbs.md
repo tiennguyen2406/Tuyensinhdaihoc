@@ -92,6 +92,23 @@ Chi tiết reports/t08-ueh-controlled-batch-bootstrap.md; private state/review/u
 
 ## Mốc chuyển tiếp
 
+PTIT2025 image intake:4/6HTTP,4exactofficialassets liên kết từfrozenB/CHTML đãkiểm,
+4immutable snapshots/2085750bytes,allruns paused. B28+13rows=41scorecells;
+C28+13rows×9methods=369slots;410pixelboxesđủledger,allneeds_manual_verification.
+Windows.Media.Ocr/en-US cósẵn;4cachedfullpasses+8boundedrowprobes thấtbạiTTNV/
+code-suffixrecognition,khôngcoiOCRconfidence/32numericmatchesvớiHTMLlàverified.
+0newtyped/0T05–T07imagejobs/0newT08packets/0corroborationcomplete;41HTMLpackets
+checkedhashnguyên,methodNone;APTkhôngaliasV-ACT,C2TTNVgiữtheomethodcell.
+MinimalPNG/JPEGsafe-media support+tests;chưathêmimageparser/approvalframework.
+DEV56sources/49snapshots/1841observations/108jobs,canonical3/catalog3/audit47/
+releasev3nguyên;34tablesoldrows/1515filesgiữdigesttrừhostlimiterPTIT.
+Logicalsourcecutoffinventoryvẫn939. Report2025trướcsửaduynhấtdòngBVSExisting=0,
+khôngđổidữliệu. Bướcnhỏtiếp:verifierđộclậpxácnhận8cropvớiimagehash/bbox,
+rồimớitranscribe410ôvàxétT05imagecontract.Numericalobjectivesvẫnblocked,
+khôngnghiệmthuT08/T09/T11/Phase1.
+Chi tiết reports/t09-ptit-2025-image-multimethod.md;
+private state/intake/ptit-2025-image-multimethod/.
+
 PTIT2025 historical intake:4/7HTTP,4officialHTMLsnapshots/448270bytes,
 robotscachecònhạn,0redirect/retry,allruns paused. Archive2tables/BVH28+BVS13:
 47physicalrows=41programs+2headers+4sections;41numeric=41newtyped/0existing/

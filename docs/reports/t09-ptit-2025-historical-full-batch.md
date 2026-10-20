@@ -34,7 +34,7 @@ publication archive hay tên phương thức đủ rõ trong vùng dữ liệu.
 | Campus | Hàng vật lý | Header | Phân nhóm | Ô điểm chương trình | New typed | Existing | Blocked/excluded numeric |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | BVH | 31 | 1 | 2 | 28 | 28 | 0 | 0 |
-| BVS | 16 | 1 | 2 | 13 | 13 | 13 | 0 | 0 |
+| BVS | 16 | 1 | 2 | 13 | 13 | 0 | 0 |
 | Tổng | 47 | 2 | 4 | 41 | 41 | 0 | 0 |
 
 Invariant: **41 = 41 new + 0 existing + 0 blocked + 0 non-cutoff score cells**.

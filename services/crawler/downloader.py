@@ -21,6 +21,7 @@ from services.api.db.models import crawl_schedules as schedules
 from services.api.db.models import source_snapshots as snapshots
 from services.api.db.models import sources
 from services.api.source_profiles import SourceProfile
+from services.crawler.images import image_info
 from services.crawler.raw import RawStorage
 from services.crawler.state import Store, Task
 from services.crawler.transport import USER_AGENT, Response, Transport
@@ -78,6 +79,9 @@ def media_type(response: Response) -> str:
         .strip()
         .lower()
     )
+    if mime in {"image/png", "image/jpeg"}:
+        image_info(response.body, mime)
+        return mime
     # Never relabel an HTML error as a PDF or spreadsheet.
     if mime == "application/pdf" and not response.body.lstrip().startswith(b"%PDF-"):
         raise ValueError("pdf_signature_mismatch")

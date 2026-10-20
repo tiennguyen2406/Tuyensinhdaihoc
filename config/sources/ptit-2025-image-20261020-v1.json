@@ -1,0 +1,73 @@
+{
+  "profile_id": "ptit-2025-image-20261020-v1",
+  "university_key": "ptit",
+  "allowed_hosts": [
+    "tuyensinh.ptit.edu.vn"
+  ],
+  "allowed_document_hosts": [],
+  "seed_urls": [
+    "https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/08/diem-Bac.png",
+    "https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/08/Anh-man-hinh-2025-08-22-luc-23.55.58.png",
+    "https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/08/p1j3b5tjm91v9s1oon1ea8dnv12mf4-0-scaled.jpg",
+    "https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/08/p1j3b5tjm91v9s1oon1ea8dnv12mf4-1-1-scaled.jpg"
+  ],
+  "years": [
+    2025
+  ],
+  "authority_scope": {
+    "years": [
+      2025
+    ],
+    "fact_kinds": [
+      "cutoff",
+      "catalog"
+    ]
+  },
+  "parser": "raw_http",
+  "parser_options": {
+    "html_content_selectors": [
+      "article.post-wrap",
+      "#main-content .ova_dir_content"
+    ],
+    "html_exclude_selectors": [
+      "nav",
+      "aside",
+      "footer",
+      "script",
+      "style",
+      ".posts-sidebar",
+      ".order_ticket"
+    ]
+  },
+  "include_path_patterns": [
+    "^/wp\\-content/uploads/sites/4/2025/08/diem\\-Bac\\.png$",
+    "^/wp\\-content/uploads/sites/4/2025/08/Anh\\-man\\-hinh\\-2025\\-08\\-22\\-luc\\-23\\.55\\.58\\.png$",
+    "^/wp\\-content/uploads/sites/4/2025/08/p1j3b5tjm91v9s1oon1ea8dnv12mf4\\-0\\-scaled\\.jpg$",
+    "^/wp\\-content/uploads/sites/4/2025/08/p1j3b5tjm91v9s1oon1ea8dnv12mf4\\-1\\-1\\-scaled\\.jpg$"
+  ],
+  "exclude_path_patterns": [],
+  "max_depth": 0,
+  "max_discovery_urls": 4,
+  "max_query_variants_per_path": 20,
+  "concurrency": 1,
+  "requests_per_second": 0.5,
+  "max_burst": 1,
+  "render_js": false,
+  "source_locale": "vi_VN",
+  "robots_policy": "obey",
+  "verified": false,
+  "review_status": "checked",
+  "access_basis": "Owner-authorized exact PTIT2025 pilot, maximum6 additional requests; no discovery/login/approval.",
+  "snapshot_basis": "Private immutable technical evidence only; commercial/redistribution rights unresolved.",
+  "robots_status": "allowed",
+  "review_evidence": [
+    "https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/08/diem-Bac.png",
+    "https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/08/Anh-man-hinh-2025-08-22-luc-23.55.58.png",
+    "https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/08/p1j3b5tjm91v9s1oon1ea8dnv12mf4-0-scaled.jpg",
+    "https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/08/p1j3b5tjm91v9s1oon1ea8dnv12mf4-1-1-scaled.jpg",
+    "Frozen B/C image links verified by exact URL and DOM locator; valid cached robots allow all4paths; no business approval."
+  ],
+  "observed_years": [],
+  "html_interval_seconds": 21600,
+  "attachment_interval_seconds": 86400
+}
