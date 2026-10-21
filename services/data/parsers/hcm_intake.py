@@ -10,7 +10,7 @@ from services.data.normalization.values import text as value_text
 from services.data.parsers.contract import ParseLimits, ParseResult, SnapshotRef
 from services.data.parsers.html import locator, table_rows, text
 
-VERSION = "html-hcm-intake/1.0.0"
+VERSION = "html-hcm-intake/1.0.1"
 OU_2024 = "/thong-bao-diem-chuan-trung-tuyen-phuong-thuc-su-dung-kq-thi-tn-thpt-2024"
 OU_2025 = "/thong-bao-diem-chuan-trung-tuyen-dot-1-nam-2025"
 OU_2025_R2 = "/diem-chuan-xet-tuyen-dai-hoc-chinh-quy-dot-2-nam-2025"
@@ -156,17 +156,15 @@ def parse_hcm(
         valid = bool(partial.observations)
         campus_evidence = None
         if layout in {"ueh2025", "ueh2026"}:
-            campus_node = next(
-                (
-                    n
-                    for n in table.find_all_previous(["p", "li", "h2", "h3", "h4"])
-                    if n.find_parent("table") is None
-                    and re.search(
-                        r"ma truong\s*:\s*KS[AV]|^\s*[-–]?\s*ks[av]\s*:", key(text(n)), re.I
-                    )
-                ),
-                None,
-            )
+            campus_node = None
+            for n in table.find_all_previous(["p", "li", "h2", "h3", "h4", "table"]):
+                if root not in n.parents or n.name == "table":
+                    break
+                if n.find_parent("table") is None and re.search(
+                    r"ma truong\s*:\s*KS[AV]|^\s*[-–]?\s*ks[av]\s*:", key(text(n)), re.I
+                ):
+                    campus_node = n
+                    break
             if campus_node is not None:
                 campus_evidence = {"text": text(campus_node), "locator": locator(campus_node)}
             if campus_evidence is None:
@@ -176,17 +174,20 @@ def parse_hcm(
                 continue
         method_evidence = None
         if layout == "ueh2026":
-            method_node = next(
-                (
-                    n
-                    for n in table.find_all_previous(["p", "h2", "h3", "h4"])
-                    if n.find_parent("table") is None
-                    and "phuong thuc 2" in key(text(n))
-                    and "tich hop" in key(text(n))
-                ),
-                None,
-            )
-            if method_node is None:
+            method_node = None
+            for n in table.find_all_previous(["p", "li", "h2", "h3", "h4"]):
+                if root not in n.parents:
+                    break
+                if n.find_parent("table") is None and re.match(
+                    r"^(?:\d+\.\s*)?phuong thuc\s*\d+", key(text(n))
+                ):
+                    method_node = n
+                    break
+            if (
+                method_node is None
+                or "phuong thuc 2" not in key(text(method_node))
+                or "tich hop" not in key(text(method_node))
+            ):
                 result.issue("HCM_METHOD", locator(table), "Integrated method section required")
                 continue
             method_evidence = {"text": text(method_node), "locator": locator(method_node)}
@@ -229,6 +230,8 @@ def parse_hcm(
                 )
                 if (
                     "diem" not in header
+                    or not any(s in header for s in ["diem chuan", "diem trung tuyen", "diem tt"])
+                    or re.search(r"diem san|nguong|diem cong|diem thuong|quy doi", header)
                     or layout == "history"
                     and str(column_year) not in header
                     or expected
@@ -270,9 +273,6 @@ def parse_hcm(
             }
             fields = fields | {"hcm_intake": mapping}
             result.observations.append(obs.model_copy(update={"raw_fields": fields}))
-        if remaining <= 0:
-            result.issue("HCM_LIMIT", locator(table), "Cell budget exhausted", "error")
-            break
     if not matched:
         result.issue("HCM_TABLE_MISSING", "document", "Expected cutoff data table missing")
     if any(i.severity == "error" for i in result.issues):

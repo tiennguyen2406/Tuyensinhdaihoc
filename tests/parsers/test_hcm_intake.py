@@ -10,7 +10,7 @@ from services.data.parsers.contract import SnapshotRef
 from services.data.parsers.registry import extract
 
 
-def run(school, url, body):
+def run(school, url, body, *, limits=None):
     data = body.encode()
     ref = SnapshotRef(
         snapshot_id=uuid4(),
@@ -30,7 +30,7 @@ def run(school, url, body):
         authority_scope={},
         parser="hcm_cutoff_tables_html",
     )
-    parsed = extract(ref, profile, data)
+    parsed = extract(ref, profile, data, limits=limits)
     drafts = []
     for obs in parsed.observations:
         row = RawObservation(
@@ -39,7 +39,7 @@ def run(school, url, body):
             source_id=ref.source_id,
         )
         drafts.extend(
-            normalize(row, NormalizationContext(version="normalizer/hcm-intake/1.0.0")).candidates
+            normalize(row, NormalizationContext(version="normalizer/hcm-intake/1.0.1")).candidates
         )
     return parsed, drafts
 
@@ -148,6 +148,53 @@ def test_hcmue_2026_rejects_swapped_method_columns():
         "hcmue", "https://tuyensinh.hcmue.edu.vn/index.php?id=27833&option=com_content", body
     )
     assert not drafts and any(i.code == "HCM_HEADERS" for i in parsed.issues)
+
+
+def test_floor_column_never_becomes_cutoff_even_under_cutoff_title():
+    from services.data.parsers.hcm_intake import OU_2024
+
+    body = "<main><h2>Điểm chuẩn trúng tuyển THPT 2024</h2><table><tr><th>Mã ngành</th><th>Tên ngành</th><th>Điểm sàn đăng ký xét tuyển</th></tr><tr><td>7480201</td><td>A</td><td>15</td></tr></table></main>"
+    _, drafts = run("ou", "https://tuyensinh.ou.edu.vn" + OU_2024, body)
+    assert not drafts
+
+
+def test_ueh_does_not_carry_campus_or_method_into_another_section():
+    from services.data.parsers.hcm_intake import UEH_2026
+
+    table = "<table><tr><th>STT</th><th>Mã xét tuyển</th><th>Chương trình đào tạo</th><th>Chỉ tiêu 2026</th><th>Tổ hợp môn</th><th>Điểm trúng tuyển</th></tr><tr><td>1</td><td>731010201</td><td>A</td><td>40</td><td>A00</td><td>77.50</td></tr></table>"
+    prefix = '<div class="elementor-widget-theme-post-title"><h2>UEH công bố kết quả xét tuyển năm 2026</h2></div><div class="elementor-widget-theme-post-content"><div class="elementor-widget-container"><p>2. Phương thức 2: Phương thức xét tuyển tích hợp.</p><li>KSA:</li>'
+    _, drafts = run(
+        "ueh", "https://tuyensinh.ueh.edu.vn" + UEH_2026, prefix + table + table + "</div></div>"
+    )
+    assert len(drafts) == 1
+    _, drafts = run(
+        "ueh",
+        "https://tuyensinh.ueh.edu.vn" + UEH_2026,
+        prefix
+        + table
+        + "<p>3. Phương thức 3: Xét tuyển khác</p><li>KSV:</li>"
+        + table
+        + "</div></div>",
+    )
+    assert len(drafts) == 1
+
+
+def test_exact_cell_budget_accepts_table_and_smaller_budget_rejects():
+    from services.data.parsers.contract import ParseLimits
+    from services.data.parsers.hcm_intake import OU_2024
+
+    body = "<main><h2>Điểm chuẩn trúng tuyển THPT 2024</h2><table><tr><th>Mã ngành</th><th>Tên ngành</th><th>Điểm chuẩn</th></tr><tr><td>7480201</td><td>A</td><td>20</td></tr></table></main>"
+    _, drafts = run(
+        "ou", "https://tuyensinh.ou.edu.vn" + OU_2024, body, limits=ParseLimits(max_cells=6)
+    )
+    assert len(drafts) == 1
+    _, drafts = run(
+        "ou", "https://tuyensinh.ou.edu.vn" + OU_2024, body, limits=ParseLimits(max_cells=5)
+    )
+    assert not drafts
+
+
+def test_swapped_program_and_score_headers_fail_closed():
     body = "<main><h2>Điểm chuẩn 2024</h2><table><tr><th>Mã ngành</th><th>Điểm chuẩn</th><th>Tên ngành</th></tr><tr><td>7480201</td><td>20</td><td>Test</td></tr></table></main>"
     parsed, drafts = run(
         "ou",

@@ -28,7 +28,7 @@ def normalize_hcm(obs: RawObservation, ctx: NormalizationContext) -> NormalizedO
     fields = obs.raw_fields
     binding = fields.get("hcm_intake", {})
     if (
-        not obs.parser_version.startswith(VERSION + "+")
+        not obs.parser_version.startswith((VERSION + "+", "html-hcm-intake/1.0.0+"))
         or binding.get("snapshot_id") != str(obs.snapshot_id)
         or binding.get("table_locator") != fields.get("table_locator")
     ):
