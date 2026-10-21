@@ -13,6 +13,8 @@ from services.data.parsers.contract import (
     ParseResult,
     SnapshotRef,
 )
+from services.data.parsers.hcm_intake import VERSION as HCM_VERSION
+from services.data.parsers.hcm_intake import parse_hcm
 from services.data.parsers.html import VERSION as HTML_VERSION
 from services.data.parsers.html import parse_html
 from services.data.parsers.pdf import VERSION as PDF_VERSION
@@ -53,6 +55,12 @@ def parser_version(
 ) -> str:
     if not re.fullmatch(r"[A-Za-z0-9_.-]{1,32}", revision):
         raise ValueError("Invalid parser revision")
+    if (
+        profile
+        and profile.parser == "hcm_cutoff_tables_html"
+        and snapshot.media_type == "text/html"
+    ):
+        return HCM_VERSION + "+" + revision
     if (
         profile
         and profile.parser == "ptit_2025_historical_html"
@@ -103,6 +111,8 @@ def extract(
         raise ValueError("Snapshot host outside source profile")
     version = parser_version(snapshot, revision, profile)
     adapter = ADAPTERS.get(snapshot.media_type)
+    if profile.parser == "hcm_cutoff_tables_html" and snapshot.media_type == "text/html":
+        adapter = (HCM_VERSION, parse_hcm)
     if profile.parser == "ptit_2025_historical_html" and snapshot.media_type == "text/html":
         adapter = (PTIT_2025_VERSION, parse_ptit_2025)
     if profile.parser == "ptit_2026_multimethod_html" and snapshot.media_type == "text/html":

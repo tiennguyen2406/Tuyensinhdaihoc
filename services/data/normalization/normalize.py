@@ -198,6 +198,10 @@ def lineage(
 def normalize(obs: RawObservation, context: NormalizationContext) -> NormalizedObservation:
     if obs.transform_version != TRANSFORM_VERSION or obs.normalized_fields:
         raise ValueError("Normalization input must be raw-only, never normalizer output")
+    if context.version == "normalizer/hcm-intake/1.0.0":
+        from services.data.normalization.hcm_intake import normalize_hcm
+
+        return normalize_hcm(obs, context)
     if context.version == "normalizer/ptit-2025-historical/1.0.0":
         from services.data.normalization.ptit_2025 import normalize_ptit_2025
 
