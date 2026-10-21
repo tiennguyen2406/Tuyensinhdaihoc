@@ -206,3 +206,21 @@ Không nghiệm thu toànT08/T09/T11/Phase1 từ bộhồsơ này.
     không approval. Bước kế là explicit field-level owner/reviewer decisions và evidence
     về quyền sử dụng/(S)/scale-scope còn thiếu; cần task hẹp xử lý registry/alias gaps
     trước khi có bootstrap/fact commands thật. Không dùng technical plan/login thayapproval.
+
+## Cập nhật 21/10/2026 — intake TP.HCM 2024–2026
+
+PostgreSQL đã nhận read-only SQL, không còn recovery tại thời điểm kiểm tra;
+không restart/reset/xóa DB hoặc volume. Qua T03–T08 hiện có: 28 wire attempts,
+21 snapshots nội dung (6 ảnh HCMUS), 4 robots snapshots mới; 601 raw rows,
+601 T06 và 601 T07 envelopes, **731 typed candidates / 731 T08 packets** unverified,
+0 publication. Mở292/Sư phạm268/UEH171; nguồn phân biệt cơ sở TP.HCM177,
+ngoài TP.HCM78, cơ sở unknown476. Không dùng731 làm coverage verified TP.HCM.
+UIT lỗi TLS; NLU robots HTML needs_review; danh sách kiểm định do chủ dự án cung
+cấp trả CAPTCHA, chưa xác nhận danh mục đầy đủ. PTIT main-host2025 đã capture,
+28BVH scoped matches/140field matches;13BVS chưa có counterpart HTML, không sửa
+41candidate/method-null cũ. HCMUS ảnh chờ transcription và independent verification.
+T06/T07 replay inserted0; 49snapshots/1841observations/108jobs lịch sử nguyên;
+DEV81sources/74snapshots/3644observations/153jobs. Canonical3/catalog3/audit47/
+releasev3 không đổi; quota3/20.000, riêng cơ sở TP.HCM published1. Chưa hoàn tất
+mọi trường/năm, Phase1 hoặc tư vấn; chi tiết
+[báo cáo intake](reports/hcm-2024-2026-intake-20261021.md).
