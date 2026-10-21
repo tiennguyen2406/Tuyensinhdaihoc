@@ -92,6 +92,17 @@ Chi tiết reports/t08-ueh-controlled-batch-bootstrap.md; private state/review/u
 
 ## Mốc chuyển tiếp
 
+PTIT2025 main-host HTML corroboration21/10:blockedtrướcacquisition vì PostgreSQL
+startup/fsync,healthunhealthy;ownerchọnbàngiaoblockerkhôngchờtiếp. Local/remote
+baseline77554cdkhớp;HTTP0/4,exactcache/DOM/liveDEVinventorychưakiểmđược.
+Khôngsnapshot/corroboration/methodpromotion/candidatemới;41packet/410imageledger
+khôngsửa,khôngOCR/approval/canonicalwrite.15syntheticcomparisonprobespassnhưng
+codechỉprivatepreparation,chưaproduction. ChờDBreadyrồiđọcbaseline/cache/heads
+vàchạyexactsourcepipeline;khôngtựrestart/xóa4577DBdirectoriesđanggiữ.
+Lastreportedcanonical3/catalog3/audit47/releasev3chưaxácnhậnSQLtronglượtnày;
+khôngnghiệmthuT08/T09.Tài liệureports/t08-ptit-2025-official-html-corroboration.md;
+private state/evidence/ptit-2025-official-html-corroboration/.
+
 PTIT2025 image intake:4/6HTTP,4exactofficialassets liên kết từfrozenB/CHTML đãkiểm,
 4immutable snapshots/2085750bytes,allruns paused. B28+13rows=41scorecells;
 C28+13rows×9methods=369slots;410pixelboxesđủledger,allneeds_manual_verification.
