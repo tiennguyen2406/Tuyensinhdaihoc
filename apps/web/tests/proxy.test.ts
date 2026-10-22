@@ -3,9 +3,13 @@ import { afterEach, expect, test, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 import { GET } from "../app/api/catalog/[...path]/route";
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
 
 test("proxy forwards only the exact advice path, preserving decimal query and no-store", async () => {
+  vi.stubEnv("API_INTERNAL_URL", "http://127.0.0.1:8000");
   const requests: string[] = [];
   vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
     requests.push(url);

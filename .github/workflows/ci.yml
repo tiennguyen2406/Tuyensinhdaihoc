@@ -5,6 +5,27 @@ on:
 permissions:
   contents: read
 jobs:
+  docker-handover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Configure isolated installation
+        run: |
+          python3 - <<'PY'
+          import secrets
+          from pathlib import Path
+          Path('.env').write_text(''.join(
+              key + '=' + secrets.token_hex(32) + '\n'
+              for key in ['POSTGRES_PASSWORD', 'CATALOG_DB_PASSWORD', 'CATALOG_CURSOR_SECRET']
+          ))
+          PY
+      - run: docker compose up -d --build --wait --wait-timeout 180
+      - run: docker compose exec -T api python -m scripts.verify_handover --api http://api:8000 --web http://web:3000
+      - run: docker compose run --rm --no-deps init python -m pytest tests/test_docker_bootstrap.py -q
+      - name: Clean isolated installation
+        if: always()
+        run: docker compose down -v
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 10

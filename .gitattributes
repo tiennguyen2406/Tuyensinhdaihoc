@@ -6,3 +6,9 @@
 docs/roster/*.csv text eol=lf
 docs/roster/*.json text eol=lf
 docs/roster/*.md text eol=lf
+Dockerfile text eol=lf
+**/Dockerfile text eol=lf
+.dockerignore text eol=lf
+.env.example text eol=lf
+requirements.txt text eol=lf
+apps/web/** text eol=lf
