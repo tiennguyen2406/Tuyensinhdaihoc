@@ -1,5 +1,12 @@
 # P1-B5 · Chính sách DEV, scale PTIT2026 và cohort tiếp theo
 
+**Cập nhật phản hồi owner:** đã xác nhận K và chọn **P-B**, theo
+[receipt mới](p1-b5-confirmation-20261022.json). K chỉ xác nhận đề xuất scale/basis
+đúng pilot; B giữ rights gate trước fact mới served kể cả DEV, không chọnA và không
+cấp third-party permission. Ba facts2024 cần disposition riêng, chưa duyệt tiếp tục
+hay withdrawal. Index/payload gốc giữ nguyên hashes; các đoạn “chưa chọn/chờ review”
+dưới đây mô tả thời điểm chuẩn bị trước phản hồi. Không business execution/quota tăng.
+
 Baseline đã xác minh: `codex/crawler-pilot`, HEAD
 `581404225f076fb8e3e94b26736e22473c6d8de0`, không tracked diff ban đầu;
 11file untracked có sẵn được giữ riêng. Đây là increment chuẩn bị, **0fact mới,

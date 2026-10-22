@@ -1,0 +1,78 @@
+{
+  "schema_version": "owner-confirmation-receipt/1",
+  "event": "owner_confirmation",
+  "status": "confirmed_displayed_proposal_scopes_only",
+  "actor": "project_owner_current_user",
+  "responsible_role": "Chủ dự án/business reviewer đã tự chỉ định",
+  "recorded_at": "2026-10-22T19:17:46.610+07:00",
+  "response_received_at": null,
+  "response_time_note": "Không phục dựng thời điểm nhận phản hồi; recorded_at là thời điểm lưu receipt.",
+  "channel": "Actual user replies to request_user_input_async call_e6534c6409c646baadc98efc995ccefa",
+  "decisions": [
+    {
+      "decision_id": "D-P1B5-SCALE-20261022-v1",
+      "question_label": "K",
+      "answer_verbatim": "xác nhận k",
+      "status": "confirmed_within_displayed_scope",
+      "scope": "Đề xuất min_score0/max_score30 và basis cho đúng pilot PTIT2026/BVH/THPT/QTKD7340101; xác nhận premise quy trần áp cho tổng dùng trong ĐXT. Không tạo canonical scale/Offering, không authority/rights/bootstrap/fact/publication/execution hoặc F2 approval; không chuyển approval sang cohort hay năm khác.",
+      "artifact": {
+        "kind": "private_original_bytes",
+        "path": "state/triage/p1-b5-policy-scale-20261022/decision-scale-v1.json",
+        "sha256": "a938fa218e78eb4db808671a7774d802eb84cca1d30c2f7f729050dd651c3655",
+        "encoding": "UTF-8",
+        "bom": false,
+        "line_endings": "LF",
+        "final_newline": true
+      }
+    },
+    {
+      "decision_id": "D-P1B5-DEV-POLICY-20261022-v1",
+      "question_label": "P",
+      "answer_verbatim": "xác nhận P-B",
+      "selected_option": "B",
+      "unselected_option": "A",
+      "status": "confirmed_option_B_within_displayed_scope",
+      "scope": "Route B: cần documented applicable permission/rights basis trước mọi fact mới được served, kể cả DEV. Owner policy không third-party permission, không legal conclusion, không approve identity/authority/scale/scope/fact/publication/execution. Ba facts2024 hiện served cần disposition decision RIÊNG; B không tự withdraw hoặc approve continued serving.",
+      "artifact": {
+        "kind": "public_git_blob",
+        "commit": "96f8389e31fdc617eba4896609ce25e3170a4ccd",
+        "path": "docs/reports/p1-b5-policy-scale-20261022.json",
+        "scope_pointer": "/policy_decision",
+        "sha256": "1ece4a4a9bd2ce9afe18533fa15138bf5cc5bd7bd717193608fb28208a52d0b6",
+        "encoding": "UTF-8",
+        "bom": false,
+        "line_endings": "LF",
+        "final_newline": true
+      }
+    }
+  ],
+  "approved_payloads_modified": false,
+  "prior_receipts_preserved": true,
+  "effect": {
+    "scale_proposal_review": "confirmed_K_only; canonical scale/bootstrap still not approved",
+    "policy_choice": "B",
+    "new_fact_rights_gate": "blocked_until_documented_applicable_rights_basis",
+    "public_commercial_rights": "unresolved",
+    "existing_2024_facts_disposition": "separate_owner_decision_pending; no automatic withdrawal or continuation approval",
+    "cohort": "six-row preparation unchanged; no expansion/fact/publication/execution approval"
+  },
+  "execution": {
+    "business_commands": 0,
+    "source_authority_approved": false,
+    "canonical_scale_created": false,
+    "registry_mutated": false,
+    "publication_approved": false,
+    "release_built": false,
+    "db_actor_or_signature": null,
+    "new_facts": 0,
+    "quota_increased": false,
+    "serving_configuration_changed": false,
+    "active_contract_files_edited": false
+  },
+  "remaining_dependencies": [
+    "M-RIGHTS under B: applicable documented permission or qualified-review rights basis, with exact source/year/notice/use boundary and attribution/retention/term/exceptions",
+    "Separate owner disposition for three existing PTIT2024 served facts; continuation with specific review deadline or separately authorized restriction/stop task",
+    "Source-specific 2026 authority and scope/predicate review; exact bootstrap/fact/publication approval and live technical revalidation before future execution"
+  ],
+  "measurements": "No fresh DB, quota-helper, release checksum, service health or real smoke measurement in this receipt task. Prior P1-B5/P0-4 measurements remain historical."
+}
