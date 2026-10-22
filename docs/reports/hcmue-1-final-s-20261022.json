@@ -1,0 +1,170 @@
+{
+  "schema_version": "hcmue-final-s-evidence/1",
+  "task_date": "2026-10-22",
+  "timezone": "Asia/Bangkok",
+  "readiness": {
+    "publication": false,
+    "positive_advice": false,
+    "reason": "BASIS_DOMAIN_EFFECTIVE_VERSION_AND_APPROVALS_PENDING"
+  },
+  "binding": {
+    "candidate_key": "2782d6771643c2fc63a4805e76155e3e0f4479ec9c92d1e6ff3b881dbba3e1ea",
+    "packet_sha256": "01ec56ad23954d5c2dcbe9d31381161d19fc33850b665b5037335ec92283c534",
+    "year": 2026,
+    "scope": "HCMUE-1 / main campus / THPT2026 / round2 / S0 row2 c4",
+    "source_admissions_code": "SPS",
+    "source_major_code": "7480201",
+    "canonical_ids_approved": false
+  },
+  "membership_source": {
+    "id": "aba9b95d-47dc-4e7a-9409-f37ebc954d90",
+    "raw_hash": "ec0cd10bc99ac3cf9234a48dc7cd414a358240b3722039e139d3c13e90ff972c",
+    "byte_size": 110741,
+    "final_url": "https://tuyensinh.hcmue.edu.vn/index.php?Itemid=9677&catid=4069%3Atin-tc&id=27812%3Ach-tieu-tuyn-sinh-to-hp-xet-tuyen-d-kin-i-vi-tng-nganh&lang=vi&option=com_content&site=183&view=article",
+    "media_type": "text/html"
+  },
+  "membership_locator": {
+    "row": "html:html:nth-of-type(1) > body:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > table:nth-of-type(2) > tr:nth-of-type(2) > td:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(45)",
+    "method_cell": "html:html:nth-of-type(1) > body:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > table:nth-of-type(2) > tr:nth-of-type(2) > td:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(45) > td:nth-of-type(7)",
+    "method_cell_get_text_sha256": "a713664b355710c5a5ae103c75366eb7a013a586d74b1fb4588cbefe63b465cc",
+    "physical_row": 45,
+    "printed_tt": 44,
+    "method_list_entry": 4,
+    "note": "C7 chứa cả mục3 ĐGNLCB và mục4 THPT; chỉ mục4 là membership đang xét."
+  },
+  "membership_proposal": {
+    "original_combination": "A01",
+    "subjects": [
+      "Toán",
+      "Vật lí",
+      "Tiếng Anh"
+    ],
+    "applicability": "27812 dự kiến + PDF offset2026 + S0 round2→S1→PDF; reviewer validity/supersession pending"
+  },
+  "offset_pdf_reused": {
+    "sha256": "4cbe360fdcf5915b215376ae92f79bdf925983ef2f9a097efbf2f8f8b092c779",
+    "bytes": 389713,
+    "pages": 8,
+    "downloaded_again": false,
+    "locator": "p1 SPS section; p6 TT302–305"
+  },
+  "basis_dom_reused": {
+    "evidence_type": "browser_DOM_text_excerpt_not_HTTP_raw_snapshot",
+    "sha256": "876a89c123a4fb10a55e67aa188e83e5f0652ba5cafd3af884cb4b516984101b",
+    "source_url": "https://tuyensinh.hcmue.edu.vn/index.php?option=com_content&view=article&id=27804%3Aphng-thc-tuyen-sinh-cac-nganh-ao-tao-trinh-o-ai-hoc-va-nganh-giao-duc-mam-non-trinh-o-cao-ng-he-chinh-quy-nm-2026&catid=4069%3Atin-tc&Itemid=9677&lang=vi&site=183",
+    "snapshot_id": null,
+    "locators": [
+      "#component td.article_text > p:nth-of-type(20)",
+      "#component td.article_text > p:nth-of-type(22)",
+      "#component td.article_text > p:nth-of-type(24)",
+      "#component td.article_text > p:nth-of-type(25)",
+      "#component td.article_text > p:nth-of-type(27)",
+      "#component td.article_text > p:nth-of-type(28)",
+      "#component td.article_text > p:nth-of-type(29)",
+      "#component td.article_text > p:nth-of-type(30)"
+    ]
+  },
+  "moet_rule": {
+    "kind": "browser_downloaded_PDF_not_registered_snapshot",
+    "source_page": "https://tuyensinh.moet.gov.vn/ts/van-ban/thong-tu-06-2026-tt-bgddt-cua-bo-giao-duc-va-dao-tao-ban-hanh-quy-che-tuyen-sinh-cac-nganh-dao-tao-t--9483cd05-0038-4279-8fe7-ea36aa5e67ac",
+    "attachment_label": "Thong_tu_06_2026_QuyCheTuyenSinh.pdf",
+    "sha256": "572a0769048a3c6859012bf6e9f0e6a1f7ca4074fe753905cf070e1d213221c6",
+    "bytes": 1268693,
+    "pages": 32,
+    "snapshot_id": null,
+    "delivery_url": null,
+    "download_modified_at": "2026-10-22T08:18:59.646679+07:00"
+  },
+  "moet_conflict": {
+    "portal_label": "06/2026/TT-BGDĐT; ban hành/hiệu lực15/02/2026",
+    "asset_observation": "PDF p1 để trống số, ngày ban hành và ngày hiệu lực; text và ảnh khớp.",
+    "locators": [
+      "PDF p1: số tại top89.7pt, date top103.7pt và Điều2",
+      "PDF p7 Điều6.2(d): top501.8–575pt",
+      "PDF p10 Điều7.4: top221.7–315pt"
+    ],
+    "usable_as_approved_effective_domain": false,
+    "supported_final_min": null,
+    "supported_final_max": null
+  },
+  "comparison_contract": "../hcmue-1-final-s-contract.md",
+  "accounting": {
+    "controlled_http_ceiling": 8,
+    "controlled_attempts": 1,
+    "http_statuses": [
+      200
+    ],
+    "robots_wire": 0,
+    "redirects": 0,
+    "retries": 0,
+    "robots_basis": "Existing host cache checked by Crawler, valid at capture",
+    "run_id": "24f72c32-8bb9-4a80-81ad-c51bed98e8a6",
+    "run_status": "paused",
+    "old_runs_resumed": false,
+    "browser_navigations": 2,
+    "ordinary_downloads": 1,
+    "browser_wire_count": null
+  },
+  "preservation": {
+    "protected_tables_unchanged": true,
+    "prior_snapshots_unchanged": true,
+    "prior_ingest_jobs_unchanged": true,
+    "prior_raw_unchanged": true,
+    "prior_frozen_files_unchanged": true,
+    "catalog_version": 3,
+    "quota": 3
+  },
+  "filesystem_preservation": {
+    "prior_files_unchanged": 26,
+    "frozen_files_unchanged": 637,
+    "prior_raw_blobs_unchanged": 76,
+    "offset_pdf_unchanged": true,
+    "release_v3_verified": true,
+    "release_v3_manifest_sha256": "b5b1669c923f171f0a6b68ef67f39a014eb80cbddcbb147c94bef4f30eba5a90"
+  },
+  "metadata_delta": {
+    "sources": [
+      83,
+      84
+    ],
+    "source_snapshots": [
+      76,
+      77
+    ],
+    "ingest_jobs": [
+      155,
+      156
+    ],
+    "crawl_runs": [
+      62,
+      63
+    ],
+    "crawl_fetches": [
+      88,
+      89
+    ],
+    "crawl_schedules": [
+      76,
+      77
+    ],
+    "host_state": "Only HCMUE pacing row changed; no new host row",
+    "moet_browser_PDF_registered_in_DB": false
+  },
+  "live_after": {
+    "schema_current": true,
+    "recovery": false,
+    "quota": 3,
+    "quota_target": 20000,
+    "catalog_version": 3,
+    "observations": 3644,
+    "audit_events": 47,
+    "dataset_releases": 1
+  },
+  "review": {
+    "reviewer": null,
+    "decision_date": null,
+    "approval": false,
+    "next_dependency": "Reviewer nghiệp vụ/hiệu lực xác minh conflict MoET và domain final S; identity/authority/rights tiếp tục pending."
+  },
+  "public_scope": "Sanitized metadata/proposal only; raw bodies/full source rows/DOM/packets/private receipts excluded."
+}
