@@ -3,3 +3,6 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.sql text eol=lf
+docs/roster/*.csv text eol=lf
+docs/roster/*.json text eol=lf
+docs/roster/*.md text eol=lf
