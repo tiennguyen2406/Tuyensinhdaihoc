@@ -133,11 +133,20 @@ Tái lập N và gaps từ CSV bằng Python stdlib (chạy tại repo root):
 ```python
 import csv
 from pathlib import Path
-rows = list(csv.DictReader(Path("docs/roster/hcm-institutions.csv").open(encoding="utf-8", newline="")))
+
+rows = list(
+    csv.DictReader(Path("docs/roster/hcm-institutions.csv").open(encoding="utf-8", newline=""))
+)
 for option in ("A", "B"):
-    n = len({r["row_id"] for r in rows if r["option_" + option] == "in_scope"
-             and r["entity_kind"] in ("institution", "member_unit")
-             and r["legal_status"] == r["validity_status"] == "evidenced"})
+    n = len(
+        {
+            r["row_id"]
+            for r in rows
+            if r["option_" + option] == "in_scope"
+            and r["entity_kind"] in ("institution", "member_unit")
+            and r["legal_status"] == r["validity_status"] == "evidenced"
+        }
+    )
     print(option, n, max(0, 50 - n), max(0, 51 - n))
 ```
 

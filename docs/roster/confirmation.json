@@ -1,0 +1,34 @@
+{
+  "decision_id": "D5-HCM-ROSTER-20261022-v1",
+  "event": "owner_confirmation",
+  "status": "confirmed_scope_policy_only",
+  "selected_option": "A",
+  "selected_footprint": "Former HCM footprint",
+  "selected_counting_policy_id": "D5-legal-teaching-unit-v1-proposed",
+  "actor": "project_owner_current_user",
+  "responsible_role": "Reviewer nghiệp vụ/chủ dự án đã tự chỉ định",
+  "recorded_at": "2026-10-22T13:42:37.361742+07:00",
+  "response_received_at": null,
+  "response_time_note": "Không phục dựng giờ nhận phản hồi; recorded_at là giờ ghi receipt.",
+  "channel": "User reply to the exact async review question in this session",
+  "answer_verbatim": "Xác Nhận A — footprint HCM cũ và policy trên",
+  "artifact": {
+    "commit": "06d9d0b01938c00be2db3690336e0ae6c513fcd2",
+    "path": "docs/roster/decision.json",
+    "content_sha256": "040da3979c0d5709abdc5bad0c3f652479eabe9abd0b7ed4cc91692e3f619b15",
+    "encoding": "UTF-8",
+    "bom": false,
+    "line_endings": "LF",
+    "final_newline": true
+  },
+  "dependency_binding": "Bốn dependency hashes trong decision.json được kiểm lại bằng Git blob của data_commit cố định; review-receipt.json ghi đủ commit/path/bytes. Không ràng buộc vào working-tree hoặc latest README.",
+  "effect": [
+    "Chốt scope/policy A tại as-of22/10/2026 cho proposal này. Giữ B để đối chiếu, không tự chọn B.",
+    "Không duyệt identity/legal/temporal/rights của29rows, không approve appendix chưa đọc, không canonical publication hoặc advice.",
+    "N evidence-qualified vẫn0; gap50=50/gap51=51 là lower bound của gói, không phải dân số trường thực."
+  ],
+  "current_documentation_note": "CI yêu cầu Ruff format code example trong README hiện tại. Bản README thuộc approved snapshot06d9d0b không bị ghi lại; không gán xác nhận này cho bytes README mới. Nếu dùng payload/dependencies sửa đổi làm quyết định mới phải trình hash mới.",
+  "business_approvals_for_rows": false,
+  "db_actor_or_signature": null,
+  "canonical_commands_executed": false
+}
