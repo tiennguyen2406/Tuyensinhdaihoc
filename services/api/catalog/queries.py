@@ -174,7 +174,7 @@ def checked_after(params: Any, endpoint: str, v: int) -> tuple[str, ...] | None:
     last = cursor.after(params.cursor, cursor.binding(endpoint, params.model_dump()), v)
     if last:
         try:
-            if len(last) != (1 if endpoint == "cutoffs" else 2):
+            if len(last) != (1 if endpoint in {"cutoffs", "advice"} else 2):
                 raise ValueError("arity")
             UUID(last[-1])
         except ValueError as error:

@@ -2,6 +2,7 @@
 
 import re
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Annotated, Any, Generic, Literal, TypeVar
 from uuid import UUID
 
@@ -49,6 +50,27 @@ class Programs(FilterParams, Pagination):
 class Cutoffs(FilterParams, Pagination):
     program_id: UUID | None = None
     program_year_id: UUID | None = None
+
+
+class AdviceContext(FilterParams):
+    method: str = Field(min_length=1, max_length=40)
+    scale_id: UUID
+    exam_version: str = Field(min_length=1, max_length=120)
+    basis_version: str = Field(min_length=1, max_length=200)
+    score: str
+    major_id: UUID | None = None
+    combination_id: UUID | None = None
+
+    @field_validator("score", mode="before")
+    @classmethod
+    def decimal_score(cls, value: Any) -> str:
+        if not isinstance(value, str) or not re.fullmatch(r"[0-9]{1,7}(?:\.[0-9]{1,5})?", value):
+            raise ValueError("Điểm phải là chuỗi thập phân dùng dấu chấm, tối đa 5 số lẻ.")
+        return format(Decimal(value), "f")
+
+
+class AdviceParams(AdviceContext, Pagination):
+    pass
 
 
 class CoverageParams(FilterParams):
@@ -216,3 +238,12 @@ class Page(Metadata, Generic[T]):
 
 class Detail(Metadata, Generic[T]):
     item: T
+
+
+class AdvicePage(Page[Cutoff]):
+    advice_contract_version: Literal["advice/0.1"] = "advice/0.1"
+    context: AdviceContext
+    status: Literal["unsupported", "no_data"]
+    unsupported_reasons: list[str]
+    excluded_summary: dict[str, int]
+    explanation: str

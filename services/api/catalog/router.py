@@ -2,6 +2,7 @@
 
 import os
 from collections.abc import Generator
+from contextlib import contextmanager
 from functools import lru_cache
 from typing import Annotated, Any
 from uuid import UUID
@@ -11,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import SQLAlchemyError
 
-from services.api.catalog import dto, queries
+from services.api.catalog import advice, dto, queries
 from services.api.db.session import engine, schema_is_current
 
 router = APIRouter(prefix="/api/v1", tags=["Internal catalog"])
@@ -49,6 +50,36 @@ def catalog_snapshot() -> Generator[Connection, None, None]:
 
 
 DB = Annotated[Connection, Depends(catalog_snapshot)]
+
+
+def advice_snapshot(
+    params: Annotated[dto.AdviceParams, Query()],
+) -> Generator[Connection, None, None]:
+    if not os.getenv("CATALOG_DB_USER") or not os.getenv("CATALOG_DB_PASSWORD"):
+        raise HTTPException(503, detail={"code": "READER_REQUIRED"})
+    with contextmanager(catalog_snapshot)() as c:
+        reader: bool = c.exec_driver_sql(
+            "SELECT current_user=session_user AND NOT r.rolsuper AND NOT r.rolcreatedb "
+            "AND NOT r.rolcreaterole AND NOT r.rolbypassrls "
+            "AND EXISTS (SELECT 1 FROM pg_roles cap WHERE cap.rolname='eduradar_reader' "
+            "AND pg_has_role(session_user,cap.oid,'MEMBER')) "
+            "AND NOT EXISTS (SELECT 1 FROM pg_class tbl JOIN pg_namespace ns "
+            "ON ns.oid=tbl.relnamespace WHERE ns.nspname='public' AND tbl.relkind IN ('r','p') "
+            "AND (pg_has_role(session_user,tbl.relowner,'MEMBER') OR "
+            "has_table_privilege(session_user,tbl.oid,'INSERT,UPDATE,DELETE,TRUNCATE'))) "
+            "FROM pg_roles r WHERE r.rolname=session_user"
+        ).scalar_one()
+        if not reader:
+            raise HTTPException(503, detail={"code": "READER_REQUIRED"})
+        yield c
+
+
+@router.get("/advice/cutoffs", response_model=dto.AdvicePage)
+def advice_cutoffs(
+    params: Annotated[dto.AdviceParams, Query()],
+    c: Annotated[Connection, Depends(advice_snapshot)],
+) -> Any:
+    return advice.search_advice(c, params)
 
 
 @router.get("/universities", response_model=dto.Page[dto.University])

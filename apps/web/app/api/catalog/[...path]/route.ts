@@ -1,7 +1,7 @@
 import { apiRoot } from "../../../../lib/server-api";
 
 const eligible =
-  /^(universities(?:\/[0-9a-f-]{36}(?:\/admission-years)?)?|programs(?:\/[0-9a-f-]{36})?|cutoffs|data-coverage|sources\/[0-9a-f-]{36})$/i;
+  /^(universities(?:\/[0-9a-f-]{36}(?:\/admission-years)?)?|programs(?:\/[0-9a-f-]{36})?|cutoffs|advice\/cutoffs|data-coverage|sources\/[0-9a-f-]{36})$/i;
 
 export async function GET(
   request: Request,

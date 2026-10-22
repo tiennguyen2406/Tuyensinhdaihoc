@@ -1,5 +1,10 @@
 # T10 — tra cứu nội bộ, contract `catalog/1`
 
+Bổ sung ngày 21/10/2026: [advice/0.1](advice-contract.md) mô tả endpoint
+`/api/v1/advice/cutoffs`, validation/compatibility chỉ đọc và SQL ngưỡng độc lập.
+Endpoint mới chưa có positive eligibility. Các routes tra cứu bên dưới giữ nguyên
+`catalog/1`; tuition/Major UI chưa được mở rộng. Proxy chỉ thêm exact advice path.
+
 Lát cắt live canonical PostgreSQL: tìm trường → Program/Offering → cutoff đúng năm.
 Kế hoạch trước implementation: `plans/2026-10-19-t10-internal-catalog.md`.
 Căn cứ đặc tả/checksum: `schema-provenance.md`; không thay counting/publication contract.

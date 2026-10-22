@@ -35,9 +35,14 @@ Combination chuẩn phải có đủ 3 subject. Adapter required_components hi�
 
 ## Ranh giới bảo vệ và phần còn thiếu
 
-SQL constraints bảo vệ FK/unique/check trong mọi đường ghi. SessionFactory bổ sung guard trước flush cho ORM: scope/rule/year/nguồn/Decimal/evidence; chặn DELETE và sửa in-place offering/scope/facts/rules đã lưu. Khi tạo đồ thị mới bằng ORM, phải flush cha trước khi validate con; chưa có ingestion/publisher API. Bulk/Core SQL dùng bởi migration/test là đường đặc quyền, không tự có guard ORM.
+SQL constraints bảo vệ FK/unique/check trong mọi đường ghi. SessionFactory bổ sung guard trước flush cho ORM: scope/rule/year/nguồn/Decimal/evidence; chặn DELETE và sửa in-place offering/scope/facts/rules đã lưu. Khi tạo đồ thị mới bằng ORM, phải flush cha trước khi validate con. Bulk/Core SQL dùng bởi migration/test là đường đặc quyền, không tự có guard ORM.
 
-T08 phải bổ sung transaction publication: khóa scope, retire + revision mới, evidence + audit + refresh job + tăng catalog version; DB roles không DELETE, bảo vệ payload đã dùng, manifest checksum và release nhất quán. Hiện guard từ chối tạo DatasetRelease và mọi sửa cutoff/rule đã lưu cho đến khi có đường publisher được audit. Không giả lập phần này bằng sửa DB tay.
+T08 đã có transaction publication tại `services/data/publication/`: khóa scope,
+retire + revision mới, evidence + audit + refresh job + tăng catalog version.
+T09 đã có immutable release builder tại `services/data/releases/`. Các đường này
+có capability/audit/guards riêng; không ghi tay hoặc bỏ guard ORM để thay publisher.
+Xem publication-contract.md và release-contract.md; có implementation không cấp
+approval cho batch mới hoặc đồng nghĩa dữ liệu đã đạt quota.
 
 Registry condition_key kiểm được tính nhất quán JSON chuẩn hóa; các cách diễn đạt đồng nghĩa vẫn cần T07/reviewer. Đã lập 12 nguồn thật; coverage theo năm và robots/quyền lưu được ghi theo từng nguồn. Không suy từ năm mục tiêu sang năm đã kiểm chứng. Phần lớn robots và quyền tái phân phối còn pending. Fixtures crawler tự tạo, không phải dữ liệu tuyển sinh production; golden rules tuyển sinh chưa có. T01 chưa hoàn tất.
 
@@ -71,3 +76,12 @@ Hợp đồng: entity-resolution-contract.md. Mỗi normalization candidate có 
 ## T08 publication pilot
 
 Xem [publication contract](publication-contract.md) cho gates theo fact_kind, admission/fact/bundle fingerprints, review binding, scope basis replacement và transaction version/refresh. Chỉ canonical current verified cutoffs đủ publication mới thuộc quota; observations/evidence/review jobs không tăng quota. Major nullable không chặn cutoff nhưng thiếu scale/basis/scope vẫn chặn. Thiếu scoring rule được ghi unavailable_rule, không suy công thức. Tuition academic-year group giữ staging, chưa có publisher tương thích để điền admission_year. Registry approval qua bootstrap có DB actor/audit, không sửa pending JSON bằng tay.
+
+## Tổng S — increment 21/10/2026
+
+D1 đã chốt `cutoff < S + 1`, strict, không cận dưới. Một tổng S phải kèm
+year/method/scale/exam/basis rõ; không khôi phục form nhập từng môn hoặc quy đổi
+tuyến tính. [Advice contract](advice-contract.md) ghi phần compatibility/validation
+và SQL đã làm độc lập, cùng giới hạn endpoint hiện còn unsupported/no_data.
+Tier B mặc định OFF, không vào advice/quota. Tuition, Major taxonomy/roster và
+nghiên cứu SNA vẫn theo backlog riêng; không suy hoàn tất từ increment này.
