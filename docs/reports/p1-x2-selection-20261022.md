@@ -1,5 +1,11 @@
 # P1-X2 · Microbatch F1 từ cache quốc gia — 22/10/2026
 
+Cập nhật sau phản hồi owner: **S1/I1/C1 đã được xác nhận đúng hash/phạm vi**;
+xem [confirmation receipt](p1-x2-confirmation-20261022.json). Giữ nguyên public
+index đã duyệt tại836db17 và private proposal bytes. Các pending bên dưới là
+trạng thái trước phản hồi; rights/complete scale/predicate/authority/fact/
+publication vẫn chưa được duyệt, không có business execution hoặc quota tăng.
+
 **Selection verified: chọn1ứng viên PTIT2026/BVH/THPT — Quản trị kinh doanh,
 mã7340101. Review pending, publication blocked.** Tối đa1fact mới nếu đủ evidence
 và approval riêng; hiện0fact mới, **quota chưa tăng**. Điểm/điều kiện chi tiết,
