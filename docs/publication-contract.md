@@ -1,5 +1,13 @@
 # T08 — hợp đồng review và publication pilot
 
+Operator addendum22/10/2026: owner đã chọn **P-B**, theo
+[receipt](reports/p1-b5-confirmation-20261022.json). Trước newly-served facts, kể cả
+DEV, cần documented applicable permission/qualified-review rights basis đúng nguồn/
+use scope. Đây là procedural hold, chưa có runtime rights guard mới; authority,
+bootstrap, CI và preparation không cấp permission. Ba facts2024 còn chờ disposition
+riêng, không hồi tố/withdraw hoặc approve continuation. [Gói chuẩn bị](reports/p1-b5-existing-rights-20261022.md)
+giữ exact scope và options; không đổi lịch sử approvals hoặc các validation gates dưới đây.
+
 Phạm vi `publication/1.2.0`: review local có xác thực PostgreSQL, bootstrap registry bất biến và publisher **cutoff** có giao dịch. Tái sử dụng 34 bảng hiện có; không dựng publisher học phí/học bổng, Score Engine, release builder hoặc API mutation. Đọc cùng contracts T05–T07; entity resolved không thay thế fact verified.
 
 ## Gates theo loại fact

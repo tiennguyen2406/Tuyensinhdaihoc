@@ -119,6 +119,19 @@ Benchmark/recovery và giới hạn hiệu năng: `reports/t10-sql-year-status.m
 
 ## Web và DEV Windows
 
+### Operator addendum22/10/2026 · P-B đã được owner xác nhận
+
+[Receipt K/P-B](reports/p1-b5-confirmation-20261022.json) ghi lựa chọnB: trước mọi
+fact mới được served, kể cả DEV, operator phải có documented applicable permission
+hoặc suitably qualified-review rights basis đúng source/use scope. Đây là **procedural
+hold**; code hiện chưa có runtime legal-rights guard, không coi reader/loopback,
+authority hoặc nhãn internalDEV là license. Public/commercial rights vẫn unresolved.
+Ba factsPTIT2024 hiện hữu cần disposition riêng; chưa chọn continuation/deadline hay
+pause. Startup authorization/old smoke không thay disposition approval; task chuẩn bị
+hiện tại không start/stop serving. Xem [gói disposition/rights](reports/p1-b5-existing-rights-20261022.md)
+cho trạng thái listener mới, exact IDs và các options chưa được thực thi. Canonical,
+immutable approvals/audit và releasev3 giữ nguyên; runtime pause không là withdrawal.
+
 Next.js16.4.2, React19.3.1, TypeScript5.9.3; Node24.22.0, pnpm11.25.0.
 Versions/lock ở apps/web; không thêm repository/cache framework. API_INTERNAL_URL chỉ
 server-side, mặc định `http://127.0.0.1:8000`. Same-origin proxy `/api/catalog/...` có
