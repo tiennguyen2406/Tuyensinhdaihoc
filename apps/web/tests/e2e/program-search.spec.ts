@@ -43,7 +43,8 @@ test("program search: keyboard submit, draft/year context, two fictional schools
     }),
   ).toBeVisible();
   expect(requests).toHaveLength(0);
-  const query = page.getByLabel("Tên ngành/chương trình");
+  const searchForm = page.getByRole("search");
+  const query = searchForm.getByLabel("Tên ngành/chương trình");
   await query.fill("ke toan");
   await query.press("Enter");
   await expect(page.getByRole("article")).toHaveCount(2);
@@ -55,7 +56,7 @@ test("program search: keyboard submit, draft/year context, two fictional schools
   ]);
   await query.fill("draft chưa gửi");
   await expect(page.getByRole("status")).toContainText("ke toan");
-  await page.getByLabel("Năm tuyển sinh").selectOption("2025");
+  await searchForm.getByLabel("Năm tuyển sinh").selectOption("2025");
   await expect(
     page.getByRole("link", { name: "Đại học Hư cấu B", exact: true }),
   ).toHaveAttribute("href", `/universities/${university.id}?year=2025`);
@@ -72,7 +73,7 @@ test("program search: keyboard submit, draft/year context, two fictional schools
     fullPage: true,
   });
   await query.fill("");
-  await page.getByLabel("Năm tuyển sinh").selectOption("2026");
+  await searchForm.getByLabel("Năm tuyển sinh").selectOption("2026");
   await expect(page.getByRole("article")).toHaveCount(0);
   expect(requests).toHaveLength(2);
 });
