@@ -1,0 +1,100 @@
+{
+  "schema_version": "f1-batch-selection/1",
+  "decision_id": "D-P1X2-SELECTION-20261022-v1",
+  "review_scope": "Selection only. Does not approve linked private identity/context proposals, source authority/rights, canonical bootstrap/facts or publication. No mutation in this task.",
+  "runtime_revision": "59548267d87bf3b81aee30d35521a540b55a35e5",
+  "selected_count": 1,
+  "schools": [
+    "ptit"
+  ],
+  "scope": {
+    "year": 2026,
+    "campus": "BVH",
+    "method": "THPT",
+    "notice_date": "2026-08-10"
+  },
+  "selection_verified": true,
+  "owner_selection_approval": null,
+  "review_status": "pending",
+  "publication_status": "blocked_missing_rights_and_complete_scale_plus_decisions",
+  "predicted_new_facts_after_all_gates": 1,
+  "actual_new_facts": 0,
+  "selected": [
+    {
+      "candidate_key": "dd0fb35b90a9d61bd867891c8acf04fcbda5a97efd80b0f71bdaa2edcc6d015f",
+      "packet_sha256": "55d6c52a5f018ba8f75bcab31ff1a9f69f1c55174fadff79c9f2ae4c707f6982",
+      "resolution_id": "1cf24740-29e4-4280-9c60-0b0a79a6ac38",
+      "source_id": "9f6e09c1-1bf2-4fea-bb95-b3bc54f5fc91",
+      "snapshot_id": "a9759f37-854c-4958-a592-bdb10cd6b272",
+      "raw_sha256": "083f7dca450323a567f178c8e8f41a6028d3f1cc78015c82cab56461d4e25b24",
+      "raw_bytes": 224570,
+      "program_code_raw": "7340101",
+      "program_name": "Quản trị kinh doanh",
+      "score_and_detailed_scope": "private only; not republished in this index",
+      "physical_locator": "html:html:nth-of-type(1) > body:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > article:nth-of-type(1) > div:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(15) > td:nth-of-type(4)",
+      "existing_2024_facts_excluded": true
+    }
+  ],
+  "private_artifacts": {
+    "candidate-slice.json": {
+      "path": "state/selection/p1-x2-20261022/candidate-slice.json",
+      "sha256": "4d76b1d3bf8dd8306ffd8df7109a5e74ec36757beb9caab74d06933c773bcb98"
+    },
+    "field-matrix.json": {
+      "path": "state/selection/p1-x2-20261022/field-matrix.json",
+      "sha256": "b36635f02a16e9fefb2f40e989660f137f02d4b24013e595e7e1b197a2375c41"
+    },
+    "cli-plan.json": {
+      "path": "state/selection/p1-x2-20261022/cli-plan.json",
+      "sha256": "f638c61ddf1f40ad6d47537ca1a028f43b358a89a112e8817d6ae554992d0c26"
+    },
+    "integrity-checks.json": {
+      "path": "state/selection/p1-x2-20261022/integrity-checks.json",
+      "sha256": "f685ed410d53138baf3db12c1600e7acda5f2f70df84a728a5012f84a73d841c"
+    },
+    "comparison-cell-checks.json": {
+      "path": "state/selection/p1-x2-20261022/comparison-cell-checks.json",
+      "sha256": "287ad2ac9af2cca83456ce6836d78a8016ed51cc62082b71bf866b3ed1b3f55d"
+    },
+    "directory-crosscheck.json": {
+      "path": "state/selection/p1-x2-20261022/directory-crosscheck.json",
+      "sha256": "a9544c3064ecb43172b2603c3211479216f6e3d88580d3e3c779778cac7a68b3"
+    },
+    "missing-evidence-and-steps.json": {
+      "path": "state/selection/p1-x2-20261022/missing-evidence-and-steps.json",
+      "sha256": "b1cb34e1266e0597fcc544bb5c6423ef0e65219f80b715855f538cc45632a410"
+    },
+    "decision-identity-v1.json": {
+      "path": "state/selection/p1-x2-20261022/decision-identity-v1.json",
+      "sha256": "3b6d58fb598bea7fdf0ac07bb480fa9f3e89de9234c5e01493d698f37b8d7afb"
+    },
+    "decision-context-v1.json": {
+      "path": "state/selection/p1-x2-20261022/decision-context-v1.json",
+      "sha256": "61f01fae9fe97d4e1468bb159ed76ff447b588a7c73707dd4002f828c4399b83"
+    }
+  },
+  "integrity": {
+    "selected_checked_packets": 1,
+    "screened_checked_packets": 2,
+    "raw_snapshots_checked": 6,
+    "locator_checks": 66,
+    "comparison_cells": 3,
+    "local_comparison_packet_digests": 3,
+    "existing_read_only_cli_plan": "preview_only=true;can_publish=false;impact0",
+    "limits": "No full12-school audit, fresh quota helper count, before/after DB preservation or semantic/rights approval. Comparison packet parent digests saved, not rechecked live. No new application tests."
+  },
+  "baseline": {
+    "quota": 3,
+    "target": 20000,
+    "quota_measurement": "Historical P0-4 helper measurement22/10 17:04–17:07+07:00; not recounted in this task",
+    "catalog_observed": 3,
+    "release_reference": "v3 preserved by task design; no new full preservation check",
+    "writes_issued": 0
+  },
+  "next": [
+    "P1-B5",
+    "P1-X3",
+    "P2-X1",
+    "P1-B3"
+  ]
+}
