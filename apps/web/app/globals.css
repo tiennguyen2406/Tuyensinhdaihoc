@@ -56,6 +56,23 @@ header {
   justify-content: space-between;
   gap: 1rem;
   border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+  font-size: 0.9rem;
+}
+.program-results {
+  overflow-wrap: anywhere;
+}
+.program-results dl div {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+}
+.program-results h2 {
+  margin: 0.6rem 0;
 }
 .brand {
   display: flex;

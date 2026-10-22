@@ -15,6 +15,7 @@ import type {
 } from "../lib/contracts";
 import { CatalogError, fetchJson, loadCatalog } from "../lib/api";
 import { filterQuery, filtersFrom } from "../lib/filters";
+import { YearSelector } from "./year-selector";
 
 const yearStatusLabels: Record<AdmissionYearStatus, string> = {
   unknown: "Chưa xác định",
@@ -163,24 +164,10 @@ export function Catalog(props: {
           change(filters);
         }}
       >
-        <label>
-          Năm tuyển sinh
-          <select
-            value={filters.year}
-            onChange={(event) =>
-              change({ ...filters, year: event.target.value })
-            }
-          >
-            {!["2024", "2025", "2026"].includes(filters.year) && (
-              <option value={filters.year}>
-                {filters.year} — không hỗ trợ
-              </option>
-            )}
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-          </select>
-        </label>
+        <YearSelector
+          value={filters.year}
+          onChange={(year) => change({ ...filters, year })}
+        />
         {!universityId && (
           <label>
             Tên hoặc mã trường
@@ -569,7 +556,7 @@ function More({
     </button>
   ) : null;
 }
-function MetadataNotice({ metadata }: { metadata: Metadata }) {
+export function MetadataNotice({ metadata }: { metadata: Metadata }) {
   return (
     <div className="metadata">
       <p>

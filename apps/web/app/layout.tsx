@@ -26,6 +26,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             Danh mục tuyển sinh
           </Link>
           <span className="dev-badge">Nội bộ · DEV</span>
+          <nav aria-label="Tra cứu tuyển sinh">
+            <Link prefetch={false} href="/universities?year=2024">
+              Trường đại học
+            </Link>
+            <Link prefetch={false} href="/majors?year=2024">
+              Ngành/chương trình
+            </Link>
+          </nav>
         </header>
         <main id="main">{children}</main>
         <footer>
