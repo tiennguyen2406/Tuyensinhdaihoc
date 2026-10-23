@@ -638,7 +638,7 @@ Mọi bảng đều có nút **Xuất CSV**. Trên màn hình hẹp (≤ 640px),
 # Phụ lục C. Mẫu kiểm tra 20 dòng
 
 Seed 42, 2 dòng cho mỗi phương thức. Cột "Đúng/Sai" do người kiểm điền sau khi đối chiếu trang
-nguồn.
+nguồn. URL xem `docs/kiem_tra_20_dong.md`.
 
 | # | Trường | Năm | Phương thức | Mã CT | Ngành / chương trình | Điểm / thang | Đúng/Sai |
 | ---: | --- | ---: | --- | --- | --- | ---: | :---: |
@@ -663,4 +663,4 @@ nguồn.
 | 19 | HV Công Nghệ Bưu Chính Viễn Thông – TP.HCM (BVS) | 2025 | Ưu tiên / xét tuyển thẳng | 7329001 | Công nghệ đa phương tiện | 42,5 / 100 | |
 | 20 | ĐH Tôn Đức Thắng (DTT) | 2024 | Ưu tiên / xét tuyển thẳng | FA7310630Q | Việt Nam học (Du lịch và Quản lý du lịch) – CT đại học bằng tiếng Anh | 28 / 30 | |
 
-Tổ hợp và `source_url` của từng dòng nằm trong `docs/kiem_tra_20_dong.md`.
+Tổ hợp của từng dòng cũng nằm trong `docs/kiem_tra_20_dong.md`.
