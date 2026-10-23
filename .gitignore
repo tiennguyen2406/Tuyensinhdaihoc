@@ -43,3 +43,11 @@ coverage/
 *.key
 *.p12
 *.zip
+
+# EduRadar V2 - du lieu sinh ra
+data/eduradar.db
+data/clean/
+data/interim/
+data/network/
+data/samples/
+_to_delete/

@@ -1,26 +1,17 @@
-# Quy trình hoàn tất nhiệm vụ EduRadar
+# Quy tắc làm việc EduRadar V2 (cho người và AI)
 
-- Giao tiếp và báo cáo cho người dùng bằng tiếng Việt; giữ nguyên identifiers,
-  commands và paths khi cần. `sources/` chỉ đọc.
-- Sau mỗi nhiệm vụ, cập nhật bản tiến độ/bàn giao công khai ngắn: công việc thực,
-  checks đã chạy, giới hạn và bước tiếp theo. Blocker bên ngoài phải được ghi thật.
-- Người dùng đã cho phép tự đồng bộ GitHub: review và stage **đúng từng file công
-  khai thuộc nhiệm vụ**, kiểm actual index/line endings/links, commit với mô tả đúng,
-  normal non-force push lên task branch đã xác minh. Không hỏi lại commit/push.
-- Xác minh remote branch SHA bằng commit đã push và push-triggered GitHub Actions
-  đúng SHA; cả `checks` và `web` phải success mới gọi integration đã kiểm chứng.
-  Sửa failure do thay đổi gây ra bằng corrective commit/push và kiểm lại.
-- Nếu auth/network/branch protection chặn, giữ local commit và báo blocker đã làm
-  sạch; không gọi local-only là pushed. Không tạo vòng commit tài liệu chỉ để nhúng
-  SHA/CI của chính commit đó. Không tự merge main, force-push, rewrite hoặc deploy.
-- Bảo toàn công việc có sẵn; không reset/clean/stash hoặc stage việc không liên quan.
-  Không commit settings cá nhân, credentials, private state/raw/packets/dumps/signed
-  URLs. Dùng exact allowlist, không `git add .` hoặc stage rộng thư mục.
-- Đồng bộ GitHub không cấp business approval, data rights, canonical publication
-  hoặc direct-total eligibility. Giữ API fail-closed khi chưa đủ approved gates.
-- Dùng checks phù hợp; full DB suite chạy trong disposable CI PostgreSQL, không
-  dùng DEV làm fixture hoặc đòi DEV khỏe để đồng bộ code đã có. Giữ frozen evidence,
-  approvals và release v3; đọc thêm `apps/web/AGENTS.md` trước khi sửa web.
+Mục tiêu: đồ án môn SNA — web tra cứu điểm chuẩn 2024–2026 + tư vấn theo điểm + phân tích mạng.
+Hạn nộp khoảng 06/11/2026. Ưu tiên chạy được và đủ yêu cầu đề bài, không ưu tiên quy trình.
 
-Chính sách trên ghi nhận ủy quyền thường trực ngày 22/10/2026, thay các lệnh cấm
-commit/push theo nhiệm vụ trong hồ sơ cũ; các giới hạn bảo mật/nghiệp vụ vẫn giữ.
+- Giao tiếp tiếng Việt. Giữ nguyên tên file, lệnh, đường dẫn.
+- Kiến trúc cố định, KHÔNG thêm tầng mới:
+  `crawler/fetch.py` → `data/raw/` → `pipeline/clean.py` → `data/eduradar.db` (SQLite, 4 bảng)
+  → `webapp/` (FastAPI + HTML/JS tĩnh) và `sna/build.py` → `data/network/`.
+- Đánh giá mỗi phiên làm việc bằng kết quả đo được: số dòng sạch, tỉ lệ map ngành,
+  chức năng web chạy được, độ đo SNA có trong `data/network/summary.csv`.
+- Không thêm quy trình duyệt từng fact, receipt, hash, chính sách bản quyền nội bộ.
+  Dữ liệu là điểm chuẩn công khai, dùng cho học tập phi thương mại, có ghi nguồn trên web.
+- Crawl lịch sự: nghỉ ≥ 1,5 giây giữa các request, tôn trọng robots.txt, không chạy crawl khi mở web.
+- Sửa dữ liệu bằng tay qua `data/manual/*.csv`, không sửa trực tiếp `data/clean/` hay DB.
+- Code hệ thống cũ (v1) vẫn còn trong `services/`, `apps/`, `docs/` để tham khảo; không phát triển tiếp.
+- Commit: chỉ code + `data/manual/`; không commit `data/raw/`, `data/eduradar.db`, `.venv`.

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EduRadar — Tra cứu điểm chuẩn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css?v=3">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-row">
+    <div class="brand"><span class="dot"></span>EduRadar</div>
+    <nav class="tabs" role="tablist">
+      <button data-tab="uni" class="active">Theo trường</button>
+      <button data-tab="major">Theo ngành</button>
+      <button data-tab="advice">Tư vấn theo điểm</button>
+      <button data-tab="network">Mạng SNA</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <p id="stats" class="muted small"></p>
+
+  <!-- TRA CUU THEO TRUONG -->
+  <section id="tab-uni" class="tab active">
+    <h1>Điểm chuẩn theo trường</h1>
+    <form class="bar" id="uni-form" autocomplete="off">
+      <div class="ac">
+        <input id="uni-q" placeholder="Nhập tên hoặc mã trường, VD: bach khoa, KHA, FTU…" aria-label="Tên trường">
+        <ul class="ac-list" id="uni-ac"></ul>
+      </div>
+      <select id="uni-year" aria-label="Năm"></select>
+    </form>
+    <div id="uni-out"></div>
+  </section>
+
+  <!-- TRA CUU THEO NGANH -->
+  <section id="tab-major" class="tab">
+    <h1>Các trường đào tạo một ngành</h1>
+    <form class="bar" id="major-form" autocomplete="off">
+      <div class="ac">
+        <input id="major-q" placeholder="Nhập tên ngành, VD: công nghệ thông tin, marketing…" aria-label="Tên ngành">
+        <ul class="ac-list" id="major-ac"></ul>
+      </div>
+      <select id="major-year" aria-label="Năm"></select>
+      <select id="major-method" aria-label="Phương thức"><option value="">Mọi phương thức</option></select>
+    </form>
+    <div id="major-out"></div>
+  </section>
+
+  <!-- TU VAN -->
+  <section id="tab-advice" class="tab">
+    <h1>Tư vấn chọn ngành theo điểm</h1>
+    <form class="bar" id="advice-form">
+      <select id="adv-method" aria-label="Phương thức"></select>
+      <select id="adv-combo" aria-label="Tổ hợp"><option value="">Mọi tổ hợp</option></select>
+      <input id="adv-score" type="number" step="0.01" min="0" placeholder="Điểm của bạn" aria-label="Điểm" required>
+      <select id="adv-year" aria-label="Năm tham chiếu"></select>
+      <button type="submit" class="primary">Gợi ý</button>
+    </form>
+    <p class="muted small">Hiện các ngành có điểm chuẩn ≤ điểm của bạn + 1. <b>Thử sức</b>: cao hơn điểm bạn tối đa 1 điểm · <b>Vừa sức</b>: thấp hơn dưới 1 điểm · <b>An toàn</b>: thấp hơn từ 1 điểm.</p>
+    <div id="advice-out"></div>
+  </section>
+
+  <!-- MANG SNA -->
+  <section id="tab-network" class="tab">
+    <h1>Mạng xã hội Trường – Ngành</h1>
+    <form class="bar" id="net-form">
+      <select id="net-name" aria-label="Mạng"></select>
+    </form>
+    <div class="net-grid">
+      <div id="net-canvas"></div>
+      <aside id="net-side"></aside>
+    </div>
+  </section>
+</main>
+<footer class="wrap muted small">Dữ liệu tổng hợp từ <a href="https://diemthi.tuyensinh247.com" target="_blank" rel="noopener">diemthi.tuyensinh247.com</a> cho mục đích học tập (đồ án môn SNA). Luôn đối chiếu với thông báo chính thức của trường.</footer>
+<script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+<script src="/static/app.js?v=3"></script>
+</body>
+</html>
