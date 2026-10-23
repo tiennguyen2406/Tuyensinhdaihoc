@@ -14,4 +14,4 @@ Hạn nộp khoảng 06/11/2026. Ưu tiên chạy được và đủ yêu cầu 
 - Crawl lịch sự: nghỉ ≥ 1,5 giây giữa các request, tôn trọng robots.txt, không chạy crawl khi mở web.
 - Sửa dữ liệu bằng tay qua `data/manual/*.csv`, không sửa trực tiếp `data/clean/` hay DB.
 - Code hệ thống cũ (v1) vẫn còn trong `services/`, `apps/`, `docs/` để tham khảo; không phát triển tiếp.
-- Commit: chỉ code + `data/manual/`; không commit `data/raw/`, `data/eduradar.db`, `.venv`.
+- Commit: code, `data/manual/` và báo cáo trong `docs/` (*.md, hình); không commit `data/raw/`, `data/eduradar.db`, `.venv`, `_to_delete/`.

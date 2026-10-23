@@ -34,4 +34,4 @@ Bảng khác: universities, majors, admission_combos, tuition.
 - Không thêm quy trình duyệt/receipt/hash/chính sách bản quyền nội bộ. Dữ liệu công khai, dùng học tập, có ghi nguồn.
 - Không sửa trực tiếp `data/clean/` hay `data/eduradar.db`; sửa code hoặc `data/manual/` rồi chạy lại pipeline.
 - SQLite trên ổ này: web mở DB `mode=ro&immutable=1`; pipeline dựng DB ở thư mục tạm rồi chép sang.
-- Git: làm trên nhánh `v2-simple`; không commit `data/raw/`, `data/eduradar.db`, `.venv`, `_to_delete/`.
+- Git: làm trên nhánh `v2-simple`; được commit code, `data/manual/`, báo cáo `docs/*.md`; không commit `data/raw/`, `data/eduradar.db`, `.venv`, `_to_delete/`.
