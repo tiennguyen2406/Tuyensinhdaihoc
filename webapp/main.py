@@ -119,6 +119,43 @@ def rank(items: list[dict], q: str, limit: int) -> list[dict]:
     return [{k: v for k, v in i.items() if k != "_k"} for i in hits[:limit]]
 
 
+@app.get("/api/search-index")
+def browser_search_index():
+    return search_index()
+
+
+@app.get("/api/coverage")
+def coverage():
+    c = con()
+    years = meta()["years"]
+    counts = {
+        (r[0], r[1]): r[2]
+        for r in c.execute(
+            "SELECT uni_code, year, COUNT(*) FROM admissions GROUP BY uni_code, year"
+        )
+    }
+    unis = [dict(r) for r in c.execute("SELECT * FROM universities ORDER BY uni_code")]
+    for u in unis:
+        u["counts"] = {str(y): counts.get((u["uni_code"], y), 0) for y in years}
+    source = ROOT / "data/raw/schools.json"
+    schools = json.loads(source.read_text(encoding="utf-8")) if source.exists() else []
+    codes = {u["uni_code"] for u in unis}
+    missing = [
+        {"uni_code": s["code"], "name": s["name"]}
+        for s in schools
+        if s.get("level") == 2 and s["code"] not in codes
+    ]
+    dates = c.execute("SELECT MIN(crawled_at), MAX(crawled_at) FROM admissions").fetchone()
+    return {
+        "years": years,
+        "universities": unis,
+        "missing": missing,
+        "collected_from": dates[0],
+        "collected_to": dates[1],
+        "source_url": "https://diemthi.tuyensinh247.com",
+    }
+
+
 def method_sort(m: str) -> int:
     return METHOD_ORDER.index(m) if m in METHOD_ORDER else 99
 
@@ -327,20 +364,8 @@ def advice(
     scale = sc[0]
     unit = scale / 30
     margin = unit if margin is None else margin
-    where = "a.method = ? AND a.year = ? AND a.score <= ? AND a.flag = '' AND a.scale_max = ?"
-    args: list = [method, year, score + margin, scale]
     combo_sql = " AND a.id IN (SELECT admission_id FROM admission_combos WHERE combo = ?)"
-    if combo:
-        where += combo_sql
-        args.append(combo.upper())
-    cands = [
-        dict(r)
-        for r in c.execute(
-            "SELECT a.*, u.name AS uni_name, u.short_name FROM admissions a "
-            f"JOIN universities u ON u.uni_code = a.uni_code WHERE {where} ORDER BY a.score DESC",
-            args,
-        )
-    ]
+    cands = advice_candidates(c, method, year, score + margin, scale, combo)
     levels = ["Thử sức", "Vừa sức", "An toàn"]
     groups: dict[str, list[dict]] = {lv: [] for lv in levels}
     for r in cands:
@@ -377,6 +402,23 @@ def advice(
         "total": len(cands),
         "rows": rows,
     }
+
+
+def advice_candidates(c, method: str, year: int, ceiling: float, scale: float, combo: str = ""):
+    """Shared query keeps score ties in the same SQLite order for API and static export."""
+    where = "a.method = ? AND a.year = ? AND a.score <= ? AND a.flag = '' AND a.scale_max = ?"
+    args: list = [method, year, ceiling, scale]
+    if combo:
+        where += " AND a.id IN (SELECT admission_id FROM admission_combos WHERE combo = ?)"
+        args.append(combo.upper())
+    return [
+        dict(r)
+        for r in c.execute(
+            "SELECT a.*, u.name AS uni_name, u.short_name FROM admissions a "
+            f"JOIN universities u ON u.uni_code = a.uni_code WHERE {where} ORDER BY a.score DESC",
+            args,
+        )
+    ]
 
 
 @app.get("/api/network/{name}")

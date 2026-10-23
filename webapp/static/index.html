@@ -3,11 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EduRadar — Tra cứu điểm chuẩn</title>
-<link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/style.css?v=4">
+<title>EduRadar — Điểm chuẩn đại học 2024–2026 và tư vấn chọn ngành</title>
+<meta name="description" content="Tra cứu điểm chuẩn đại học 2024–2026 theo trường và ngành, tham khảo học phí, tư vấn theo điểm và tổ hợp, khám phá mạng SNA Trường – Ngành.">
+<link rel="icon" type="image/svg+xml" href="static/favicon.svg">
+<link rel="stylesheet" href="static/style.css">
 </head>
 <body>
 <header class="top">
@@ -18,6 +17,7 @@
       <button data-tab="major">Theo ngành</button>
       <button data-tab="advice">Tư vấn theo điểm</button>
       <button data-tab="network">Mạng SNA</button>
+      <button data-tab="coverage">Độ phủ dữ liệu</button>
     </nav>
   </div>
 </header>
@@ -77,9 +77,13 @@
       <aside id="net-side"></aside>
     </div>
   </section>
+  <section id="tab-coverage" class="tab">
+    <h1>Độ phủ dữ liệu</h1>
+    <div id="coverage-out"></div>
+  </section>
 </main>
-<footer class="wrap muted small">Dữ liệu tổng hợp từ <a href="https://diemthi.tuyensinh247.com" target="_blank" rel="noopener">diemthi.tuyensinh247.com</a> cho mục đích học tập (đồ án môn SNA). Luôn đối chiếu với thông báo chính thức của trường.</footer>
-<script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
-<script src="/static/app.js?v=4"></script>
+<footer class="wrap muted small">Dữ liệu tổng hợp từ <a href="https://diemthi.tuyensinh247.com" target="_blank" rel="noopener">diemthi.tuyensinh247.com (tuyensinh247)</a> cho mục đích học tập phi thương mại (đồ án môn SNA). <a href="#coverage" onclick="showTab('coverage')">Độ phủ dữ liệu và ngày thu thập</a>. Luôn đối chiếu với thông báo chính thức của trường.</footer>
+<script src="static/vendor/vis-network.min.js"></script>
+<script src="static/app.js"></script>
 </body>
 </html>

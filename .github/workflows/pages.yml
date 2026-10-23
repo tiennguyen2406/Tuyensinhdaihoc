@@ -1,0 +1,41 @@
+name: Deploy EduRadar to GitHub Pages
+
+on:
+  push:
+    branches: [v2-simple]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/v2-simple'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check committed site size
+        run: |
+          test -f site/index.html
+          python - <<'PY'
+          from pathlib import Path
+          files = [p for p in Path('site').rglob('*') if p.is_file()]
+          assert all(p.stat().st_size < 50_000_000 for p in files), 'File exceeds 50 MB'
+          print(f'{len(files)} files; {sum(p.stat().st_size for p in files):,} bytes')
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

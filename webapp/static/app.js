@@ -1,9 +1,97 @@
 const $ = (s) => document.querySelector(s);
-const api = async (p) => {
+const readJson = async (p) => {
   const r = await fetch(p);
   if (!r.ok) { const t = await r.text(); let m = t; try { m = JSON.parse(t).detail; } catch {} throw new Error(m || r.status); }
   return r.json();
 };
+const unaccent = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().replace(/\s+/g, " ").trim();
+const Data = {
+  static: document.documentElement.dataset.mode === "static",
+  cache: new Map(),
+  file(p) {
+    if (!this.cache.has(p)) this.cache.set(p, readJson(p).catch((e) => { this.cache.delete(p); throw e; }));
+    return this.cache.get(p);
+  },
+  async init() {
+    if (!this.static) {
+      try { this.meta = await readJson("api/meta"); return; } catch { this.static = true; }
+    }
+    this.meta = await this.file("data/meta.json");
+  },
+  async searchIndex() {
+    if (!this.static) return this.file("api/search-index");
+    const [unis, majors] = await Promise.all([this.file("data/universities.json"), this.file("data/majors.json")]);
+    return { unis, ...majors };
+  },
+  rank(items, q, limit) {
+    const key = unaccent(q), words = key.split(" ");
+    if (!key) return [];
+    return items.filter((i) => words.every((w) => i._k.includes(w))).sort((a, b) =>
+      Number(!a._k.startsWith(key)) - Number(!b._k.startsWith(key)) || (b.n_rows ?? b.n_unis ?? 0) - (a.n_rows ?? a.n_unis ?? 0)
+    ).slice(0, limit).map(({ _k, file, ...item }) => item);
+  },
+  filterAdvice(d, q) {
+    const year = Number(q.get("year")), method = q.get("method"), score = Number(q.get("score")), combo = q.get("combo") || "";
+    const margin = q.has("margin") ? Number(q.get("margin")) : (d.scale == null ? null : d.scale / 30);
+    const out = { year, method, combo, score, scale: d.scale, margin, counts: {}, total: 0, rows: [] };
+    if (d.scale == null) return out;
+    const levels = ["Thử sức", "Vừa sức", "An toàn"], groups = levels.map(() => []), unit = d.scale / 30;
+    for (const values of d.rows) {
+      if (combo && !values[d.columns.length].includes(combo.toUpperCase())) continue;
+      const r = Object.fromEntries(d.columns.map((k, i) => [k, values[i]]));
+      if (r.score > score + margin) continue;
+      const delta = r.score - score, level = delta > 0 ? 0 : delta > -unit ? 1 : 2;
+      r.level = levels[level]; groups[level].push(r);
+    }
+    const take = [0, 0, 0];
+    let left = q.has("limit") ? Number(q.get("limit")) : 300;
+    while (left > 0 && groups.some((g, i) => take[i] < g.length)) {
+      groups.forEach((g, i) => { if (left > 0 && take[i] < g.length) { take[i]++; left--; } });
+    }
+    out.counts = Object.fromEntries(levels.map((lv, i) => [lv, groups[i].length]));
+    out.total = groups.reduce((n, g) => n + g.length, 0);
+    out.rows = groups.flatMap((g, i) => g.slice(0, take[i])).map((r) => {
+      const h = d.histories[JSON.stringify([r.uni_code, r.program_code])] || {};
+      return { ...r, history: { ...(h[combo.toUpperCase()] || {}), [year]: r.score } };
+    });
+    return out;
+  },
+  async request(p) {
+    await this.ready;
+    const [path, query] = p.split("?"), q = new URLSearchParams(query), parts = path.split("/");
+    if (path === "api/meta") return this.meta;
+    if (path === "api/universities" || path === "api/majors") {
+      const idx = await this.searchIndex(), term = q.get("q"), limit = Number(q.get("limit") || 15);
+      if (path === "api/universities") return this.rank(idx.unis, term, limit);
+      const found = this.rank(idx.majors, term, limit);
+      return [...found, ...this.rank(idx.programs, term, found.length ? Math.min(5, limit) : limit)];
+    }
+    if (!this.static) return readJson(p);
+    const year = q.get("year");
+    if (path === "api/coverage") return this.file("data/coverage.json");
+    if (path === "api/network") return this.file("data/network.json");
+    if (parts[1] === "network") return this.file(`data/network/${parts[2]}_${year}.json`);
+    if (parts[1] === "universities") return this.file(`data/uni/${parts[2]}_${year}.json`);
+    if (parts[3] === "similar") {
+      const d = await this.file(`data/network/similar_majors_${year}.json`);
+      return (d[decodeURIComponent(parts[2])] || []).map(([major_code, major_name, jaccard]) => ({ major_code, major_name, jaccard }));
+    }
+    if (parts[1] === "majors" || parts[1] === "programs") {
+      let file = `data/major/${parts[2]}_${year}.json`;
+      if (parts[1] === "programs") {
+        const idx = await this.searchIndex(), program = idx.programs.find((p) => p.program_name === q.get("name"));
+        if (!program) throw new Error("Không tìm thấy chương trình");
+        file = `data/program/${program.file}_${year}.json`;
+      }
+      const d = await this.file(file), method = q.get("method");
+      return method ? { ...d, rows: d.rows.filter((r) => r.method === method) } : d;
+    }
+    if (path === "api/advice") return this.filterAdvice(await this.file(`data/advice/${q.get("method")}_${year}.json`), q);
+    throw new Error("Không tìm thấy dữ liệu");
+  },
+};
+Data.ready = Data.init();
+const api = (p) => Data.request(p);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = (x) => (x == null || x === "" ? "" : Number(x).toLocaleString("vi-VN", { maximumFractionDigits: 2 }));
 const PT = { CHUAN: "", CLC: "CLC", TIEN_TIEN: "Tiên tiến", LIEN_KET: "Liên kết", TIENG_ANH: "Tiếng Anh", PHAN_HIEU: "Phân hiệu", TAI_NANG: "Tài năng" };
@@ -12,7 +100,7 @@ const shortUni = (n) => String(n || "").replace(/^(Trường\s+)?(Đại\s+Học
 const tag = (t) => (PT[t] ? `<span class="tag">${PT[t]}</span>` : "");
 const combos = (s) => (s || "").replaceAll(";", ", ");
 const fail = (out, e) => (out.innerHTML = `<div class="card empty">Lỗi: ${esc(e.message)}</div>`);
-const TABS = ["uni", "major", "advice", "network"];
+const TABS = ["uni", "major", "advice", "network", "coverage"];
 let META = null;
 
 /* ---------- xuat CSV (dung tu du lieu, khong doc lai HTML) ---------- */
@@ -41,6 +129,7 @@ function showTab(t) {
   document.querySelectorAll(".tabs button").forEach((b) => b.classList.toggle("active", b.dataset.tab === t));
   document.querySelectorAll(".tab").forEach((s) => s.classList.toggle("active", s.id === "tab-" + t));
   if (t === "network") loadNetworkList();
+  if (t === "coverage") loadCoverage();
   history.replaceState(null, "", "#" + t);
 }
 
@@ -74,7 +163,7 @@ function autocomplete(input, list, url, render, onPick) {
 
 /* ---------- 1a. theo truong ---------- */
 let curUni = null;
-autocomplete($("#uni-q"), $("#uni-ac"), "/api/universities?q=",
+autocomplete($("#uni-q"), $("#uni-ac"), "api/universities?q=",
   (u) => `<span>${esc(u.name)}</span><span class="code">${esc(u.uni_code)}${u.short_name ? " · " + esc(u.short_name) : ""}</span>`,
   (u) => { curUni = u.uni_code; $("#uni-q").value = u.name; loadUni(); });
 $("#uni-year").addEventListener("change", () => curUni && loadUni());
@@ -83,7 +172,7 @@ async function loadUni() {
   const out = $("#uni-out");
   out.innerHTML = `<div class="empty">Đang tải…</div>`;
   let d;
-  try { d = await api(`/api/universities/${encodeURIComponent(curUni)}/scores?year=${$("#uni-year").value}`); } catch (e) { return fail(out, e); }
+  try { d = await api(`api/universities/${encodeURIComponent(curUni)}/scores?year=${$("#uni-year").value}`); } catch (e) { return fail(out, e); }
   location.hash = `uni/${curUni}/${d.year}`;
   $("#uni-q").value = d.university.name;
   if (!d.rows.length) {
@@ -116,7 +205,7 @@ async function loadUni() {
 
 /* ---------- 1b. theo nganh (hoac ten chuong trinh goc chua map) ---------- */
 let curMajor = null; // {code} hoac {name}
-autocomplete($("#major-q"), $("#major-ac"), "/api/majors?q=",
+autocomplete($("#major-q"), $("#major-ac"), "api/majors?q=",
   (m) => m.kind === "program"
     ? `<span>${esc(m.program_name)} <span class="tag tag-raw">chưa map</span></span><span class="code">${m.n_unis} trường · ${m.n_rows} dòng</span>`
     : `<span>${esc(m.major_name)}</span><span class="code">${esc(m.major_code)} · ${m.n_unis} trường</span>`,
@@ -133,8 +222,8 @@ async function loadMajor() {
   const year = $("#major-year").value, method = $("#major-method").value;
   const { code, name } = curMajor;
   const url = code
-    ? `/api/majors/${encodeURIComponent(code)}/scores?year=${year}&method=${method}`
-    : `/api/programs/scores?name=${encodeURIComponent(name)}&year=${year}&method=${method}`;
+    ? `api/majors/${encodeURIComponent(code)}/scores?year=${year}&method=${method}`
+    : `api/programs/scores?name=${encodeURIComponent(name)}&year=${year}&method=${method}`;
   let d;
   try { d = await api(url); } catch (e) { return fail(out, e); }
   location.hash = code ? `major/${code}/${d.year}` : `major/~${encodeURIComponent(name)}/${d.year}`;
@@ -142,7 +231,7 @@ async function loadMajor() {
   const rawNote = d.major.unmapped ? `<p class="muted small">Tên chương trình gốc, chưa gán mã ngành chuẩn — chỉ gồm các dòng chưa map${d.years ? ` (năm có dữ liệu: ${d.years.join(", ")})` : ""}.</p>` : "";
   if (!d.rows.length) { out.innerHTML = `<div class="card empty">Chưa có dữ liệu cho ${code ? "ngành" : "chương trình"} này năm ${d.year}.${rawNote}</div>`; return; }
   const unis = new Set(d.rows.map((r) => r.uni_code)).size;
-  const sim = code ? await api(`/api/majors/${encodeURIComponent(code)}/similar?year=${d.year}`).catch(() => []) : [];
+  const sim = code ? await api(`api/majors/${encodeURIComponent(code)}/similar?year=${d.year}`).catch(() => []) : [];
   const simHtml = sim.length ? `<div class="chips"><span class="muted small">Ngành tương tự (mạng G3):</span>${sim.map((x) =>
     `<button type="button" class="chip" data-code="${esc(x.major_code)}" data-name="${esc(x.major_name)}" title="Jaccard ${x.jaccard}">${esc(x.major_name)}</button>`).join("")}</div>` : "";
   setExport("major", `nganh-${slug(code || name)}-${d.year}.csv`,
@@ -170,7 +259,7 @@ $("#advice-form").addEventListener("submit", async (e) => {
   out.innerHTML = `<div class="empty">Đang tải…</div>`;
   const q = new URLSearchParams({ method: $("#adv-method").value, score: $("#adv-score").value, combo: $("#adv-combo").value, year: $("#adv-year").value });
   let d;
-  try { d = await api("/api/advice?" + q); } catch (err) { return fail(out, err); }
+  try { d = await api("api/advice?" + q); } catch (err) { return fail(out, err); }
   if (!d.rows.length) { out.innerHTML = `<div class="card empty">Không có ngành phù hợp.</div>`; return; }
   const yrs = [...new Set(d.rows.flatMap((r) => Object.keys(r.history)))].sort();
   const cls = { "Thử sức": "lvl-try", "Vừa sức": "lvl-fit", "An toàn": "lvl-safe" };
@@ -193,7 +282,7 @@ let netLoaded = false, netObj = null;
 async function loadNetworkList() {
   if (netLoaded) return; netLoaded = true;
   let names;
-  try { names = await api("/api/network"); } catch (e) { netLoaded = false; return fail($("#net-canvas"), e); }
+  try { names = await api("api/network"); } catch (e) { netLoaded = false; return fail($("#net-canvas"), e); }
   const sel = $("#net-name");
   if (!names.length) { $("#net-canvas").innerHTML = `<div class="empty">Chưa có dữ liệu mạng. Chạy: python -m sna.build</div>`; return; }
   const NAMES = { g1_uni_major: "G1 · Trường – Ngành", g2_uni_uni: "G2 · Trường – Trường", g3_major_major: "G3 · Ngành – Ngành", g4_competition: "G4 · Cạnh tranh (có hướng)" };
@@ -207,7 +296,7 @@ async function loadNetworkList() {
 async function drawNetwork() {
   const [name, year] = (() => { const v = $("#net-name").value; const i = v.lastIndexOf("_"); return [v.slice(0, i), v.slice(i + 1)]; })();
   let g;
-  try { g = await api(`/api/network/${name}?year=${year}`); } catch (e) { $("#net-side").innerHTML = `<p class="muted">Lỗi: ${esc(e.message)}</p>`; return; }
+  try { g = await api(`api/network/${name}?year=${year}`); } catch (e) { $("#net-side").innerHTML = `<p class="muted">Lỗi: ${esc(e.message)}</p>`; return; }
   const palette = ["#1f5eff", "#e8590c", "#2b8a3e", "#c2255c", "#7048e8", "#0c8599", "#e67700", "#5c940d", "#862e9c", "#495057"];
   const linked = new Set(g.edges.flatMap((e) => [e.source, e.target]));
   g.nodes = g.nodes.filter((n) => linked.has(n.id));
@@ -234,8 +323,28 @@ async function drawNetwork() {
 }
 
 /* ---------- init ---------- */
+async function loadCoverage() {
+  const out = $("#coverage-out");
+  try {
+    const d = await api("api/coverage");
+    out.innerHTML = `<div class="card"><p>Nguồn: <a href="${esc(d.source_url)}" target="_blank" rel="noopener">tuyensinh247</a> · Thu thập: ${esc(d.collected_from?.slice(0, 10))} đến ${esc(d.collected_to?.slice(0, 10))}.</p>
+      <p>${d.universities.length} trường có điểm · ${d.missing.length} trường trong danh mục nguồn chưa có điểm trong các năm ${d.years.join(", ")}. Ô số là số dòng điểm, dấu — là chưa có dữ liệu; không có nghĩa trường không tuyển sinh.</p>
+      <div class="tbl-wrap"><table><thead><tr><th>Trường</th>${d.years.map((y) => `<th class="num">${y}</th>`).join("")}</tr></thead><tbody>
+      ${d.universities.map((u) => `<tr><td><a href="#uni/${esc(u.uni_code)}/${d.years[0]}" data-uni="${esc(u.uni_code)}">${esc(u.uni_code)} · ${esc(u.name)}</a></td>${d.years.map((y) => `<td class="num">${u.counts[y] ? fmt(u.counts[y]) : "—"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+      <h2>${d.missing.length} trường nguồn chưa có điểm</h2><ul>${d.missing.map((u) => `<li>${esc(u.uni_code)} · ${esc(u.name)}</li>`).join("")}</ul></div>`;
+  } catch (e) { fail(out, e); }
+}
+$("#coverage-out").addEventListener("click", (e) => {
+  const a = e.target.closest("[data-uni]");
+  if (a) {
+    e.preventDefault();
+    $("#uni-year").value = a.hash.split("/")[2];
+    showTab("uni"); curUni = a.dataset.uni; loadUni();
+  }
+});
+
 (async function init() {
-  try { META = await api("/api/meta"); } catch (e) { $("#stats").textContent = "Lỗi: " + e.message; return; }
+  try { META = await api("api/meta"); } catch (e) { $("#stats").textContent = "Lỗi: " + e.message; return; }
   const yearOpts = META.years.map((y) => `<option>${y}</option>`).join("");
   ["#uni-year", "#major-year", "#adv-year"].forEach((s) => ($(s).innerHTML = yearOpts));
   const mOpts = META.methods.map((m) => `<option value="${m.method}">${esc(m.method_name)}</option>`).join("");

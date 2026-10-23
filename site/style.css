@@ -1,0 +1,64 @@
+:root{--bg:#f6f7f9;--card:#fff;--ink:#16202c;--muted:#5d6b7a;--line:#e3e7ec;--accent:#1f5eff;--accent-soft:#e8efff;
+--good:#16794c;--good-soft:#e5f4ec;--warn:#9a5b00;--warn-soft:#fdf1dc;--bad:#b42318;--bad-soft:#fdeceb;}
+@media (prefers-color-scheme:dark){:root{--bg:#0f141a;--card:#161d25;--ink:#e6ebf1;--muted:#93a1b1;--line:#26313d;--accent:#6f9bff;--accent-soft:#1b2a4a;
+--good:#5fd39a;--good-soft:#123326;--warn:#f2b45a;--warn-soft:#3a2a10;--bad:#ff8a80;--bad-soft:#3d1a18;}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Be Vietnam Pro",system-ui,sans-serif}
+a{color:var(--accent)}.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top-row{display:flex;align-items:center;gap:24px;min-height:60px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:18px;display:flex;align-items:center;gap:8px}.dot{width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.tabs{display:flex;gap:4px;overflow-x:auto}.tabs button{border:0;background:none;color:var(--muted);font:inherit;font-weight:500;padding:8px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.tabs button.active{background:var(--accent-soft);color:var(--accent)}
+h1{font-size:22px;margin:20px 0 12px}.muted{color:var(--muted)}.small{font-size:13px}
+.tab{display:none}.tab.active{display:block}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+input,select,button.primary{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+.ac{position:relative;flex:1 1 320px}.ac input{width:100%}
+.ac-list{position:absolute;left:0;right:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);max-height:360px;overflow:auto;z-index:10;display:none}
+.ac-list li{padding:8px 10px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;gap:12px}
+.ac-list li:hover,.ac-list li.sel{background:var(--accent-soft)}.ac-list .code{color:var(--muted);font-size:12px;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.head h2{margin:0;font-size:19px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:600;position:sticky;top:0;white-space:nowrap}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr:last-child td{border-bottom:0}tfoot td{background:var(--bg);font-weight:500}
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-left:4px;white-space:nowrap}
+.sub{color:var(--muted);font-size:12px}.eq{color:var(--muted);font-size:12px;display:block}
+.lvl{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.lvl-try{background:var(--bad-soft);color:var(--bad)}.lvl-fit{background:var(--warn-soft);color:var(--warn)}.lvl-safe{background:var(--good-soft);color:var(--good)}
+.empty{padding:32px;text-align:center;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 10px;font-size:13px;cursor:pointer}.chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.net-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}#net-canvas{height:640px;background:var(--card);border:1px solid var(--line);border-radius:14px;min-width:0}
+#net-side{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;max-height:640px;overflow:auto;font-size:13px}
+#net-side h3{font-size:14px;margin:12px 0 6px}#net-side table{font-size:12px}
+@media (max-width:860px){.net-grid{grid-template-columns:1fr}#net-canvas{height:440px}}
+footer{padding:24px 16px 40px}
+td.code{white-space:nowrap;color:var(--muted);font-size:12px}td.combo{min-width:150px;color:var(--muted);font-size:12px}
+td.prog{min-width:220px}
+.tag-raw{background:var(--warn-soft);color:var(--warn)}
+.btn-csv{font:inherit;font-size:12px;font-weight:500;padding:3px 10px;margin-left:6px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--accent);cursor:pointer;white-space:nowrap}
+.btn-csv:hover{border-color:var(--accent);background:var(--accent-soft)}
+/* man hinh hep: moi dong bang thanh 1 the, o "main" len dau, cac o khac dang nhan: gia tri */
+@media (max-width:640px){
+  body{font-size:14px}h1{font-size:19px;margin:14px 0 10px}.head h2{font-size:17px}
+  .top-row{gap:6px 12px;min-height:52px;padding-top:6px;padding-bottom:6px}.tabs{width:100%}
+  .bar>*{flex:1 1 100%}.bar select{flex:1 1 calc(50% - 4px);min-width:0}.ac{flex-basis:100%}
+  .card{padding:12px;border-radius:12px}.empty{padding:20px}
+  table.stack thead{display:none}
+  table.stack,table.stack tbody,table.stack tfoot{display:block}
+  table.stack tr{display:flex;flex-direction:column;padding:10px 12px;border-bottom:1px solid var(--line)}
+  table.stack tr:last-child{border-bottom:0}
+  table.stack td{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border:0;padding:2px 0;min-width:0;text-align:right;white-space:normal}
+  table.stack td::before{content:attr(data-label);color:var(--muted);font-size:12px;font-weight:400;text-align:left;flex:0 0 auto;max-width:55%}
+  table.stack td:empty{display:none}
+  table.stack td.main{order:-1;display:block;text-align:left;font-weight:600;padding-bottom:4px}
+  table.stack td.main::before{content:none}
+  table.stack td.main .sub{font-weight:400}
+  table.stack .eq{display:inline;margin-left:6px}
+  table.stack tfoot td{display:block;text-align:left;padding:0}
+  table.stack tfoot td::before{content:none}
+  #net-canvas{height:360px}
+}
