@@ -237,7 +237,7 @@ Bảng đầy đủ cho cả 3 năm nằm trong `data/network/metrics/`.
 
 **Diễn giải:**
 - **Bậc cao ở G3** không phải là "ngành phổ biến" như ở G1. Đó là ngành có tập trường *giống* tập trường của nhiều ngành khác (Jaccard ≥ 0,25), ví dụ các ngành sư phạm cùng được các trường sư phạm mở.
-- **Sinh học có betweenness và closeness cao nhất:** ngành này có ở cả trường khoa học tự nhiên, sư phạm và nông – y, nên là cầu nối giữa các cụm. Kỹ thuật vật liệu, Địa lý học, Khoa học đất, Hán Nôm, Ngôn ngữ Đức/Pháp cũng đóng vai trò nối các khối.
+- **Sinh học có betweenness và closeness cao nhất:** ngành này có ở cả trường khoa học tự nhiên, sư phạm và nông – y, nên là cầu nối giữa các cụm. Kỹ thuật vật liệu, Địa lý học, Khoa học đất, Hán Nôm, Ngôn ngữ Đức/Pháp cũng đóng vai trò nối các khối. *Lưu ý: thứ hạng betweenness của G3 rất nhạy với ngưỡng; Sinh học đứng thứ 24 ở ngưỡng 0,15 và thứ 78 ở 0,35 (mục 9).*
 - **Eigenvector là một hiệu ứng cấu trúc, không phải "độ quan trọng":** 10 ngành đứng đầu cùng giá trị 0,2965 là đúng 10 ngành **chỉ do ĐH Mỏ – Địa chất (MDA) mở**. Với nhau chúng có Jaccard = 1 và tạo thành một clique đầy đủ 10 đỉnh. Mỗi ngành còn nối thêm 8 ngành MDA khác mà rất ít trường mở (Kỹ thuật mỏ, Địa chất học…), nên có bậc 17. Cụm dày đặc có trọng số tối đa này chiếm véc-tơ riêng chính của LCC.
 - **PageRank** tương đối đồng đều; đứng đầu vẫn là khối kinh tế – kinh doanh.
 
@@ -415,6 +415,7 @@ Trên web, mục "Ngành tương tự" dùng **các hàng xóm có Jaccard cao n
   - tăng bậc mạnh nhất: ĐH Sao Đỏ 23 → 57, ĐH Ngân Hàng TPHCM 41 → 66, ĐH Công Nghiệp TPHCM 25 → 47;
   - giảm mạnh nhất: ĐH Phú Xuân 51 → 23, ĐH Intracom 59 → 38.
 - **G3 hội tụ:** số thành phần 13 → 7, số cộng đồng Louvain 28 → 19, transitivity 0,642 → 0,665, trong khi modularity vẫn khoảng 0,84. Các cụm lĩnh vực lớn dần lên và hợp nhất các cụm nhỏ, nhưng vẫn tách biệt rõ.
+- *Lưu ý:* hai nhận định "G2 liên kết hơn" và "G3 hội tụ" chỉ đúng ở ngưỡng 0,25 (ở 0,35 chúng đảo chiều). Chiều tăng của modularity G2 và transitivity G3 thì đúng ở mọi ngưỡng (mục 9).
 - **G4:** đổi dấu tương quan authority (mục 5.2). Số trường giảm 259 → 226, chủ yếu do năm 2026 có ít trường có điểm THPT trong dữ liệu hơn, không phải thay đổi thật.
 - **Ngành xuất hiện và biến mất trong G1:** 38 mã mới (lớn nhất là Quản lý kinh tế, 12 trường) và 37 mã biến mất. Phần lớn có bậc 1–3 (ngành nghệ thuật, ngành đặc thù), nên nhạy với việc trường có công bố điểm hay không.
 
@@ -433,13 +434,24 @@ Cả hai năm, $P(k)$ trên trục log–log giảm gần tuyến tính, tức p
 đuôi giữ nguyên nhưng phần đầu mỏng đi: số ngành chỉ một trường mở giảm từ 140 (33%) xuống 113
 (26%), và trung vị số trường mỗi ngành tăng từ 3 lên 4.
 
-**Hình 2.** Phân bố bậc phía ngành của G1 năm 2026 (bậc = số trường mở ngành).
+**Hình 2.** Hai phía của G1 năm 2026. Trên: phía trường (bậc = số ngành trường mở). Dưới: phía
+ngành (bậc = số trường mở ngành).
 
+![Phân bố bậc trường G1 2026](fig/g1_uni_degree_2026.png)
 ![Phân bố bậc ngành G1 2026](fig/g1_major_degree_2026.png)
 
-Trung vị chỉ 4 trường/ngành, nhưng ngành lớn nhất (Quản trị kinh doanh) có 157 trường. 10% ngành
-phổ biến nhất chiếm 49,2% số cạnh G1: một nhóm nhỏ ngành "đại trà" bao phủ gần như mọi trường,
-trong khi phần lớn ngành là đặc thù của một vài trường.
+Hai phía của cùng một mạng có hình dạng rất khác nhau.
+- **Phía trường:** trung vị 15 ngành/trường. 61 trường mở ≤ 5 ngành, chủ yếu là trường quân đội –
+  công an, thể dục thể thao, luật, y dược, cùng một số trường nghệ thuật và phân hiệu. 13 trường mở
+  ≥ 50 ngành. Ngoài cùng là ĐH Cần Thơ với 97
+  ngành, tách xa trường đứng sau (66). Phân bố trải rộng ở dải 1–30 rồi mới giảm, nên trên trục
+  log–log không thẳng hàng.
+- **Phía ngành:** trung vị chỉ 4 trường/ngành, nhưng ngành lớn nhất (Quản trị kinh doanh) có 157
+  trường. 26% ngành chỉ một trường mở, và 10% ngành phổ biến nhất chiếm 49,2% số cạnh. Đây là đuôi
+  dài điển hình: một nhóm nhỏ ngành "đại trà" có mặt ở hầu hết trường, phần lớn ngành là đặc thù
+  của một vài trường.
+- **Hệ quả cho phép chiếu:** G2 (chiếu lên trường) dày hơn G3 rất nhiều, vì hai trường bất kỳ dễ
+  có chung các ngành đại trà.
 
 **Hình 3.** Phân bố bậc G2 Trường – Trường, 2024 và 2026.
 
@@ -509,8 +521,9 @@ Hình mạng tương tác xem ở tab "Mạng SNA" của web (`python -m uvicorn
 1. **Phụ thuộc chất lượng gán mã ngành.** Chỉ 97,56% dòng có mã ngành; phần chưa map (2,44%) bị
    loại khỏi mọi mạng. Danh mục ngành dựng từ dữ liệu nên còn mã không chuẩn và tên trùng
    (VD 7310120/7340120 "Kinh doanh quốc tế"). Điều này làm nhiễu G1 và G3.
-2. **Ngưỡng tham số chọn tay.** Ngưỡng Jaccard 0,25 (G2, G3) và khoảng 2 điểm (G4) chưa được phân
-   tích độ nhạy. G1 coi mọi phương thức như nhau và không dùng trọng số khi chiếu.
+2. **Ngưỡng tham số chọn tay.** Ngưỡng Jaccard 0,25 (G2, G3) và khoảng 2 điểm (G4) đã được phân
+   tích độ nhạy (mục 9). Các kết luận vĩ mô đứng vững, còn một số kết luận ở mức từng đỉnh thì nhạy.
+   G1 coi mọi phương thức như nhau và không dùng trọng số khi chiếu.
 3. **G4 chỉ dùng điểm THPT thang 30, lấy điểm cao nhất của mỗi cặp trường–ngành.** Mạng này bỏ qua
    tổ hợp, chương trình (chuẩn/CLC/liên kết) và các phương thức khác. Độ phủ năm 2026 thấp hơn
    (238 trường có điểm THPT, so với 279 năm 2024), nên so sánh G4 giữa các năm cần thận trọng.
@@ -524,10 +537,39 @@ Hình mạng tương tác xem ở tab "Mạng SNA" của web (`python -m uvicorn
 
 **Hướng phát triển**
 
-1. Phân tích độ nhạy theo ngưỡng Jaccard (0,15–0,4) và khoảng điểm của G4 (1–3 điểm); dùng
-   *backbone extraction* (disparity filter) thay cho ngưỡng cứng.
+1. Dùng *backbone extraction* (disparity filter) thay cho ngưỡng Jaccard cứng, để giữ cạnh có ý
+   nghĩa thống kê theo từng đỉnh thay vì một ngưỡng chung.
 2. Dùng độ dài cạnh $1 - J$ để tính đường đi, betweenness và closeness có trọng số.
 3. Xây mạng nhiều lớp (mỗi phương thức xét tuyển là một lớp) và mạng theo thời gian. Theo dõi cộng
    đồng động (cộng đồng nào tách hoặc nhập qua các năm).
 4. Đánh giá dự đoán liên kết đầy đủ hơn (AUC, precision@k) và so sánh Adamic–Adar với Jaccard,
    Resource Allocation, Preferential Attachment.
+
+## 9. Độ nhạy tham số
+
+Hai tham số chọn tay được kiểm bằng cách chạy lại toàn bộ `sna.build` với Jaccard ∈ {0,15; 0,20;
+0,25; 0,30; 0,35} và khoảng điểm G4 ∈ {1; 2; 3}. Chi tiết, bảng số liệu và độ ổn định cộng đồng
+(ARI/NMI) ở [`do_nhay_sna.md`](do_nhay_sna.md).
+
+- **Vì sao chọn 0,25:** đây là ngưỡng lớn nhất mà cả G2 và G3 vẫn giữ trên 90% số đỉnh trong
+  thành phần liên thông lớn nhất. Ngay sau đó G3 có bước chuyển kiểu thẩm thấu: LCC còn 63,8% ở
+  0,30 và 8,4% ở 0,35. Ở ngưỡng thấp hơn (0,15), G2 quá dày (mật độ 0,22, modularity chỉ 0,26).
+- **Vì sao chọn 2 điểm:** 76–80% chương trình có điểm chuẩn thay đổi không quá 2 điểm giữa hai năm
+  liền kề, nên hai trường cách nhau trong khoảng đó đang thực sự cạnh tranh.
+- **Đứng vững qua mọi ngưỡng:**
+  - đuôi dài ở G1 (không phụ thuộc ngưỡng);
+  - G2 là mạng thế giới nhỏ;
+  - G3 có cụm lĩnh vực rõ (modularity 0,69–0,90), và cụm y dược của G2 luôn tách riêng;
+  - eigenvector luôn bị một clique chi phối;
+  - PageRank G4 tương quan dương với điểm chuẩn (ρ 0,45–0,66);
+  - authority G4 âm năm 2024, dương năm 2026 ở cả 3 khoảng điểm;
+  - Adamic–Adar dự đoán tốt hơn ngẫu nhiên 29–58 lần;
+  - modularity G2 và transitivity G3 tăng từ 2024 sang 2026.
+- **Nhạy, chỉ nên đọc như đặc điểm ở ngưỡng 0,25:**
+  - top betweenness của G2 và G3 (Sinh học đứng thứ 1 / 24 / 78 ở 0,25 / 0,15 / 0,35);
+  - top bậc và PageRank của G3;
+  - số cộng đồng chính xác;
+  - hai nhận định "G2 liên kết hơn" và "G3 hội tụ" từ 2024 sang 2026.
+- **Mức thay đổi cộng đồng:** đổi ngưỡng làm phân hoạch Louvain thay đổi nhiều hơn đổi seed (ARI
+  0,41–0,68 so với 0,81–0,92), nhưng NMI vẫn ≥ 0,72. Các khối lớn được giữ, chỉ tách nhỏ hoặc gộp
+  lại.

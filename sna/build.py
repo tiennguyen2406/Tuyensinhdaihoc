@@ -13,7 +13,8 @@ Bon mang:
   G3 major_major   : chieu tu G1, trong so Jaccard tap truong
   G4 competition   : co huong A->B neu cung nganh (THPT), diem B cao hon A trong vong 2 diem
 
-Chay: python -m sna.build [--years 2024 2025 2026] [--jaccard 0.25]
+Chay: python -m sna.build [--years 2024 2025 2026] [--jaccard 0.25] [--gap 2] [--out <thu muc>]
+     (--out: ghi ra thu muc khac, VD khi phan tich do nhay, khong de len data/network/)
 Can: pandas, networkx, matplotlib (pip install pandas networkx matplotlib scipy)
 """
 
@@ -273,11 +274,14 @@ def export(name, year, g, node_metrics, summary, labels, title, desc, size_key, 
 
 
 def main() -> None:
+    global OUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--years", type=int, nargs="+", default=[2024, 2025, 2026])
     ap.add_argument("--jaccard", type=float, default=0.25, help="nguong Jaccard cho G2/G3")
     ap.add_argument("--gap", type=float, default=2.0, help="khoang diem cho mang canh tranh G4")
+    ap.add_argument("--out", type=Path, default=OUT, help="thu muc ket qua (mac dinh data/network)")
     args = ap.parse_args()
+    OUT = args.out
     OUT.mkdir(parents=True, exist_ok=True)
     rows = []
     for year in args.years:
