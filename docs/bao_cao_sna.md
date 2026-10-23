@@ -420,27 +420,87 @@ Trên web, mục "Ngành tương tự" dùng **các hàng xóm có Jaccard cao n
 
 ## 7. Hình
 
-Hình được sinh tại `data/network/fig/` khi chạy `python -m sna.build` (thư mục này không đưa lên
-git, xem mục 8).
+Hình phân bố bậc được sinh bởi `python -m sna.build`, hình mạng bởi `python -m sna.draw`, đều vào
+`data/network/fig/`; các hình dùng trong báo cáo được chép vào `docs/fig/`. Mỗi hình phân bố bậc
+gồm histogram (trái) và $P(k)$ trên trục log–log (phải). Đỉnh bậc 0 không được vẽ.
 
-**Hình 1.** Phân bố bậc G1 năm 2024 và 2026 (trái: histogram, phải: log–log).
+**Hình 1.** Phân bố bậc G1 (cả hai phía), 2024 và 2026.
 
-![Phân bố bậc G1 2024](../data/network/fig/g1_degree_2024.png)
-![Phân bố bậc G1 2026](../data/network/fig/g1_degree_2026.png)
+![Phân bố bậc G1 2024](fig/g1_degree_2024.png)
+![Phân bố bậc G1 2026](fig/g1_degree_2026.png)
 
-**Hình 2.** Phân bố bậc G2 Trường – Trường, 2024 và 2026.
+Cả hai năm, $P(k)$ trên trục log–log giảm gần tuyến tính, tức phân bố đuôi dài. Từ 2024 sang 2026,
+đuôi giữ nguyên nhưng phần đầu mỏng đi: số ngành chỉ một trường mở giảm từ 140 (33%) xuống 113
+(26%), và trung vị số trường mỗi ngành tăng từ 3 lên 4.
 
-![Phân bố bậc G2 2024](../data/network/fig/g2_uni_uni_degree_2024.png)
-![Phân bố bậc G2 2026](../data/network/fig/g2_uni_uni_degree_2026.png)
+**Hình 2.** Phân bố bậc phía ngành của G1 năm 2026 (bậc = số trường mở ngành).
 
-**Hình 3.** Phân bố bậc G3 Ngành – Ngành, 2024 và 2026.
+![Phân bố bậc ngành G1 2026](fig/g1_major_degree_2026.png)
 
-![Phân bố bậc G3 2024](../data/network/fig/g3_major_major_degree_2024.png)
-![Phân bố bậc G3 2026](../data/network/fig/g3_major_major_degree_2026.png)
+Trung vị chỉ 4 trường/ngành, nhưng ngành lớn nhất (Quản trị kinh doanh) có 157 trường. 10% ngành
+phổ biến nhất chiếm 49,2% số cạnh G1: một nhóm nhỏ ngành "đại trà" bao phủ gần như mọi trường,
+trong khi phần lớn ngành là đặc thù của một vài trường.
 
-Hình mạng tương tác (màu theo cộng đồng Louvain, kích thước theo bậc hoặc authority) xem ở tab
-"Mạng SNA" của web (`python -m uvicorn webapp.main:app`). File `.gexf` trong `data/network/gexf/`
-mở được bằng Gephi.
+**Hình 3.** Phân bố bậc G2 Trường – Trường, 2024 và 2026.
+
+![Phân bố bậc G2 2024](fig/g2_uni_uni_degree_2024.png)
+![Phân bố bậc G2 2026](fig/g2_uni_uni_degree_2026.png)
+
+Khác với G1, G2 không có đuôi lũy thừa rõ: bậc lệch phải vừa phải (độ lệch khoảng 0,9–1,0), trung
+vị 17 → 18, lớn nhất 76 → 72. Tỉ lệ trường bậc ≤ 2 (gần như cô lập) giảm từ 18% xuống 12%, khớp với
+việc LCC của G2 lớn lên (219 → 231 trường).
+
+**Hình 4.** Phân bố bậc G3 Ngành – Ngành, 2024 và 2026.
+
+![Phân bố bậc G3 2024](fig/g3_major_major_degree_2024.png)
+![Phân bố bậc G3 2026](fig/g3_major_major_degree_2026.png)
+
+G3 thưa và đồng đều hơn: trung vị 6 ở cả hai năm, lớn nhất 23 → 25. Ngưỡng Jaccard cắt bỏ các
+quan hệ của ngành đại trà, nên không ngành nào nối với quá nhiều ngành khác. Tỉ lệ ngành bậc ≤ 2
+giảm từ 21% xuống 18%.
+
+**Hình 5.** Phân bố bậc vào và bậc ra của G4 năm 2026.
+
+![Bậc vào G4 2026](fig/g4_in_degree_2026.png)
+![Bậc ra G4 2026](fig/g4_out_degree_2026.png)
+
+Hai phân bố có cùng giá trị trung bình 40,8 nhưng hình dạng khác nhau.
+- **Bậc vào** tập trung ở mức rất thấp: 29 trường có bậc vào 0 (không hiện trên hình), 54 trường
+  có bậc vào ≤ 4. Trung vị điểm THPT TB của nhóm này là 15,64, so với 19,74 của toàn G4. Đây chủ yếu
+  là các trường ở điểm sàn, không có ai "thấp hơn một chút" để nhắm lên họ, cộng vài trường chuyên
+  biệt ít đối thủ như HV Quân y.
+- **Bậc ra** phân bố một đỉnh quanh 40–60. 27 trường có bậc ra ≤ 10, trung vị điểm 23,0, gồm các
+  trường top như HV Quân y, ĐH Ngoại thương. Vì vậy $\rho$(bậc ra, điểm TB) = −0,41.
+
+**Hình 6.** Mạng G2 Trường – Trường năm 2026 (thành phần lớn nhất). Màu là cộng đồng Louvain, kích
+thước theo bậc, nhãn là mã trường của 15 trường bậc cao nhất.
+
+![Mạng G2 2026](fig/g2_uni_uni_net_2026.png)
+
+Thành phần lớn nhất có 231/249 trường và 2.510/2.531 cạnh. Hình cho thấy cấu trúc lõi – ngoại vi:
+- **Lõi:** 15 trường bậc cao nhất (DNT, KSV, DCQ, DHV, DKB…) đều dồn vào một lõi chung: 10 trường
+  thuộc cộng đồng 0 (trường tư đa ngành), 5 trường thuộc cộng đồng 2 (khối kinh tế – tài chính).
+- **Bám sát lõi:** cộng đồng 1 (đại học địa phương) và cộng đồng 3 (khối công nghiệp – kỹ thuật).
+- **Tách hẳn:** cộng đồng 4 (24 trường y dược) có 163 cạnh nội bộ nhưng chỉ 12 cạnh ra ngoài.
+  Cộng đồng 5 là khối thủy lợi – giao thông – xây dựng.
+
+**Hình 7.** Mạng G3 Ngành – Ngành năm 2026 (thành phần lớn nhất), cùng cách thể hiện; nhãn là tên
+15 ngành bậc cao nhất.
+
+![Mạng G3 2026](fig/g3_major_major_net_2026.png)
+
+Thành phần lớn nhất có 364/377 ngành và 1.404 cạnh. Các cụm lĩnh vực tách rõ, khớp với modularity
+0,84:
+- 10 trong 15 nhãn nằm ở cụm kinh tế – dịch vụ – CNTT (cộng đồng 1: CNTT, Kế toán, Tài chính –
+  Ngân hàng, Trí tuệ nhân tạo…), 4 nhãn ở cụm sư phạm (cộng đồng 4) nằm sát cạnh.
+- Các cụm còn lại nằm ở ngoại vi: nông – lâm – thủy sản (0), khoa học xã hội – nhân văn (2), khối
+  kỹ thuật (6), nghệ thuật – điện ảnh (7), mỏ – địa chất (8, quanh Kỹ thuật trắc địa – bản đồ).
+- Cụm sư phạm khép kín: 219 cạnh nội bộ, chỉ 18 cạnh ra ngoài.
+- Ngược lại, Sinh học (cộng đồng 3) có hàng xóm thuộc 5 cộng đồng khác nhau, khớp với vị trí
+  betweenness cao nhất của ngành này.
+
+Hình mạng tương tác xem ở tab "Mạng SNA" của web (`python -m uvicorn webapp.main:app`). File
+`.gexf` trong `data/network/gexf/` mở được bằng Gephi.
 
 ## 8. Hạn chế và hướng phát triển
 
@@ -459,11 +519,7 @@ mở được bằng Gephi.
    Clustering = 1 tầm thường ở các đỉnh bậc thấp.
 5. **Girvan–Newman chỉ chạy trên mẫu 60 đỉnh và 10 lần tách**, nên so sánh với Louvain mang tính
    minh hoạ.
-6. **Thiếu hình.** Hình phân bố bậc phía ngành của G1 (`g1_major_degree_*.png`) không được tạo: code
-   vẽ trên `g1.subgraph(M)`, mà đồ thị con này không có cạnh nên hàm thoát sớm. Chưa có hình cho G4.
-   Ngoài ra, thư mục `data/network/` đang nằm trong `.gitignore` nên các hình ở mục 7 chỉ hiển thị
-   khi chạy lại `sna.build` ở máy local.
-7. **Nguồn dữ liệu là trang tổng hợp tuyensinh247** (ảnh chụp ngày 23/10/2026), không phải thông báo
+6. **Nguồn dữ liệu là trang tổng hợp tuyensinh247** (ảnh chụp ngày 23/10/2026), không phải thông báo
    chính thức của từng trường.
 
 **Hướng phát triển**
@@ -475,5 +531,3 @@ mở được bằng Gephi.
    đồng động (cộng đồng nào tách hoặc nhập qua các năm).
 4. Đánh giá dự đoán liên kết đầy đủ hơn (AUC, precision@k) và so sánh Adamic–Adar với Jaccard,
    Resource Allocation, Preferential Attachment.
-5. Sửa lỗi vẽ hình phân bố bậc phía ngành, thêm hình cho G4, và đưa hình báo cáo vào `docs/` để
-   hiển thị được trên GitHub.

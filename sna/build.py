@@ -194,13 +194,16 @@ def directed_metrics(g: nx.DiGraph) -> tuple[dict, dict]:
     return node, summary
 
 
-def degree_plot(g: nx.Graph, path: Path, title: str) -> None:
+def degree_plot(g, path: Path, title: str, nodes=None, kind: str = "") -> None:
+    """Ve phan bo bac. nodes: chi tinh bac (trong do thi g) cua cac dinh nay;
+    kind: "in"/"out" cho do thi co huong."""
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    deg = [d for _, d in g.degree() if d > 0]
+    view = g.in_degree() if kind == "in" else g.out_degree() if kind == "out" else g.degree()
+    deg = [d for n, d in view if d > 0 and (nodes is None or n in nodes)]
     if not deg:
         return
     cnt = pd.Series(deg).value_counts().sort_index()
@@ -320,7 +323,9 @@ def main() -> None:
                 ["degree", "betweenness"],
             )
         )
-        degree_plot(g1.subgraph(M), OUT / "fig" / f"g1_major_degree_{year}.png", "Ngành (G1)")
+        # bac cua dinh nganh tinh tren G1 (= so truong mo nganh); truoc day dung subgraph(M) khong co canh
+        degree_plot(g1, OUT / "fig" / f"g1_major_degree_{year}.png", "Ngành (G1)", nodes=set(M))
+        degree_plot(g1, OUT / "fig" / f"g1_uni_degree_{year}.png", "Trường (G1)", nodes=set(U))
         degree_plot(g1, OUT / "fig" / f"g1_degree_{year}.png", "G1")
 
         for name, side, title, desc in [
@@ -377,6 +382,8 @@ def main() -> None:
         g4 = g4_competition(adm, args.gap)
         g4.remove_nodes_from([n for n in list(g4) if g4.degree(n) == 0])
         if g4.number_of_edges():
+            degree_plot(g4, OUT / "fig" / f"g4_in_degree_{year}.png", "G4 bậc vào", kind="in")
+            degree_plot(g4, OUT / "fig" / f"g4_out_degree_{year}.png", "G4 bậc ra", kind="out")
             nm, sm = directed_metrics(g4)
             thpt = (
                 adm[(adm.method == "THPT") & (adm.scale_max == 30)]
