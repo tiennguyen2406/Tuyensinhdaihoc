@@ -170,7 +170,9 @@ def main() -> None:
     equiv = df[df["is_conv"] == 0]
     paired_keys = set(map(tuple, native[pkey].astype(str).values))
     eq_key = equiv[pkey].astype(str).apply(tuple, axis=1) if len(equiv) else pd.Series(dtype=object)
-    eq_pair = equiv[eq_key.isin(paired_keys)][pkey + ["mark"]].rename(columns={"mark": "score_equiv"})
+    eq_pair = equiv[eq_key.isin(paired_keys)][pkey + ["mark"]].rename(
+        columns={"mark": "score_equiv"}
+    )
     eq_pair = eq_pair.drop_duplicates(pkey)
     singles = equiv[~eq_key.isin(paired_keys)].copy()
     singles["score_equiv"] = float("nan")
@@ -183,7 +185,10 @@ def main() -> None:
     df["scale_max"] = [infer_scale(s, d) for s, d in zip(df["score"], df["default_scale"])]
     df["flag"] = ""
     df.loc[df["scale_max"].isna(), "flag"] = "outlier"
-    df.loc[(df["method"].isin(["THPT", "HOCBA"])) & (df["scale_max"] != 30) & (df["flag"] == ""), "flag"] = "thang_khac_30"
+    df.loc[
+        (df["method"].isin(["THPT", "HOCBA"])) & (df["scale_max"] != 30) & (df["flag"] == ""),
+        "flag",
+    ] = "thang_khac_30"
     df.loc[(df["method"] == "THPT") & (df["score"] < 12), "flag"] = "diem_thap_bat_thuong"
 
     # 7. loai trung
@@ -193,7 +198,9 @@ def main() -> None:
     steps.append(("Bo dong trung hoan toan", n0 - len(df), ""))
     conflict = df[df.duplicated(key, keep=False)]
     conflict.sort_values(key).to_csv(INTERIM / "conflicts.csv", index=False, encoding="utf-8-sig")
-    steps.append(("Trung khoa khac diem (giu ca, xem data/interim/conflicts.csv)", len(conflict), ""))
+    steps.append(
+        ("Trung khoa khac diem (giu ca, xem data/interim/conflicts.csv)", len(conflict), "")
+    )
 
     # 8. loai chuong trinh + ma nganh chuan
     df["program_type"] = [program_type(n, c) for n, c in zip(df["name"], df["code"])]
@@ -225,12 +232,15 @@ def main() -> None:
         manual = dict(zip(mm["name_key"], mm["major_code"]))
 
     keys_list = list(key_to_code)
+
     # cum tu ten chuan (giu nguyen tu, chi bo dau) - dung khi khong con cach nao khac
     def lite(x: str) -> str:
         x = re.sub(r"\([^()]*\)", " ", unaccent(x))
         return " " + re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", x)).strip() + " "
 
-    cat_phrases = sorted(((lite(nm), code) for code, nm in catalog.items()), key=lambda x: -len(x[0]))
+    cat_phrases = sorted(
+        ((lite(nm), code) for code, nm in catalog.items()), key=lambda x: -len(x[0])
+    )
 
     def contained(name: str) -> str:
         L = lite(name)
@@ -240,6 +250,7 @@ def main() -> None:
             if ph in L and (n >= 2 or len(ph.strip()) >= 6) and n / max(len(core), 1) >= 0.6:
                 return code
         return ""
+
     cache: dict[str, tuple[str, str]] = {}
 
     def resolve(k: str) -> tuple[str, str]:
@@ -253,7 +264,7 @@ def main() -> None:
             best = difflib.get_close_matches(k, keys_list, n=1, cutoff=0.9)
             if best:
                 r = (key_to_code[best[0]], "ten_gan_dung")
-            elif (hit := contained(key_name.get(k, k))):
+            elif hit := contained(key_name.get(k, k)):
                 r = (hit, "chua_ten_chuan")
             else:
                 r = ("", "")
@@ -266,27 +277,56 @@ def main() -> None:
     df.loc[need, "major_code"] = res.map(lambda t: t[0] or pd.NA)
     df.loc[need, "match_how"] = res.map(lambda t: t[1])
 
-    unmatched = (df[df["major_code"].isna()].groupby("name_key")
-                 .agg(vi_du=("name", "first"), so_dong=("name", "size"),
-                      truong=("uni_code", lambda s: ",".join(sorted(set(s))[:5])))
-                 .sort_values("so_dong", ascending=False).reset_index())
+    unmatched = (
+        df[df["major_code"].isna()]
+        .groupby("name_key")
+        .agg(
+            vi_du=("name", "first"),
+            so_dong=("name", "size"),
+            truong=("uni_code", lambda s: ",".join(sorted(set(s))[:5])),
+        )
+        .sort_values("so_dong", ascending=False)
+        .reset_index()
+    )
     unmatched["major_code"] = ""
     unmatched.to_csv(INTERIM / "major_unmatched.csv", index=False, encoding="utf-8-sig")
 
     # ------------------------------------------------------------ outputs
     df = df.sort_values(["uni_code", "year", "method", "code"]).reset_index(drop=True)
     df["id"] = range(1, len(df) + 1)
-    adm_cols = ["id", "uni_code", "year", "method", "method_name", "sub_method", "code",
-                "major_code", "name", "program_type", "combos", "score", "scale_max",
-                "score_equiv", "note", "flag", "match_how", "source_url", "crawled_at"]
+    adm_cols = [
+        "id",
+        "uni_code",
+        "year",
+        "method",
+        "method_name",
+        "sub_method",
+        "code",
+        "major_code",
+        "name",
+        "program_type",
+        "combos",
+        "score",
+        "scale_max",
+        "score_equiv",
+        "note",
+        "flag",
+        "match_how",
+        "source_url",
+        "crawled_at",
+    ]
     adm = df[adm_cols].rename(columns={"code": "program_code", "name": "program_name"})
     adm.to_csv(CLEAN / "admissions.csv", index=False, encoding="utf-8-sig")
 
     combos = adm[["id", "combos"]].assign(combo=adm["combos"].str.split(";")).explode("combo")
-    combos = combos[combos["combo"].fillna("") != ""][["id", "combo"]].rename(columns={"id": "admission_id"})
+    combos = combos[combos["combo"].fillna("") != ""][["id", "combo"]].rename(
+        columns={"id": "admission_id"}
+    )
     combos.to_csv(CLEAN / "admission_combos.csv", index=False, encoding="utf-8-sig")
 
-    unis = schools.rename(columns={"code": "uni_code", "orther_name": "short_name", "id": "source_id"})
+    unis = schools.rename(
+        columns={"code": "uni_code", "orther_name": "short_name", "id": "source_id"}
+    )
     unis = unis[["uni_code", "name", "short_name", "alias", "source_id", "level"]]
     unis = unis[unis["uni_code"].isin(adm["uni_code"])]
     unis.to_csv(CLEAN / "universities.csv", index=False, encoding="utf-8-sig")
@@ -330,31 +370,59 @@ def md_table(df: pd.DataFrame) -> str:
     df = df.reset_index()
     head = "| " + " | ".join(map(str, df.columns)) + " |"
     sep = "| " + " | ".join("---" for _ in df.columns) + " |"
-    body = ["| " + " | ".join(f"{v:,}" if isinstance(v, int) else str(v) for v in row) + " |"
-            for row in df.itertuples(index=False)]
+    body = [
+        "| " + " | ".join(f"{v:,}" if isinstance(v, int) else str(v) for v in row) + " |"
+        for row in df.itertuples(index=False)
+    ]
     return "\n".join([head, sep, *body])
 
 
 def write_report(adm, raw, steps, unmatched, conflict) -> None:
-    lines = [f"# Báo cáo chất lượng dữ liệu", "",
-             f"Tạo lúc {datetime.now():%d/%m/%Y %H:%M}. Nguồn: API diemthi.tuyensinh247.com.", "",
-             "## Các bước làm sạch", "", "| Bước | Số dòng |", "| --- | ---: |"]
+    lines = [
+        "# Báo cáo chất lượng dữ liệu",
+        "",
+        f"Tạo lúc {datetime.now():%d/%m/%Y %H:%M}. Nguồn: API diemthi.tuyensinh247.com.",
+        "",
+        "## Các bước làm sạch",
+        "",
+        "| Bước | Số dòng |",
+        "| --- | ---: |",
+    ]
     lines += [f"| {s} | {n:,} |" for s, n, _ in steps]
     lines += [f"| **Bảng sạch cuối cùng** | **{len(adm):,}** |", ""]
-    lines += ["## Số dòng theo năm × phương thức", "",
-              adm.pivot_table(index="method", columns="year", values="id", aggfunc="count",
-                              fill_value=0).pipe(md_table), ""]
+    lines += [
+        "## Số dòng theo năm × phương thức",
+        "",
+        adm.pivot_table(
+            index="method", columns="year", values="id", aggfunc="count", fill_value=0
+        ).pipe(md_table),
+        "",
+    ]
     mh = adm["match_how"].replace("", "chua_map").value_counts()
-    lines += ["## Chuẩn hoá mã ngành", "", "| Cách map | Số dòng | Tỉ lệ |", "| --- | ---: | ---: |"]
+    lines += [
+        "## Chuẩn hoá mã ngành",
+        "",
+        "| Cách map | Số dòng | Tỉ lệ |",
+        "| --- | ---: | ---: |",
+    ]
     lines += [f"| {k} | {v:,} | {v / len(adm):.1%} |" for k, v in mh.items()]
     lines += ["", f"Tên chưa map: {len(unmatched)} (xem `data/interim/major_unmatched.csv`).", ""]
-    lines += ["## Cờ chất lượng", "", md_table(adm["flag"].replace("", "ok").value_counts().to_frame("so_dong")), ""]
+    lines += [
+        "## Cờ chất lượng",
+        "",
+        md_table(adm["flag"].replace("", "ok").value_counts().to_frame("so_dong")),
+        "",
+    ]
     lines += [f"Dòng trùng khoá khác điểm: {len(conflict)} (`data/interim/conflicts.csv`).", ""]
-    lines += ["## Tổng quan", "",
-              f"- Số trường: {adm['uni_code'].nunique()}",
-              f"- Số ngành chuẩn (mã 7 số): {adm['major_code'].nunique()}",
-              f"- Số tổ hợp khác nhau: {adm['combos'].str.split(';').explode().replace('', pd.NA).nunique()}",
-              f"- Loại chương trình: " + ", ".join(f"{k} {v:,}" for k, v in adm['program_type'].value_counts().items())]
+    lines += [
+        "## Tổng quan",
+        "",
+        f"- Số trường: {adm['uni_code'].nunique()}",
+        f"- Số ngành chuẩn (mã 7 số): {adm['major_code'].nunique()}",
+        f"- Số tổ hợp khác nhau: {adm['combos'].str.split(';').explode().replace('', pd.NA).nunique()}",
+        "- Loại chương trình: "
+        + ", ".join(f"{k} {v:,}" for k, v in adm["program_type"].value_counts().items()),
+    ]
     (CLEAN / "quality_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

@@ -90,12 +90,15 @@ def main() -> int:
 
     jobs = [(s, y) for s in schools for y in args.years]
     todo = [
-        (s, y) for s, y in jobs
+        (s, y)
+        for s, y in jobs
         if args.force or not (RAW / "cutoff" / str(y) / f"{s['code']}.json").exists()
     ]
     est = len(todo) * (args.delay + 0.5) / 60
-    print(f"{len(schools)} truong x {len(args.years)} nam = {len(jobs)} trang; "
-          f"can tai {len(todo)} (uoc ~{est:.0f} phut)")
+    print(
+        f"{len(schools)} truong x {len(args.years)} nam = {len(jobs)} trang; "
+        f"can tai {len(todo)} (uoc ~{est:.0f} phut)"
+    )
 
     log_path = RAW / "fetch_log.csv"
     new_log = not log_path.exists()
@@ -114,7 +117,8 @@ def main() -> int:
                     err = f"success=false {data.get('msg')}"
                 n = len(data.get("data") or [])
                 payload = {
-                    "school": s, "year": y,
+                    "school": s,
+                    "year": y,
                     "fetched_at": datetime.now().isoformat(timespec="seconds"),
                     "source_url": f"{BASE}/diem-chuan/{s.get('alias')}-{s['code']}.html",
                     "response": data,
@@ -123,10 +127,14 @@ def main() -> int:
                 total_rows += n
             except Exception as exc:  # ghi log va chay tiep, khong dung ca dot
                 err = str(exc)
-            log.writerow([datetime.now().isoformat(timespec="seconds"), s["id"], s["code"], y, n, err])
+            log.writerow(
+                [datetime.now().isoformat(timespec="seconds"), s["id"], s["code"], y, n, err]
+            )
             fh.flush()
-            print(f"[{i}/{len(todo)}] {s['code']:<6} {y}: {n:>4} dong {('LOI ' + err) if err else ''}",
-                  flush=True)
+            print(
+                f"[{i}/{len(todo)}] {s['code']:<6} {y}: {n:>4} dong {('LOI ' + err) if err else ''}",
+                flush=True,
+            )
             time.sleep(args.delay + random.uniform(0, 0.5))
 
     print(f"Xong. Them {total_rows} dong tho. Chay tiep: python -m pipeline.clean")
