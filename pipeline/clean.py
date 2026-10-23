@@ -158,7 +158,8 @@ def main() -> None:
     df["method"] = mt.map(lambda m: METHODS.get(m, ("KHAC",))[0])
     df["method_name"] = mt.map(lambda m: METHODS.get(m, (None, "Khác"))[1])
     df["default_scale"] = mt.map(lambda m: METHODS.get(m, (None, None, None))[2])
-    df["is_conv"] = pd.to_numeric(df["is_converted_score"], errors="coerce").fillna(0).astype(int)
+    # 1 = diem goc cua phuong thuc; moi gia tri khac (0, null, du lieu loi nhu 26) coi la diem quy doi/thuong
+    df["is_conv"] = (pd.to_numeric(df["is_converted_score"], errors="coerce") == 1).astype(int)
 
     # 4. to hop
     df["combos"] = df["block"].map(lambda b: ";".join(split_combos(b)))
@@ -223,12 +224,19 @@ def main() -> None:
         if k and (k not in best or n > best[k][1]):
             best[k] = (code, n)
     key_to_code: dict[str, str] = {k: c for k, (c, _) in best.items()}
-    # ten danh muc chuan duoc uu tien neu chi ung voi dung 1 ma
-    cat_keys = Counter(name_key(nm) for nm in catalog.values())
-    for code, nm in catalog.items():
-        ck = name_key(nm)
-        if ck and cat_keys[ck] == 1:
-            key_to_code[ck] = code
+    # ten danh muc chuan -> ma; neu nhieu ma trung ten (VD 7340120 va 7310120 deu la
+    # "Kinh doanh quoc te") thi lay ma duoc nhieu dong/truong dung nhat
+    code_rows = base["major_code"].value_counts()
+
+    def dominant(pairs) -> dict[str, str]:
+        out: dict[str, str] = {}
+        for key, code in pairs:
+            if key and (key not in out or code_rows.get(code, 0) > code_rows.get(out[key], 0)):
+                out[key] = code
+        return out
+
+    cat_by_key = dominant((name_key(nm), code) for code, nm in catalog.items())
+    key_to_code.update(cat_by_key)
 
     manual = {}
     mfile = MANUAL / "major_map.csv"
@@ -244,12 +252,12 @@ def main() -> None:
         return " " + re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", x)).strip() + " "
 
     cat_phrases = sorted(
-        ((lite(nm), code) for code, nm in catalog.items()), key=lambda x: -len(x[0])
+        dominant((lite(nm), code) for code, nm in catalog.items()).items(), key=lambda x: -len(x[0])
     )
 
     # ten chuan (>= 2 tu) dung o dau ten chuong trinh, VD "kiem toan ..." -> Kiem toan
     cat_prefix = sorted(
-        ((name_key(nm), code) for code, nm in catalog.items() if len(name_key(nm).split()) >= 2),
+        ((ck, code) for ck, code in cat_by_key.items() if len(ck.split()) >= 2),
         key=lambda x: -len(x[0]),
     )
 

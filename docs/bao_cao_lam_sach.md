@@ -4,7 +4,7 @@
 `data/clean/` và `data/clean/quality_report.md` của lần chạy ngày 23/10/2026.
 
 **Tóm tắt:** 921 request tới API công khai của diemthi.tuyensinh247.com (307 trường đại học ×
-3 năm 2024–2026) cho 76.726 dòng thô. Sau làm sạch còn **71.008 dòng** của **292 trường**;
+3 năm 2024–2026) cho 76.726 dòng thô. Sau làm sạch còn **71.009 dòng** của **292 trường**;
 **97,56%** số dòng được gán mã ngành chuẩn 7 chữ số (472 ngành).
 
 ## 1. Nguồn dữ liệu và cách thu thập
@@ -38,24 +38,23 @@ Toàn bộ nằm trong `pipeline/clean.py` (`python -m pipeline.clean`); dữ li
 | 3 | Văn bản | chuẩn Unicode NFC, bỏ ký tự lỗi `U+FFFD` (74 tên), bỏ tiền tố "(1)", "(2)"… ở đầu tên (273 tên), bỏ dấu cách trong mã chương trình (655 mã), gộp khoảng trắng; bỏ dòng không có tên ngành | 0 dòng bị bỏ | 76.657 |
 | 4 | Phương thức | `mark_type` của nguồn → 10 mã chuẩn (THPT, HOCBA, DGNL_HCM, DGNL_HN, DGTD, DGNL_SPT, KETHOP, CCQT, UTXT, KHAC); 3.192 dòng có `mark_type` 13–17 chưa rõ nghĩa được xếp vào KHAC | 3.192 xếp vào KHAC | 76.657 |
 | 5 | Tổ hợp | tách cột `block` theo mẫu `[A-Z]\d{2}` (VD "A00; A01") thành danh sách tổ hợp | 54.452 dòng thô có `block` | 76.657 |
-| 6 | Gộp điểm gốc + điểm quy đổi | nguồn trả 2 dòng cho cùng một ngành khi có điểm quy đổi; dòng quy đổi được gộp vào dòng gốc (cột `score_equiv`) | −4.959 | 71.698 |
-| 6b | (lỗi đã biết) | 3 dòng có `is_converted_score = 26` (khác 0/1) bị bỏ ở bước gộp — SP2, 2026, Sư phạm Khoa học tự nhiên, 25,57 điểm | −3 | 71.695 |
-| 7 | Thang điểm và cờ | gán thang theo phương thức; nếu điểm vượt thang mặc định hoặc phương thức không có thang thì suy ra thang nhỏ nhất trong {30, 40, 100, 150, 1200, 1600} chứa được điểm (xem mục 6). Gắn cờ `thang_khac_30` (1.113), `diem_thap_bat_thuong` (THPT < 12: 3), `outlier` (> 1600: 2) | 0 dòng bị bỏ, 1.118 dòng có cờ | 71.695 |
-| 8 | Trùng lặp | bỏ dòng trùng hoàn toàn (cùng khoá và cùng điểm) | −687 | **71.008** |
-| 8b | Trùng khoá khác điểm | giữ cả hai, ghi ra `data/interim/conflicts.csv` để xem tay | 631 dòng giữ lại | 71.008 |
-| 9 | Loại chương trình | nhận diện từ tên + mã: CHUAN 62.615, TIENG_ANH 3.111, LIEN_KET 1.510, TIEN_TIEN 1.290, CLC 1.287, PHAN_HIEU 1.079, TAI_NANG 116 | 8.393 dòng không phải CHUAN | 71.008 |
-| 10 | Mã ngành chuẩn | xem mục 4 | 69.273 dòng có mã | 71.008 |
+| 6 | Gộp điểm gốc + điểm quy đổi | nguồn trả 2 dòng cho cùng một ngành khi có điểm quy đổi (`is_converted_score = 1` là điểm gốc, mọi giá trị khác coi là quy đổi); dòng quy đổi được gộp vào dòng gốc (cột `score_equiv`) | −4.961 | 71.696 |
+| 7 | Thang điểm và cờ | gán thang theo phương thức; nếu điểm vượt thang mặc định hoặc phương thức không có thang thì suy ra thang nhỏ nhất trong {30, 40, 100, 150, 1200, 1600} chứa được điểm (xem mục 6). Gắn cờ `thang_khac_30` (1.113), `diem_thap_bat_thuong` (THPT < 12: 3), `outlier` (> 1600: 2) | 0 dòng bị bỏ, 1.118 dòng có cờ | 71.696 |
+| 8 | Trùng lặp | bỏ dòng trùng hoàn toàn (cùng khoá và cùng điểm) | −687 | **71.009** |
+| 8b | Trùng khoá khác điểm | giữ cả hai, ghi ra `data/interim/conflicts.csv` để xem tay | 631 dòng giữ lại | 71.009 |
+| 9 | Loại chương trình | nhận diện từ tên + mã: CHUAN 62.616, TIENG_ANH 3.111, LIEN_KET 1.510, TIEN_TIEN 1.290, CLC 1.287, PHAN_HIEU 1.079, TAI_NANG 116 | 8.393 dòng không phải CHUAN | 71.009 |
+| 10 | Mã ngành chuẩn | xem mục 4 | 69.274 dòng có mã | 71.009 |
 
-Bảng sạch cuối cùng: **71.008 dòng** (2024: 18.590; 2025: 24.232; 2026: 28.186), 292 trường,
-337 tổ hợp, 4.938 dòng có điểm quy đổi. Đầu ra gồm `data/clean/admissions.csv`,
-`universities.csv`, `majors.csv`, `admission_combos.csv` (260.230 cặp dòng–tổ hợp) và
+Bảng sạch cuối cùng: **71.009 dòng** (2024: 18.590; 2025: 24.232; 2026: 28.187), 292 trường,
+337 tổ hợp, 4.940 dòng có điểm quy đổi. Đầu ra gồm `data/clean/admissions.csv`,
+`universities.csv`, `majors.csv`, `admission_combos.csv` (260.234 cặp dòng–tổ hợp) và
 SQLite `data/eduradar.db`.
 
 Số dòng theo năm × phương thức (từ `quality_report.md`):
 
 | Phương thức | 2024 | 2025 | 2026 |
 | --- | ---: | ---: | ---: |
-| THPT — điểm thi THPT | 5.988 | 7.908 | 6.762 |
+| THPT — điểm thi THPT | 5.988 | 7.908 | 6.763 |
 | HOCBA — học bạ | 5.539 | 5.227 | 4.518 |
 | DGNL_HCM — ĐGNL ĐHQG-HCM | 2.422 | 2.672 | 3.000 |
 | DGNL_HN — ĐGNL ĐHQG-HN (HSA) | 1.035 | 1.594 | 2.008 |
@@ -100,7 +99,7 @@ và "tiếng anh".
 
 | # | `match_how` | Quy tắc | Số dòng | Tỉ lệ |
 | ---: | --- | --- | ---: | ---: |
-| 1 | `ma_7_so` | mã chương trình bắt đầu bằng 7 chữ số → dùng luôn | 56.416 | 79,45% |
+| 1 | `ma_7_so` | mã chương trình bắt đầu bằng 7 chữ số → dùng luôn | 56.417 | 79,45% |
 | 2 | `thu_cong` | tên có trong `data/manual/major_map.csv` (201 tên đã duyệt tay) | 2.055 | 2,89% |
 | 2b | `thu_cong_bo` | file thủ công đánh dấu `-` = bỏ map tự động sai (9 tên) | 55 | 0,08% |
 | 3 | `ten_khop` | `name_key` trùng khớp tên đã có mã; nếu một tên ứng với nhiều mã thì chọn mã xuất hiện nhiều nhất | 9.425 | 13,27% |
@@ -108,7 +107,7 @@ và "tiếng anh".
 | 5 | `ten_gan_dung` | tên gần giống một tên đã có mã (độ giống `difflib` ≥ 0,9) | 83 | 0,12% |
 | 6 | `chua_ten_chuan` | tên **chứa** cụm tên ngành chuẩn, cụm đó chiếm ≥ 60% số từ cốt lõi | 113 | 0,16% |
 | — | chưa map | không khớp cách nào | 1.680 | 2,37% |
-| | **Có mã ngành** | | **69.273** | **97,56%** |
+| | **Có mã ngành** | | **69.274** | **97,56%** |
 
 Ví dụ thật cho mỗi loại (trường | mã chương trình | tên gốc → mã ngành):
 
@@ -161,5 +160,7 @@ Phép kiểm tra này đo độ chính xác của khâu **thu thập và chuẩn
    không có dữ liệu ở cả 3 năm. Ý nghĩa của `mark_type` 13–17 (3.192 dòng) không được nguồn mô tả
    nên xếp vào "Khác". `source_url` trỏ tới trang tổng hợp của trường, không trỏ tới văn bản gốc.
    Dữ liệu là ảnh chụp ngày 23/10/2026; nguồn có thể cập nhật sau đó.
-5. **Lỗi và mâu thuẫn còn lại.** 3 dòng bị mất do `is_converted_score = 26` (mục 2, bước 6b);
-   631 dòng trùng khoá nhưng khác điểm được giữ nguyên, chưa xử lý.
+5. **Lỗi và mâu thuẫn còn lại.** Trong quá trình làm báo cáo đã phát hiện 3 dòng có
+   `is_converted_score = 26` (SP2, 2026, Sư phạm Khoa học tự nhiên) bị bỏ âm thầm ở bước gộp;
+   lỗi đã được sửa (mọi giá trị khác 1 coi là điểm quy đổi) và các bước trong mục 2 giờ cộng trừ
+   khớp. Còn 631 dòng trùng khoá nhưng khác điểm được giữ nguyên, chưa xử lý.
