@@ -61,8 +61,8 @@ PROGRAM_PATTERNS = [  # (nhan, regex tren ten+ma da bo dau, chu thuong)
 STRIP_WORDS = re.compile(
     r"\((?:[^()]*)\)|\[(?:[^\[\]]*)\]|"
     r"\b(chuong trinh|ct|tieu chuan|chat luong cao|clc|tien tien|tt|tc|th|dhnnqt|"
-    r"lien ket|quoc te|tich hop|chung chi|dinh huong|theo|nganh|chuyen nganh|"
-    r"day va hoc bang tieng anh|bang tieng anh|tieng anh|co so|phan hieu|ha noi|hcm|tp hcm|"
+    r"lien ket|tich hop|chung chi quoc te|chung chi|dinh huong|theo|nganh|chuyen nganh|"
+    r"day va hoc bang tieng anh|bang tieng anh|co so|phan hieu|ha noi|hcm|tp hcm|"
     r"pohe|e[- ]?\w+)\b",
 )
 
@@ -216,14 +216,19 @@ def main() -> None:
         plain = grp[grp["program_type"] == "CHUAN"]["name"]
         src = plain if len(plain) else grp["name"]
         catalog[code] = Counter(src).most_common(1)[0][0]
-    key_to_code: dict[str, str] = {}
-    for code, grp in base.groupby("major_code"):
-        for k, c in Counter(grp["name_key"]).items():
-            if k and (k not in key_to_code):
-                key_to_code[k] = code
-    # them ten danh muc
+    # moi ten (name_key) -> ma xuat hien nhieu nhat (truoc day lay ma gap dau tien -> map sai)
+    votes = Counter(zip(base["name_key"], base["major_code"]))
+    best: dict[str, tuple[str, int]] = {}
+    for (k, code), n in votes.items():
+        if k and (k not in best or n > best[k][1]):
+            best[k] = (code, n)
+    key_to_code: dict[str, str] = {k: c for k, (c, _) in best.items()}
+    # ten danh muc chuan duoc uu tien neu chi ung voi dung 1 ma
+    cat_keys = Counter(name_key(nm) for nm in catalog.values())
     for code, nm in catalog.items():
-        key_to_code.setdefault(name_key(nm), code)
+        ck = name_key(nm)
+        if ck and cat_keys[ck] == 1:
+            key_to_code[ck] = code
 
     manual = {}
     mfile = MANUAL / "major_map.csv"
@@ -241,6 +246,18 @@ def main() -> None:
     cat_phrases = sorted(
         ((lite(nm), code) for code, nm in catalog.items()), key=lambda x: -len(x[0])
     )
+
+    # ten chuan (>= 2 tu) dung o dau ten chuong trinh, VD "kiem toan ..." -> Kiem toan
+    cat_prefix = sorted(
+        ((name_key(nm), code) for code, nm in catalog.items() if len(name_key(nm).split()) >= 2),
+        key=lambda x: -len(x[0]),
+    )
+
+    def prefix_hit(k: str) -> str:
+        for ck, code in cat_prefix:
+            if k.startswith(ck + " "):
+                return code
+        return ""
 
     def contained(name: str) -> str:
         L = lite(name)
@@ -260,6 +277,8 @@ def main() -> None:
             r = ("", "thu_cong_bo") if manual[k] == "-" else (manual[k], "thu_cong")
         elif k in key_to_code:
             r = (key_to_code[k], "ten_khop")
+        elif hit := prefix_hit(k):
+            r = (hit, "dau_ten_chuan")
         else:
             best = difflib.get_close_matches(k, keys_list, n=1, cutoff=0.9)
             if best:

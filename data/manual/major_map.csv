@@ -1,17 +1,17 @@
 name_key,major_code
-kinh doanh coventry,7340120
-kinh doanh dai hoc,7340120
-kinh doanh dai hoc la trobe,7340120
-kinh doanh du bi dai hoc,7340120
-kinh doanh logistics,7340120
-kinh doanh va logistics,7340120
-kinh doanh mo hinh nhat ban,7340120
+kinh doanh quoc te coventry,7340120
+kinh doanh quoc te dai hoc,7340120
+kinh doanh quoc te dai hoc la trobe,7340120
+kinh doanh quoc te du bi dai hoc,7340120
+kinh doanh quoc te logistics,7340120
+kinh doanh quoc te va logistics,7340120
+kinh doanh quoc te mo hinh nhat ban,7340120
 quan tri kinh doanh dai hoc,7340101
 quan tri kinh doanh khach san,7340101
 quan tri kinh doanh tong hop,7340101
 viet nam hoc dai hoc,7310630
 kinh te quan ly kinh te,7310101
-kinh te va phat trien,7310106
+kinh te va phat trien quoc te,7310106
 cong nghe tai chinh nh,7340201
 ky thuat phn mem,7480103
 sinh duoc hoc,-
@@ -44,7 +44,7 @@ logistics toan cau va doi moi chuoi cung ung,
 khoa hoc may tinh va du lieu trong kinh te va kinh doanh,
 phan tich kinh doanh,
 tieng phap thuong mai,7220203
-luat kinh doanh mo hinh thuc hanh nghe nghiep,
+luat kinh doanh quoc te mo hinh thuc hanh nghe nghiep,
 quan tri su kien va giai tri,
 ky thuat sinh hoc,
 quan ly thi truong,
@@ -70,20 +70,20 @@ xay dung va quan ly ha tang do thi,
 duong sat toc do cao,
 tai chinh va kiem soat du bi dai hoc khoa hoc ung dung saxion,7340201
 cong nghe thong tin du bi dai hoc la trobe,
-kinh doanh du bi dai hoc la trobe,7340120
+kinh doanh quoc te du bi dai hoc la trobe,7340120
 ky thuat dien dien tu du bi dai hoc khoa hoc ung dung saxion,7520201
 ky thuat xay dung du bi dai hoc la trobe,7580201
 quan he cong chung quan he cong chung chuyen nghiep,7320108
 xuat ban xuat ban dien tu,
 quan tri thuong hieu va truyen thong,
-quan he quan he va truyen thong toan cau,7310206
+quan he quoc te quan he quoc te va truyen thong toan cau,7310206
 ke toan dai hoc,7340301
 my thuat so,
 quan tri cntt trong doanh nghiep,
 quan he cong chung truyen thong marketing,7320108
 truyen thong ky thuat so,
 quan he cong chung va quan tri su kien,
-quan he quan he chinh tri va truyen thong,7310206
+quan he quoc te quan he chinh tri va truyen thong quoc te,7310206
 xuat ban bien tap xuat ban,
 quan tri dieu hanh thong minh,7340101
 phan tich du lieu kinh te,
@@ -108,9 +108,9 @@ quan ly cong va chinh sach,7310101
 cong nghe sinh hoc du bi dai hoc,7420201
 chinh tri hoc chinh tri phat trien,7310201
 chinh tri hoc cong tac tu tuong van hoa,7310201
-marketing thuong mai san pham va dich vu dao tao song bang,7340115
+marketing thuong mai san pham va dich vu dao tao song bang quoc te,7340115
 chinh tri hoc tu tuong ho chi minh,7310201
-quan tri kinh doanh khoi nghiep dao tao song bang,7340101
+quan tri kinh doanh khoi nghiep dao tao song bang quoc te,7340101
 quan tri du lich,
 chinh tri hoc truyen thong chinh sach,7310201
 ky thuat phan mem du bi dai hoc,7480103
@@ -120,7 +120,7 @@ kinh doanh du bi dai hoc massey,
 ky thuat va quan ly cong nghiep,
 ke toan du bi dai hoc,7340301
 khoa hoc may tinh du bi dai hoc,7480101
-chuyen nghiep,7220201
+tieng anh chuyen nghiep quoc te,7220201
 quan tri kinh doanh toan cau du bi truong kinh doanh,7340101
 tai chinh ngan hang du bi dai hoc,7340201
 tai nguyen va moi truong nuoc,
@@ -128,7 +128,7 @@ quan tri kinh doanh du bi dai hoc,7340101
 quan ly moi truong tai nguyen,
 khoa hoc may tinh du bi dai hoc ky thuat ostrava,7480101
 ky thuat dien tu va tin hoc,
-khkt va cong nghe,7220201
+tieng anh khkt va cong nghe,7220201
 khoa hoc may tinh va thong tin,
 khoa hoc thong tin dia khong gian,
 marketing du bi dai hoc,7340115
@@ -187,14 +187,14 @@ ky thuat nang luong,
 ky thuat phan mem hoc tai khanh hoa,7480103
 kinh te va quan ly bat dong san,
 kinh te so va phan tich du lieu,
-logistics va quan ly ccu logistic,7510605
+logistics va quan ly ccu logistic quoc te,7510605
 ky thuat vi dien tu va vat ly ban dan,
 kinh doanh sang tao va cong nghiep van hoa,
 may va thiet bi tu dong hoa xay dung,
 kiem toan cong nghe,
 kinh doanh so toan cau,
 khoa hoc du lieu cho doi moi sang tao trong kinh te va kinh doanh,
-i hons hop tac voi dai hoc queensland ve kinh doanh va phan tich du lieu kinh doanh,7340120
+i hons hop tac voi dai hoc queensland ve kinh doanh quoc te va phan tich du lieu kinh doanh,7340120
 ngan hang trung uong va chinh sach cong,
 ke toan phan tich va kiem toan,
 thong ke va tri tue kinh doanh,
@@ -208,7 +208,7 @@ quan tri rui ro dinh luong,
 cong nghe moi truong va phat trien ben vung,
 ke toan du bi dai hoc west of bristol,7340301
 ngon ngu anh dai hoc west of bristol,7220201
-phat trien,
+phat trien quoc te,
 khoi nghiep va phat trien kinh doanh,7340101
 khoa hoc tinh toan trong tai chinh va bao hiem,
 kinh te y te,
@@ -218,7 +218,7 @@ an toan khong gian mang,
 van hoa to chuc,
 ky thuat robot va dieu khien thong minh,
 mo hinh thong tin cong trinh,
-logistics va quan ly chuoi cung ung thuong mai va phan phoi dao tao song bang,7510605
+logistics va quan ly chuoi cung ung thuong mai va phan phoi dao tao song bang quoc te,7510605
 logistics va he thong cong nghiep,
 kinh doanh toan cau truong dai hoc van hoa trung quoc,7340101
 khoa hoc giao duc va khac,
@@ -228,7 +228,7 @@ ke toan du bi dai hoc west of bristol du bi dai hoc khoa hoc ung dung saxion,734
 quan tri truyen thong quang cao,
 cong nghe ban dan va nano,
 quan tri kinh doanh hop tac voi dh troy,7340101
-ke toan bao hiem ngan hang tai chinh quan he khach hang dao tao song bang,7340301
+ke toan bao hiem ngan hang tai chinh quan he khach hang dao tao song bang quoc te,7340301
 cong nghe logistics va quan tri chuoi cung ung,
 thiet ke vi mach va he thong nhung,
 phan tich va dau tu tai chinh,7340201
@@ -251,7 +251,7 @@ co dien tu hop tac voi dhcn nagaoka,7520114
 tien chuan kinh te doi ngoai,7310101
 thiet ke do hoa hoc tai khanh hoa,7210403
 cong nghe thong tin dh cong nghe thong tin va quan ly ba lan uitm cap bang,7480201
-quan tri kinh doanh dai hoc west of anh,
+quan tri kinh doanh quoc te dai hoc west of anh,
 quan tri kinh doanh hang hai logistics dai hoc genoa ch y,
 tai nguyen nuoc va moi truong,7440224
 cong nghe thuc pham va che bien,
@@ -284,7 +284,7 @@ han quoc,7310614
 cnkt co khi dau may toa xe va tau dien metro,
 quan ly,
 quan ly va dieu hanh van tai duong sat toc do cao,
-i hons kinh doanh va phan tich du lieu kinh doanh,7340120
+i hons kinh doanh quoc te va phan tich du lieu kinh doanh,7340120
 quan tri dich vu hang khong,
 cong nghe va quan ly thiet bi xay dung,
 quan tri kinh doanh cityu hoa ky,7340101
@@ -331,7 +331,7 @@ hoa hoc my pham,
 hoa thuc pham sinh hoc,
 cong nghe tu dong hoa,
 quan tri dia phuong thuoc quan ly nha nuoc,7310205
-kinh doanh lk voi dh van hoa trung quoc dai loan,7340120
+kinh doanh quoc te lk voi dh van hoa trung quoc dai loan,7340120
 luat hinh su,
 viet nam hoc hoc tai khanh hoa,7310630
 viet nam hoc du bi dai hoc,7310630
@@ -386,7 +386,7 @@ cu nhan asia co op,
 cu nhan tai nang isb kinh doanh,
 di san hoc,
 quan tri kinh doanh thuong mai va du lich,
-tai chinh ngan hang ke toan kinh doanh marketing,
+tai chinh ngan hang ke toan kinh doanh quoc te marketing,
 cong nghe thong tin campus ba ria vung tau,7480201
 cong nghe ky thuat o to va giao thong thong minh,
 cnkt xd cau duong bo,
@@ -404,7 +404,7 @@ nong nghiep sinh thai va nong nghiep do thi,
 tri tue nhan tao dh cong nghe sydney cap bang,7480107
 ky thuat may tinh uc new zealand,7480106
 cu nhan tai nang isb cong nghe,
-quan tri kinh doanh kinh doanh quan tri khach san marketing,
+quan tri kinh doanh kinh doanh quoc te quan tri khach san marketing,
 xay dung va quan li cong trinh thuy,7580202
 cong nghe ky thuat xd cau duong bo,
 cong nghe thong tin dh cong nghe sydney cap bang,7480201
