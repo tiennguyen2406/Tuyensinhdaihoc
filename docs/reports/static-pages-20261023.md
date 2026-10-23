@@ -74,7 +74,7 @@ Repo: <https://github.com/tiennguyen2406/Tuyensinhdaihoc>.
 
 1. Mở **Settings → Pages → Build and deployment → Source**, chọn **GitHub Actions**.
    Workflow đã có sẵn; không cần chọn branch/folder tại trang này.
-2. Nếu environment `github-pages` có quy tắc giới hạn branch, mở **Settings →
+2. Environment `github-pages` hiện có quy tắc chặn `v2-simple`. Mở **Settings →
    Environments → github-pages → Deployment branches and tags**, cho phép `v2-simple`
    (Selected branches and tags → Add deployment branch or tag rule → Branch → `v2-simple`).
    Repo mặc định dùng `main`, nên quy tắc chỉ cho `main` sẽ chặn workflow này.
@@ -86,6 +86,12 @@ Repo: <https://github.com/tiennguyen2406/Tuyensinhdaihoc>.
 
 Địa chỉ sau khi deploy thành công: <https://tiennguyen2406.github.io/Tuyensinhdaihoc/>.
 Workflow chỉ upload `site/`; không cần SQLite hoặc crawl trên GitHub runner.
+
+Sau khi push commit tính năng `528d63b`, [lần chạy 39982979020](https://github.com/tiennguyen2406/Tuyensinhdaihoc/actions/runs/39982979020)
+bị GitHub từ chối trước khi bắt đầu các step. Annotation xác nhận nhánh `v2-simple`
+không được phép deploy vào `github-pages` do environment protection rules. URL Pages
+hiện trả 404, chưa thể coi là đã online. Cần chủ repo sửa Settings ở bước 1–2,
+sau đó re-run lần chạy mới nhất. Tài khoản connector hiện có quyền push nhưng không có quyền admin.
 
 Tài liệu GitHub: [cấu hình nguồn xuất bản](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 [workflow Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
