@@ -38,3 +38,27 @@ tr:last-child td{border-bottom:0}tfoot td{background:var(--bg);font-weight:500}
 footer{padding:24px 16px 40px}
 td.code{white-space:nowrap;color:var(--muted);font-size:12px}td.combo{min-width:150px;color:var(--muted);font-size:12px}
 td.prog{min-width:220px}
+.tag-raw{background:var(--warn-soft);color:var(--warn)}
+.btn-csv{font:inherit;font-size:12px;font-weight:500;padding:3px 10px;margin-left:6px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--accent);cursor:pointer;white-space:nowrap}
+.btn-csv:hover{border-color:var(--accent);background:var(--accent-soft)}
+/* man hinh hep: moi dong bang thanh 1 the, o "main" len dau, cac o khac dang nhan: gia tri */
+@media (max-width:640px){
+  body{font-size:14px}h1{font-size:19px;margin:14px 0 10px}.head h2{font-size:17px}
+  .top-row{gap:6px 12px;min-height:52px;padding-top:6px;padding-bottom:6px}.tabs{width:100%}
+  .bar>*{flex:1 1 100%}.bar select{flex:1 1 calc(50% - 4px);min-width:0}.ac{flex-basis:100%}
+  .card{padding:12px;border-radius:12px}.empty{padding:20px}
+  table.stack thead{display:none}
+  table.stack,table.stack tbody,table.stack tfoot{display:block}
+  table.stack tr{display:flex;flex-direction:column;padding:10px 12px;border-bottom:1px solid var(--line)}
+  table.stack tr:last-child{border-bottom:0}
+  table.stack td{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border:0;padding:2px 0;min-width:0;text-align:right;white-space:normal}
+  table.stack td::before{content:attr(data-label);color:var(--muted);font-size:12px;font-weight:400;text-align:left;flex:0 0 auto;max-width:55%}
+  table.stack td:empty{display:none}
+  table.stack td.main{order:-1;display:block;text-align:left;font-weight:600;padding-bottom:4px}
+  table.stack td.main::before{content:none}
+  table.stack td.main .sub{font-weight:400}
+  table.stack .eq{display:inline;margin-left:6px}
+  table.stack tfoot td{display:block;text-align:left;padding:0}
+  table.stack tfoot td::before{content:none}
+  #net-canvas{height:360px}
+}

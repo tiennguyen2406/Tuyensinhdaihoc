@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EduRadar — Tra cứu điểm chuẩn</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/style.css?v=3">
+<link rel="stylesheet" href="/static/style.css?v=4">
 </head>
 <body>
 <header class="top">
@@ -42,7 +43,7 @@
     <h1>Các trường đào tạo một ngành</h1>
     <form class="bar" id="major-form" autocomplete="off">
       <div class="ac">
-        <input id="major-q" placeholder="Nhập tên ngành, VD: công nghệ thông tin, marketing…" aria-label="Tên ngành">
+        <input id="major-q" placeholder="Tên ngành hoặc tên chương trình gốc, VD: công nghệ thông tin, đóng tàu…" aria-label="Tên ngành">
         <ul class="ac-list" id="major-ac"></ul>
       </div>
       <select id="major-year" aria-label="Năm"></select>
@@ -61,7 +62,7 @@
       <select id="adv-year" aria-label="Năm tham chiếu"></select>
       <button type="submit" class="primary">Gợi ý</button>
     </form>
-    <p class="muted small">Hiện các ngành có điểm chuẩn ≤ điểm của bạn + 1. <b>Thử sức</b>: cao hơn điểm bạn tối đa 1 điểm · <b>Vừa sức</b>: thấp hơn dưới 1 điểm · <b>An toàn</b>: thấp hơn từ 1 điểm.</p>
+    <p class="muted small">Hiện các ngành có điểm chuẩn ≤ điểm của bạn + 1. <b>Thử sức</b>: cao hơn điểm bạn tối đa 1 điểm · <b>Vừa sức</b>: thấp hơn dưới 1 điểm · <b>An toàn</b>: thấp hơn từ 1 điểm. Mốc 1 điểm tính trên thang 30 và quy đổi theo thang của phương thức (VD ĐGNL HCM thang 1200: 40 điểm).</p>
     <div id="advice-out"></div>
   </section>
 
@@ -79,6 +80,6 @@
 </main>
 <footer class="wrap muted small">Dữ liệu tổng hợp từ <a href="https://diemthi.tuyensinh247.com" target="_blank" rel="noopener">diemthi.tuyensinh247.com</a> cho mục đích học tập (đồ án môn SNA). Luôn đối chiếu với thông báo chính thức của trường.</footer>
 <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
-<script src="/static/app.js?v=3"></script>
+<script src="/static/app.js?v=4"></script>
 </body>
 </html>

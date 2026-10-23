@@ -92,11 +92,22 @@ def search_index() -> dict:
             "JOIN admissions a ON a.major_code = m.major_code GROUP BY m.major_code"
         )
     ]
+    # ten chuong trinh goc chua map ma nganh -> van tim duoc trong o tim nganh
+    programs = [
+        dict(r)
+        for r in c.execute(
+            "SELECT program_name, COUNT(DISTINCT uni_code) AS n_unis, COUNT(*) AS n_rows "
+            "FROM admissions WHERE major_code IS NULL GROUP BY program_name"
+        )
+    ]
     for u in unis:
         u["_k"] = unaccent(f"{u['name']} {u['short_name'] or ''} {u['uni_code']}")
     for m in majors:
         m["_k"] = unaccent(f"{m['major_name']} {m['major_code']}")
-    return {"unis": unis, "majors": majors}
+    for p in programs:
+        p["_k"] = unaccent(p["program_name"])
+        p["kind"] = "program"
+    return {"unis": unis, "majors": majors, "programs": programs}
 
 
 def rank(items: list[dict], q: str, limit: int) -> list[dict]:
@@ -145,7 +156,12 @@ def universities(q: str = "", limit: int = Query(15, le=50)):
 
 @app.get("/api/majors")
 def majors(q: str = "", limit: int = Query(15, le=50)):
-    return rank(search_index()["majors"], q, limit) if q.strip() else []
+    """Nganh chuan truoc, sau do toi da 5 ten chuong trinh goc chua map (kind=program)."""
+    if not q.strip():
+        return []
+    idx = search_index()
+    found = rank(idx["majors"], q, limit)
+    return found + rank(idx["programs"], q, min(5, limit) if found else limit)
 
 
 @app.get("/api/universities/{code}/scores")
@@ -231,23 +247,45 @@ def university_scores(code: str, year: int):
     }
 
 
+def scores_where(c: sqlite3.Connection, where: str, args: list, method: str) -> list[dict]:
+    sql = (
+        "SELECT a.*, u.name AS uni_name, u.short_name FROM admissions a "
+        f"JOIN universities u ON u.uni_code = a.uni_code WHERE {where}"
+    )
+    if method:
+        sql += " AND a.method = ?"
+        args = args + [method]
+    rows = [dict(r) for r in c.execute(sql, args)]
+    rows.sort(key=lambda r: (method_sort(r["method"]), -(r["score"] or 0)))
+    return rows
+
+
 @app.get("/api/majors/{major_code}/scores")
 def major_scores(major_code: str, year: int, method: str = ""):
     c = con()
     m = c.execute("SELECT * FROM majors WHERE major_code = ?", (major_code,)).fetchone()
     if not m:
         raise HTTPException(404, "Không tìm thấy ngành")
-    sql = (
-        "SELECT a.*, u.name AS uni_name, u.short_name FROM admissions a "
-        "JOIN universities u ON u.uni_code = a.uni_code WHERE a.major_code = ? AND a.year = ?"
-    )
-    args: list = [major_code, year]
-    if method:
-        sql += " AND a.method = ?"
-        args.append(method)
-    rows = [dict(r) for r in c.execute(sql + " ORDER BY a.method, a.score DESC", args)]
-    rows.sort(key=lambda r: (method_sort(r["method"]), -(r["score"] or 0)))
+    rows = scores_where(c, "a.major_code = ? AND a.year = ?", [major_code, year], method)
     return {"major": dict(m), "year": year, "rows": rows}
+
+
+@app.get("/api/programs/scores")
+def program_scores(name: str, year: int, method: str = ""):
+    """Diem theo ten chuong trinh goc (chi cac dong chua map ma nganh)."""
+    c = con()
+    where = "a.major_code IS NULL AND a.program_name = ?"
+    years = [
+        r[0]
+        for r in c.execute(
+            f"SELECT DISTINCT year FROM admissions a WHERE {where} ORDER BY year DESC", (name,)
+        )
+    ]
+    if not years:
+        raise HTTPException(404, "Không tìm thấy chương trình chưa map với tên này")
+    rows = scores_where(c, where + " AND a.year = ?", [name, year], method)
+    major = {"major_code": "", "major_name": name, "unmapped": True}
+    return {"major": major, "year": year, "years": years, "rows": rows}
 
 
 @app.get("/api/majors/{major_code}/similar")
@@ -268,37 +306,77 @@ def advice(
     score: float,
     combo: str = "",
     year: int | None = None,
-    margin: float = 1.0,
+    margin: float | None = None,
     limit: int = Query(300, le=1000),
 ):
+    """margin/nguong muc tinh theo don vi 1 diem tren thang 30, quy doi sang thang cua phuong thuc
+    (VD DGNL HCM thang 1200 -> 1 don vi = 40 diem). Moi muc lay toi da ~limit/3 dong gan diem nhat."""
     c = con()
     if year is None:
-        year = c.execute("SELECT MAX(year) FROM admissions WHERE method = ?", (method,)).fetchone()[
-            0
-        ]
-    sql = (
-        "SELECT a.*, u.name AS uni_name, u.short_name FROM admissions a "
-        "JOIN universities u ON u.uni_code = a.uni_code "
-        "WHERE a.method = ? AND a.year = ? AND a.score <= ? AND a.flag = ''"
-    )
-    args: list = [method, year, score + margin]
+        year = c.execute("SELECT MAX(year) FROM admissions WHERE method = ?", (method,)).fetchone()
+        year = year[0]
+    # chi so sanh trong thang diem pho bien nhat cua phuong thuc (KETHOP/CCQT tron nhieu thang)
+    sc = c.execute(
+        "SELECT scale_max FROM admissions WHERE method = ? AND year = ? AND flag = '' "
+        "AND scale_max IS NOT NULL GROUP BY scale_max ORDER BY COUNT(*) DESC LIMIT 1",
+        (method, year),
+    ).fetchone()
+    out = {"year": year, "method": method, "combo": combo, "score": score}
+    if not sc:
+        return out | {"scale": None, "margin": margin, "counts": {}, "total": 0, "rows": []}
+    scale = sc[0]
+    unit = scale / 30
+    margin = unit if margin is None else margin
+    where = "a.method = ? AND a.year = ? AND a.score <= ? AND a.flag = '' AND a.scale_max = ?"
+    args: list = [method, year, score + margin, scale]
+    combo_sql = " AND a.id IN (SELECT admission_id FROM admission_combos WHERE combo = ?)"
     if combo:
-        sql += " AND a.id IN (SELECT admission_id FROM admission_combos WHERE combo = ?)"
+        where += combo_sql
         args.append(combo.upper())
-    if method in ("THPT", "HOCBA"):
-        sql += " AND a.scale_max = 30"
-    rows = [dict(r) for r in c.execute(sql + " ORDER BY a.score DESC LIMIT ?", args + [limit])]
-    # xu huong 3 nam cho tung chuong trinh
-    for r in rows:
-        hist = c.execute(
-            "SELECT year, MAX(score) s FROM admissions WHERE uni_code=? AND program_code=? "
-            "AND method=? GROUP BY year ORDER BY year",
-            (r["uni_code"], r["program_code"], method),
+    cands = [
+        dict(r)
+        for r in c.execute(
+            "SELECT a.*, u.name AS uni_name, u.short_name FROM admissions a "
+            f"JOIN universities u ON u.uni_code = a.uni_code WHERE {where} ORDER BY a.score DESC",
+            args,
         )
-        r["history"] = {str(y): s for y, s in hist}
+    ]
+    levels = ["Thử sức", "Vừa sức", "An toàn"]
+    groups: dict[str, list[dict]] = {lv: [] for lv in levels}
+    for r in cands:
         d = r["score"] - score
-        r["level"] = "Thử sức" if d > 0 else ("Vừa sức" if d > -1 else "An toàn")
-    return {"year": year, "method": method, "combo": combo, "score": score, "rows": rows}
+        r["level"] = levels[0] if d > 0 else (levels[1] if d > -unit else levels[2])
+        groups[r["level"]].append(r)
+    # chia deu han muc cho 3 muc (muc nao thieu thi nhuong cho muc khac)
+    take = dict.fromkeys(levels, 0)
+    left = limit
+    while left and any(take[lv] < len(groups[lv]) for lv in levels):
+        for lv in levels:
+            if left and take[lv] < len(groups[lv]):
+                take[lv] += 1
+                left -= 1
+    # muc An toan: lay cac dong sat diem nhat (dau danh sach vi da sap giam dan)
+    rows = [r for lv in levels for r in groups[lv][: take[lv]]]
+    # xu huong 3 nam cua tung chuong trinh, cung thang diem (+ cung to hop neu co loc)
+    hist_sql = (
+        "SELECT a.year, MAX(a.score) FROM admissions a WHERE a.uni_code = ? AND a.program_code = ? "
+        "AND a.method = ? AND a.scale_max = ? AND a.flag = ''"
+    )
+    for r in rows:
+        hargs = [r["uni_code"], r["program_code"], method, scale]
+        if combo:
+            hargs.append(combo.upper())
+        hist = c.execute(hist_sql + (combo_sql if combo else "") + " GROUP BY a.year", hargs)
+        r["history"] = {str(y): s for y, s in hist}
+        r["history"][str(year)] = r["score"]  # nam tham chieu = dung diem cua dong nay
+    counts = {lv: len(groups[lv]) for lv in levels}
+    return out | {
+        "scale": scale,
+        "margin": margin,
+        "counts": counts,
+        "total": len(cands),
+        "rows": rows,
+    }
 
 
 @app.get("/api/network/{name}")
@@ -313,7 +391,12 @@ def network(name: str, year: int):
 def network_list():
     if not NETWORK_DIR.exists():
         return []
-    return sorted(p.stem for p in NETWORK_DIR.glob("*.json") if p.stem != "summary")
+    # similar_majors_* la bang tra cuu cho /similar, khong phai do thi
+    return sorted(
+        p.stem
+        for p in NETWORK_DIR.glob("*.json")
+        if p.stem != "summary" and not p.stem.startswith("similar_majors_")
+    )
 
 
 @app.get("/")
