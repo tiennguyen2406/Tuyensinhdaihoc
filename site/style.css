@@ -88,3 +88,5 @@ table.timeline{font-size:14px}table.timeline td{padding:4px 8px}table.timeline t
   table.stack tfoot td::before{content:none}
   #net-canvas{height:360px}
 }
+.tuition-meta{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}.src-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.src-official{background:var(--good-soft);color:var(--good)}.src-press{background:var(--accent-soft);color:var(--accent)}.src-aggregator{background:var(--warn-soft);color:var(--warn)}

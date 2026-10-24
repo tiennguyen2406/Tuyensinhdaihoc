@@ -72,12 +72,15 @@ async function waitServer(url) {
       await page.screenshot({ path: path.join(screenshots, `${mode}-grid-${width}.png`) });
       for (const gone of ["#uni-letter", "#uni-sort", "#adv-sort", "#adv-combo-search", "[data-csv]", ".btn-csv"]) assert.equal(await page.locator(gone).count(), 0, gone);
       assert.doesNotMatch(await page.locator("body").innerText(), /Xuất CSV|Mọi chữ cái|Tên A–Z/);
-      // Direct VNUR ranks first, inherited ranks next, unranked last (by name).
-      const order = await page.evaluate(() => [...document.querySelectorAll(".uni-card")].map((c) => c.querySelector(".rank-badge") ? (c.querySelector(".rank-inherited") ? 1 : 0) : 2));
-      assert.deepEqual(order, [...order].sort((a, b) => a - b));
-      assert.match(await page.locator(".uni-card").first().innerText(), /Top \d+ VNUR/);
-      const ranks = await page.evaluate(() => [...document.querySelectorAll(".uni-card")].filter((c) => c.querySelector(".rank-badge:not(.rank-inherited)")).map((c) => +c.querySelector(".rank-badge").textContent.match(/\d+/)[0]));
-      assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b));
+      // One ordering by VNUR rank: inherited members sit at their parent's rank (direct first on ties), unranked last.
+      const keys = await page.evaluate(() => [...document.querySelectorAll(".uni-card")].map((c) => {
+        const b = c.querySelector(".rank-badge");
+        return b ? [+b.textContent.match(/Top (\d+)/)[1], b.classList.contains("rank-inherited") ? 1 : 0] : [Infinity, 2];
+      }));
+      assert.deepEqual(keys, [...keys].sort((a, b) => a[0] - b[0] || a[1] - b[1]));
+      assert.match(await page.locator(".uni-card").first().innerText(), /Top 1\b/);
+      const firstUnranked = keys.findIndex((k) => k[0] === Infinity);
+      assert.ok(keys.findIndex((k) => k[1] === 0) < keys.slice(0, firstUnranked).map((k) => k[1]).lastIndexOf(1), "inherited and direct ranks interleave");
       assert.ok(await page.evaluate(() => UNIVERSITIES.some((u) => u.province_source === "HOCMAI")));
       await page.locator("#uni-province").selectOption("Thành phố Hà Nội");
       assert.ok(await page.locator('.uni-card[data-uni="BKA"]').count());
@@ -97,7 +100,7 @@ async function waitServer(url) {
       assert.equal(await page.locator("#uni-year").inputValue(), "2026");
       await page.screenshot({ path: path.join(screenshots, `${mode}-uni-${width}.png`) });
       assert.match(await page.locator('#uni-out .combo-code').first().getAttribute("title"), /Toán|Ngữ văn/);
-      for (const code of ["BKA", "NTH", "YHB", "DVL", "BVS"]) {
+      for (const code of ["BKA", "QHI", "SPH", "IUH", "BVS"]) {
         if (code !== "BKA") {
           await page.locator("#uni-q").fill(code);
           await page.locator("#uni-ac li").first().waitFor({ state: "visible" });
@@ -124,10 +127,17 @@ async function waitServer(url) {
         }
         const tuition = page.locator("#uni-out .dean-block + .tuition-card");
         assert.equal(await tuition.count(), 1, `${code} tuition card right under the plan`);
-        assert.match(await tuition.innerText(), /triệu đồng\/năm|Chưa có thông tin học phí/);
+        const tuitionText = await tuition.innerText();
+        assert.match(tuitionText, /triệu đồng\/năm|Miễn học phí|Chưa có thông tin học phí/);
+        if (!/Chưa có thông tin học phí/.test(tuitionText)) {
+          assert.match(await tuition.locator(".src-tag").innerText(), /^(Chính thức|Báo chí|Tổng hợp)$/, `${code} source label`);
+          assert.match(tuitionText, /Năm học 20\d\d–20\d\d/);
+        }
         await plan.scrollIntoViewIfNeeded();
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
         await page.screenshot({ path: path.join(screenshots, `${mode}-dean-${code}-${width}.png`) });
+        await tuition.scrollIntoViewIfNeeded();
+        await page.screenshot({ path: path.join(screenshots, `${mode}-tuition-${code}-${width}.png`) });
       }
 
       await page.locator('[data-tab="major"]').click();

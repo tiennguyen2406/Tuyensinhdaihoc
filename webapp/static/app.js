@@ -124,9 +124,11 @@ function tuitionHtml(t) {
   const one = t.max_mil == null || t.max_mil === t.min_mil;
   let host = "";
   try { host = new URL(t.source_url).hostname.replace(/^www\./, ""); } catch {}
-  return `<section class="card tuition-card"><div class="head"><h2>Học phí</h2><span class="muted small">Năm học ${t.year}–${t.year + 1}</span></div>
-    <p class="tuition-range">${t.min_mil === 0 && t.max_mil === 0 ? "Miễn học phí" : `${t.max_mil == null ? "Từ " : ""}${one ? fmt(t.min_mil) : `${fmt(t.min_mil)}–${fmt(t.max_mil)}`} <span>triệu đồng/năm</span>`}</p>
-    ${t.text ? `<p>${esc(t.text)}</p>` : ""}${t.unit_note ? `<p class="muted small">${esc(t.unit_note)}</p>` : ""}
+  const free = t.min_mil === 0 && t.max_mil === 0;
+  const label = { official: "Chính thức", press: "Báo chí", aggregator: "Tổng hợp" }[t.source_type];
+  return `<section class="card tuition-card"><div class="head"><h2>Học phí</h2><span class="tuition-meta">${label ? `<span class="src-tag src-${esc(t.source_type)}">${label}</span>` : ""}<span class="muted small">Năm học ${t.year}–${t.year + 1}</span></span></div>
+    <p class="tuition-range">${free ? "Miễn học phí" : `${t.max_mil == null ? "Từ " : ""}${one ? fmt(t.min_mil) : `${fmt(t.min_mil)}–${fmt(t.max_mil)}`} <span>triệu đồng/năm</span>`}</p>
+    ${free ? `<p class="muted small">Theo quy định chung đối với học viên hệ quân sự/công an.</p>` : `${t.text ? `<p>${esc(t.text)}</p>` : ""}${t.unit_note ? `<p class="muted small">${esc(t.unit_note)}</p>` : ""}`}
     <p class="muted small">Nguồn: <a href="${esc(t.source_url)}" target="_blank" rel="noopener noreferrer">${esc(SOURCE_TYPES[t.source_type] || "Nguồn")}${host ? ` (${esc(host)})` : ""}</a></p></section>`;
 }
 const fail = (out, e) => (out.innerHTML = `<div class="card empty">Lỗi: ${esc(e.message)}</div>`);
@@ -135,13 +137,13 @@ let META = null;
 let UNIVERSITIES = [];
 
 const uniNameKey = (u) => unaccent(u.name).replace(/^(truong\s+)?dai hoc\s+|^hoc vien\s+|^phan hieu\s+/, "");
-// hang VNUR truc tiep -> hang ke thua dai hoc me -> chua xep hang (theo ten)
-const rankGroup = (u) => (u.vnur_rank == null ? 2 : u.vnur_parent ? 1 : 0);
+// hang VNUR tang dan; truong ke thua dung o hang cua dai hoc me (cung hang: truc tiep truoc); chua xep hang cuoi, theo ten
 function renderUniGrid() {
   const words = unaccent($("#uni-q").value).split(" "), province = $("#uni-province").value;
   const items = UNIVERSITIES.filter((u) => words.every((w) => u._k.includes(w)) && (!province || u.province === province));
-  items.sort((a, b) => rankGroup(a) - rankGroup(b) || (a.vnur_rank ?? 0) - (b.vnur_rank ?? 0) || uniNameKey(a).localeCompare(uniNameKey(b), "vi") || a.uni_code.localeCompare(b.uni_code));
-  $("#uni-count").textContent = `${items.length} trường · Xếp theo hạng VNUR 2026 (hạng trực tiếp trước, hạng kế thừa đại học mẹ sau), rồi các trường chưa xếp hạng theo tên. Thống kê theo năm mới nhất của từng trường.`;
+  items.sort((a, b) => (a.vnur_rank ?? Infinity) - (b.vnur_rank ?? Infinity) || Number(!!a.vnur_parent) - Number(!!b.vnur_parent)
+    || (a.vnur_parent || "").localeCompare(b.vnur_parent || "", "vi") || uniNameKey(a).localeCompare(uniNameKey(b), "vi") || a.uni_code.localeCompare(b.uni_code));
+  $("#uni-count").textContent = `${items.length} trường · Xếp theo hạng VNUR 2026 tăng dần; trường thành viên đứng ở hạng của đại học mẹ (cùng hạng: hạng trực tiếp trước), rồi các trường chưa xếp hạng theo tên. Thống kê theo năm mới nhất của từng trường.`;
   $("#uni-grid").innerHTML = items.length ? items.map((u) => `<button type="button" class="uni-card" data-uni="${esc(u.uni_code)}" data-year="${u.latest_year}">
     <span class="uni-code-badge">${esc(u.uni_code)}</span><span class="uni-card-name">${esc(u.name)}</span>
     <span class="sub">${u.n_programs} mã xét tuyển · ${u.n_methods} phương thức · ${u.latest_year}</span>
