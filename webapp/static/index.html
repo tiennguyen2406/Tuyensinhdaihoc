@@ -35,6 +35,13 @@
       </div>
       <select id="uni-year" aria-label="Năm"></select>
     </form>
+    <div class="bar catalog-filters" aria-label="Lọc danh sách trường">
+      <select id="uni-letter" aria-label="Chữ cái đầu"><option value="">Mọi chữ cái</option></select>
+      <select id="uni-province" aria-label="Tỉnh thành"><option value="">Mọi tỉnh/thành</option></select>
+      <select id="uni-sort" aria-label="Sắp xếp trường"><option value="name">Tên A–Z</option><option value="rank">Xếp hạng VNUR</option></select>
+    </div>
+    <p id="uni-count" class="muted small" aria-live="polite"></p>
+    <div id="uni-grid" class="uni-grid"></div>
     <div id="uni-out"></div>
   </section>
 
@@ -57,9 +64,13 @@
     <h1>Tư vấn chọn ngành theo điểm</h1>
     <form class="bar" id="advice-form">
       <select id="adv-method" aria-label="Phương thức"></select>
-      <select id="adv-combo" aria-label="Tổ hợp"><option value="">Mọi tổ hợp</option></select>
+      <div class="combo-picker">
+        <input id="adv-combo-search" type="search" placeholder="Lọc mã tổ hợp hoặc tên môn…" aria-label="Tìm tổ hợp theo mã hoặc môn">
+        <select id="adv-combo" aria-label="Tổ hợp"><option value="">Mọi tổ hợp</option></select>
+      </div>
       <input id="adv-score" type="number" step="0.01" min="0" placeholder="Điểm của bạn" aria-label="Điểm" required>
       <select id="adv-year" aria-label="Năm tham chiếu"></select>
+      <select id="adv-sort" aria-label="Sắp xếp tư vấn"><option value="rank">Theo xếp hạng trường</option><option value="score">Theo điểm</option></select>
       <button type="submit" class="primary">Gợi ý</button>
     </form>
     <p class="muted small">Hiện các ngành có điểm chuẩn ≤ điểm của bạn + 1. <b>Thử sức</b>: cao hơn điểm bạn tối đa 1 điểm · <b>Vừa sức</b>: thấp hơn dưới 1 điểm · <b>An toàn</b>: thấp hơn từ 1 điểm. Mốc 1 điểm tính trên thang 30 và quy đổi theo thang của phương thức (VD ĐGNL HCM thang 1200: 40 điểm).</p>
@@ -82,7 +93,7 @@
     <div id="coverage-out"></div>
   </section>
 </main>
-<footer class="wrap muted small">Dữ liệu tổng hợp từ <a href="https://diemthi.tuyensinh247.com" target="_blank" rel="noopener">diemthi.tuyensinh247.com (tuyensinh247)</a> cho mục đích học tập phi thương mại (đồ án môn SNA). <a href="#coverage" onclick="showTab('coverage')">Độ phủ dữ liệu và ngày thu thập</a>. Luôn đối chiếu với thông báo chính thức của trường.</footer>
+<footer class="wrap muted small">Dữ liệu tổng hợp từ <a href="https://diemthi.tuyensinh247.com" target="_blank" rel="noopener">diemthi.tuyensinh247.com (tuyensinh247)</a>; xếp hạng trường theo <a href="https://vnur.vn/bang-xep-hang/" target="_blank" rel="noopener">VNUR 2026</a>, đơn vị thành viên kế thừa hạng đại học mẹ và được ghi chú. Dùng cho mục đích học tập phi thương mại (đồ án môn SNA). <a href="#coverage" onclick="showTab('coverage')">Độ phủ dữ liệu và ngày thu thập</a>. Luôn đối chiếu với thông báo chính thức của trường.</footer>
 <script src="static/vendor/vis-network.min.js"></script>
 <script src="static/app.js"></script>
 </body>

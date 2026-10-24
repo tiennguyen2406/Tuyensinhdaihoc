@@ -33,7 +33,8 @@ const Data = {
   filterAdvice(d, q) {
     const year = Number(q.get("year")), method = q.get("method"), score = Number(q.get("score")), combo = q.get("combo") || "";
     const margin = q.has("margin") ? Number(q.get("margin")) : (d.scale == null ? null : d.scale / 30);
-    const out = { year, method, combo, score, scale: d.scale, margin, counts: {}, total: 0, rows: [] };
+    const sort = q.get("sort") || "rank";
+    const out = { year, method, combo, score, sort, scale: d.scale, margin, counts: {}, total: 0, rows: [] };
     if (d.scale == null) return out;
     const levels = ["Thử sức", "Vừa sức", "An toàn"], groups = levels.map(() => []), unit = d.scale / 30;
     for (const values of d.rows) {
@@ -43,6 +44,9 @@ const Data = {
       const delta = r.score - score, level = delta > 0 ? 0 : delta > -unit ? 1 : 2;
       r.level = levels[level]; groups[level].push(r);
     }
+    if (sort === "rank") groups.forEach((g) => g.sort((a, b) =>
+      Number(a.vnur_rank == null) - Number(b.vnur_rank == null) || (a.vnur_rank ?? 0) - (b.vnur_rank ?? 0) || b.score - a.score
+    ));
     const take = [0, 0, 0];
     let left = q.has("limit") ? Number(q.get("limit")) : 300;
     while (left > 0 && groups.some((g, i) => take[i] < g.length)) {
@@ -99,9 +103,39 @@ const uniCell = (r) => `<span title="${esc(r.uni_name)}">${esc(shortUni(r.uni_na
 const shortUni = (n) => String(n || "").replace(/^(Trường\s+)?(Đại\s+Học|Đại\s+học)\s+/i, "ĐH ").replace(/^Học\s+Viện\s+/i, "HV ");
 const tag = (t) => (PT[t] ? `<span class="tag">${PT[t]}</span>` : "");
 const combos = (s) => (s || "").replaceAll(";", ", ");
+const comboHtml = (s) => !s ? "" : `<span class="combo-values">` + s.split(";").filter(Boolean).map((c) => `<span class="combo-code" title="${esc(META?.combo_subjects[c] || "Chưa có tên môn từ nguồn")}">${esc(c)}</span>`).join(", ") + "</span>";
+const rankHtml = (u) => u.vnur_rank == null ? `<span class="sub">Chưa có hạng</span>` : `<span class="rank-value"><span class="rank-badge">Top ${u.vnur_rank} VNUR</span>${u.vnur_parent ? `<span class="sub rank-parent">thuộc ${esc(u.vnur_parent)} (hạng ${u.vnur_rank})</span>` : ""}</span>`;
 const fail = (out, e) => (out.innerHTML = `<div class="card empty">Lỗi: ${esc(e.message)}</div>`);
 const TABS = ["uni", "major", "advice", "network", "coverage"];
 let META = null;
+let UNIVERSITIES = [];
+
+const uniNameKey = (u) => unaccent(u.name).replace(/^(truong\s+)?dai hoc\s+|^hoc vien\s+|^phan hieu\s+/, "");
+function renderUniGrid() {
+  const words = unaccent($("#uni-q").value).split(" "), letter = $("#uni-letter").value, province = $("#uni-province").value;
+  const items = UNIVERSITIES.filter((u) => words.every((w) => u._k.includes(w)) && (!letter || uniNameKey(u).startsWith(letter)) && (!province || u.province === province));
+  items.sort((a, b) => ($("#uni-sort").value === "rank" ? (a.vnur_rank ?? Infinity) - (b.vnur_rank ?? Infinity) : 0) || uniNameKey(a).localeCompare(uniNameKey(b), "vi") || a.uni_code.localeCompare(b.uni_code));
+  $("#uni-count").textContent = `${items.length} trường · Thống kê theo năm mới nhất của từng trường. Bộ lọc chữ cái bỏ tiền tố Trường Đại học / Đại học / Học viện.`;
+  $("#uni-grid").innerHTML = items.length ? items.map((u) => `<button type="button" class="uni-card" data-uni="${esc(u.uni_code)}" data-year="${u.latest_year}">
+    <span class="uni-code-badge">${esc(u.uni_code)}</span><span class="uni-card-name">${esc(u.name)}</span>
+    <span class="sub">${u.n_programs} mã xét tuyển · ${u.n_methods} phương thức · ${u.latest_year}</span>
+    ${u.first_year > 2024 ? `<span class="sub">mới có ${u.first_year}</span>` : ""}
+    <span class="sub">${esc(u.province)}</span>${u.vnur_rank != null ? rankHtml(u) : ""}</button>`).join("") : `<p class="muted">Không tìm thấy trường phù hợp.</p>`;
+}
+$("#uni-q").addEventListener("input", renderUniGrid);
+["#uni-letter", "#uni-province", "#uni-sort"].forEach((s) => $(s).addEventListener("change", renderUniGrid));
+$("#uni-grid").addEventListener("click", (e) => {
+  const card = e.target.closest("[data-uni]");
+  if (card) { curUni = card.dataset.uni; $("#uni-year").value = card.dataset.year; loadUni(); }
+});
+
+function filterCombos() {
+  const words = unaccent($("#adv-combo-search").value).split(" "), chosen = $("#adv-combo").value;
+  const items = META.combos.filter((c) => words.every((w) => unaccent(`${c} ${META.combo_subjects[c] || ""}`).includes(w)));
+  $("#adv-combo").innerHTML = `<option value="">Mọi tổ hợp</option>` + items.map((c) => `<option value="${esc(c)}">${esc(c)}${META.combo_subjects[c] ? ` (${esc(META.combo_subjects[c])})` : ""}</option>`).join("");
+  $("#adv-combo").value = items.includes(chosen) ? chosen : "";
+}
+$("#adv-combo-search").addEventListener("input", () => META && filterCombos());
 
 /* ---------- xuat CSV (dung tu du lieu, khong doc lai HTML) ---------- */
 const EXPORTS = {};
@@ -175,6 +209,7 @@ async function loadUni() {
   try { d = await api(`api/universities/${encodeURIComponent(curUni)}/scores?year=${$("#uni-year").value}`); } catch (e) { return fail(out, e); }
   location.hash = `uni/${curUni}/${d.year}`;
   $("#uni-q").value = d.university.name;
+  renderUniGrid();
   if (!d.rows.length) {
     out.innerHTML = `<div class="card empty">${esc(d.university.name)} chưa có dữ liệu năm ${d.year}. Năm có dữ liệu: ${d.years.join(", ") || "—"}</div>`;
     return;
@@ -185,7 +220,7 @@ async function loadUni() {
   const body = d.rows.map((r) => `<tr>
       <td class="code" data-label="Mã">${esc(r.program_code)}</td>
       <td class="prog main">${esc(r.program_name)}${tag(r.program_type)}${r.notes.length ? `<div class="sub">${esc(r.notes.join(" · "))}</div>` : ""}</td>
-      <td class="combo" data-label="Tổ hợp">${esc(combos(r.combos))}</td>
+      <td class="combo" data-label="Tổ hợp">${comboHtml(r.combos)}</td>
       ${cols.map((m) => `<td class="num" data-label="${esc(m.method_name)}">${cell(r.scores[m.method])}${more(r, m.method).map((c) => `<span class="eq">${fmt(c.score)}</span>`).join("")}</td>`).join("")}
     </tr>`).join("");
   const t = d.tuition;
@@ -201,6 +236,7 @@ async function loadUni() {
     <div class="tbl-wrap"><table class="stack">
       <thead><tr><th>Mã</th><th>Ngành / chương trình</th><th>Tổ hợp</th>${cols.map((m) => `<th class="num">${esc(m.method_name)}</th>`).join("")}</tr></thead>
       <tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div></div>`;
+  out.scrollIntoView({ block: "start" });
 }
 
 /* ---------- 1b. theo nganh (hoac ten chuong trinh goc chua map) ---------- */
@@ -243,7 +279,7 @@ async function loadMajor() {
     <div class="tbl-wrap"><table class="stack"><thead><tr><th>Trường</th><th>Chương trình</th><th>Phương thức</th><th>Tổ hợp</th><th class="num">Điểm chuẩn</th></tr></thead>
     <tbody>${d.rows.map((r) => `<tr><td class="main">${uniCell(r)}</td>
       <td data-label="Chương trình">${esc(r.program_name)}${tag(r.program_type)}</td><td class="sub" data-label="Phương thức">${esc(r.method_name)}</td>
-      <td class="sub" data-label="Tổ hợp">${esc(combos(r.combos))}</td>
+      <td class="sub" data-label="Tổ hợp">${comboHtml(r.combos)}</td>
       <td class="num" data-label="Điểm chuẩn">${fmt(r.score)}<span class="sub"> /${r.scale_max ?? "?"}</span></td></tr>`).join("")}</tbody></table></div></div>`;
 }
 
@@ -257,7 +293,7 @@ $("#advice-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const out = $("#advice-out");
   out.innerHTML = `<div class="empty">Đang tải…</div>`;
-  const q = new URLSearchParams({ method: $("#adv-method").value, score: $("#adv-score").value, combo: $("#adv-combo").value, year: $("#adv-year").value });
+  const q = new URLSearchParams({ method: $("#adv-method").value, score: $("#adv-score").value, combo: $("#adv-combo").value, year: $("#adv-year").value, sort: $("#adv-sort").value });
   let d;
   try { d = await api("api/advice?" + q); } catch (err) { return fail(out, err); }
   if (!d.rows.length) { out.innerHTML = `<div class="card empty">Không có ngành phù hợp.</div>`; return; }
@@ -266,14 +302,14 @@ $("#advice-form").addEventListener("submit", async (e) => {
   const shown = (l) => d.rows.filter((r) => r.level === l).length;
   const cnt = (l) => (shown(l) < d.counts[l] ? `${shown(l)}/${d.counts[l]}` : `${d.counts[l]}`);
   setExport("advice", `tu-van-${slug(d.method)}-${d.score}${d.combo ? "-" + d.combo : ""}-${d.year}.csv`,
-    ["Mức", "Mã trường", "Trường", "Mã chương trình", "Ngành / chương trình", "Mã ngành", "Tổ hợp", "Thang", ...yrs.map((y) => `Điểm ${y}`)],
-    d.rows.map((r) => [r.level, r.uni_code, r.uni_name, r.program_code, r.program_name, r.major_code, combos(r.combos), r.scale_max, ...yrs.map((y) => r.history[y])]));
+    ["Mức", "Mã trường", "Trường", "Hạng VNUR", "Đại học mẹ", "Mã chương trình", "Ngành / chương trình", "Mã ngành", "Tổ hợp", "Thang", ...yrs.map((y) => `Điểm ${y}`)],
+    d.rows.map((r) => [r.level, r.uni_code, r.uni_name, r.vnur_rank, r.vnur_parent, r.program_code, r.program_name, r.major_code, combos(r.combos), r.scale_max, ...yrs.map((y) => r.history[y])]));
   out.innerHTML = `<div class="card"><div class="head"><h2>${d.total} lựa chọn với ${fmt(d.score)} điểm${d.scale !== 30 ? ` <span class="sub">(thang ${fmt(d.scale)})</span>` : ""}</h2>
-    <span class="muted small">Thử sức ${cnt("Thử sức")} · Vừa sức ${cnt("Vừa sức")} · An toàn ${cnt("An toàn")} · tham chiếu năm ${d.year}${d.rows.length < d.total ? ` · hiện ${d.rows.length} dòng sát điểm nhất` : ""} ${csvBtn("advice")}</span></div>
-    <div class="tbl-wrap"><table class="stack"><thead><tr><th>Mức</th><th>Trường</th><th>Ngành / chương trình</th><th>Tổ hợp</th>${yrs.map((y) => `<th class="num">${y}</th>`).join("")}</tr></thead>
+    <span class="muted small">Thử sức ${cnt("Thử sức")} · Vừa sức ${cnt("Vừa sức")} · An toàn ${cnt("An toàn")} · tham chiếu năm ${d.year} · theo ${d.sort === "rank" ? "xếp hạng trường" : "điểm"}${d.rows.length < d.total ? ` · hiện ${d.rows.length} dòng` : ""} ${csvBtn("advice")}</span></div>
+    <div class="tbl-wrap"><table class="stack"><thead><tr><th>Mức</th><th>Trường</th><th>Hạng VNUR</th><th>Ngành / chương trình</th><th>Tổ hợp</th>${yrs.map((y) => `<th class="num">${y}</th>`).join("")}</tr></thead>
     <tbody>${d.rows.map((r) => `<tr><td data-label="Mức"><span class="lvl ${cls[r.level]}">${r.level}</span></td>
-      <td data-label="Trường">${uniCell(r)}</td><td class="main">${esc(r.program_name)}${tag(r.program_type)}</td>
-      <td class="sub" data-label="Tổ hợp">${esc(combos(r.combos))}</td>
+      <td data-label="Trường">${uniCell(r)}</td><td data-label="Hạng VNUR">${rankHtml(r)}</td><td class="main">${esc(r.program_name)}${tag(r.program_type)}</td>
+      <td class="sub" data-label="Tổ hợp">${comboHtml(r.combos)}</td>
       ${yrs.map((y) => `<td class="num" data-label="${y}">${y == d.year ? `<b>${fmt(r.history[y])}</b>` : fmt(r.history[y])}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
 });
 
@@ -329,6 +365,7 @@ async function loadCoverage() {
     const d = await api("api/coverage");
     out.innerHTML = `<div class="card"><p>Nguồn: <a href="${esc(d.source_url)}" target="_blank" rel="noopener">tuyensinh247</a> · Thu thập: ${esc(d.collected_from?.slice(0, 10))} đến ${esc(d.collected_to?.slice(0, 10))}.</p>
       <p>${d.universities.length} trường có điểm · ${d.missing.length} trường trong danh mục nguồn chưa có điểm trong các năm ${d.years.join(", ")}. Ô số là số dòng điểm, dấu — là chưa có dữ liệu; không có nghĩa trường không tuyển sinh.</p>
+      <p>Xếp hạng: <a href="${esc(META.ranking_source.url)}" target="_blank" rel="noopener">VNUR 2026</a> · ${META.stats.ranked_unis} trường có hạng, gồm ${META.stats.inherited_unis} đơn vị kế thừa hạng đại học mẹ. Hạng 2026 dùng tham khảo cho mọi năm, không phải hạng riêng của trường thành viên. Tỉnh/thành chỉ lấy từ mục VNUR khớp trực tiếp; chưa biết ghi “Khác”.</p>
       <div class="tbl-wrap"><table><thead><tr><th>Trường</th>${d.years.map((y) => `<th class="num">${y}</th>`).join("")}</tr></thead><tbody>
       ${d.universities.map((u) => `<tr><td><a href="#uni/${esc(u.uni_code)}/${d.years[0]}" data-uni="${esc(u.uni_code)}">${esc(u.uni_code)} · ${esc(u.name)}</a></td>${d.years.map((y) => `<td class="num">${u.counts[y] ? fmt(u.counts[y]) : "—"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
       <h2>${d.missing.length} trường nguồn chưa có điểm</h2><ul>${d.missing.map((u) => `<li>${esc(u.uni_code)} · ${esc(u.name)}</li>`).join("")}</ul></div>`;
@@ -351,7 +388,11 @@ $("#coverage-out").addEventListener("click", (e) => {
   $("#major-method").insertAdjacentHTML("beforeend", mOpts);
   $("#adv-method").innerHTML = mOpts;
   $("#major-method").value = "THPT";
-  $("#adv-combo").insertAdjacentHTML("beforeend", META.combos.map((c) => `<option>${c}</option>`).join(""));
+  filterCombos();
+  UNIVERSITIES = (await Data.searchIndex()).unis;
+  $("#uni-letter").insertAdjacentHTML("beforeend", [...new Set(UNIVERSITIES.map((u) => uniNameKey(u)[0]))].sort().map((c) => `<option value="${esc(c)}">${esc(c.toUpperCase())}</option>`).join(""));
+  $("#uni-province").insertAdjacentHTML("beforeend", [...new Set(UNIVERSITIES.map((u) => u.province))].sort((a, b) => a.localeCompare(b, "vi")).map((p) => `<option>${esc(p)}</option>`).join(""));
+  renderUniGrid();
   const st = META.stats;
   $("#stats").textContent = `${st.rows.toLocaleString("vi-VN")} điểm chuẩn · ${st.unis} trường · ${st.majors} ngành · năm ${META.years.slice().reverse().join(", ")}`;
   const [tab, code, year] = location.hash.slice(1).split("/");

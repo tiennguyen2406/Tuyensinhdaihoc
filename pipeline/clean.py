@@ -1,11 +1,13 @@
 """EduRadar V2 - lam sach & chuan hoa du lieu diem chuan.
 
 Dau vao : data/raw/cutoff/<nam>/<MA>.json   (tu crawler.fetch)
-Dau ra  : data/clean/admissions.csv, universities.csv, majors.csv, admission_combos.csv
+Dau ra  : data/clean/admissions.csv, universities.csv, majors.csv, admission_combos.csv, combos.csv
           data/eduradar.db (SQLite), data/clean/quality_report.md
           data/interim/major_unmatched.csv (ten nganh chua map duoc -> duyet tay)
 Sua tay : data/manual/major_map.csv (cot: name_key,major_code) - duoc uu tien hon tu dong.
           major_code trong = chua quyet (bo qua); "-" = bo map tu dong (de lai chua map).
+          data/manual/vnur_2026.csv + vnur_map.csv (vnur_name,uni_code,ghi_chu).
+          ghi_chu bat dau "thuoc" (co dau tieng Viet) danh dau don vi ke thua hang dai hoc me.
 
 Chay: python -m pipeline.clean
 """
@@ -107,7 +109,60 @@ def infer_scale(score: float, default) -> int | None:
 
 def split_combos(block) -> list[str]:
     parts = re.split(r"[;,/\s]+", nfc(block).upper())
-    return sorted({p for p in parts if re.fullmatch(r"[A-Z]\d{2}", p)})
+    return sorted({p for p in parts if re.fullmatch(r"[A-Z]\d[A-Z0-9]|[A-Z]{2}\d{1,2}", p)})
+
+
+def block_rows(blocks: list[dict]) -> list[tuple[str, str]]:
+    out = {}
+    for block in blocks:
+        for code in re.split(r"[,;]", nfc(block.get("code")).upper()):
+            code = code.strip()
+            if re.fullmatch(r"[A-Z][A-Z0-9]{1,3}", code):
+                subjects = nfc(block.get("name"))
+                out.setdefault(code, [])
+                if subjects not in out[code]:
+                    out[code].append(subjects)
+    # The source reuses some aliases (e.g. TH3) for different subject sets; show both.
+    return sorted(
+        (code, " / ".join(names) + (" (nguồn có nhiều định nghĩa)" if len(names) > 1 else ""))
+        for code, names in out.items()
+    )
+
+
+def add_rankings(unis: pd.DataFrame) -> pd.DataFrame:
+    ranks = pd.read_csv(MANUAL / "vnur_2026.csv", dtype=str).fillna("")
+    maps = pd.read_csv(MANUAL / "vnur_map.csv", dtype=str).fillna("")
+    ranks = ranks.set_index("vnur_name")
+    data = []
+    seen = set()
+    for r in maps.to_dict("records"):
+        code = r["uni_code"]
+        if not code:
+            continue
+        if code not in set(unis["uni_code"]):
+            raise ValueError(f"Ma VNUR khong co trong danh muc: {code}")
+        if code in seen:
+            raise ValueError(f"Truong bi gan hai hang VNUR: {code}")
+        seen.add(code)
+        source = ranks.loc[r["vnur_name"]]
+        inherited = r["ghi_chu"].startswith("thuộc ")
+        data.append(
+            {
+                "uni_code": code,
+                "vnur_rank": int(source["rank_2026"]),
+                "vnur_name": r["vnur_name"],
+                "vnur_note": r["ghi_chu"],
+                "vnur_parent": r["ghi_chu"].removeprefix("thuộc ") if inherited else "",
+                "vnur_url": source["vnur_url"],
+                "province": "Khác" if inherited else source["tinh"],
+            }
+        )
+    merged = unis.merge(pd.DataFrame(data), on="uni_code", how="left")
+    merged["vnur_rank"] = merged["vnur_rank"].astype("Int64")
+    for column in ("vnur_name", "vnur_note", "vnur_parent", "vnur_url"):
+        merged[column] = merged[column].fillna("")
+    merged["province"] = merged["province"].fillna("Khác")
+    return merged
 
 
 # ---------------------------------------------------------------- load
@@ -356,6 +411,7 @@ def main() -> None:
     )
     unis = unis[["uni_code", "name", "short_name", "alias", "source_id", "level"]]
     unis = unis[unis["uni_code"].isin(adm["uni_code"])]
+    unis = add_rankings(unis)
     unis.to_csv(CLEAN / "universities.csv", index=False, encoding="utf-8-sig")
 
     used = adm["major_code"].dropna().unique()
@@ -373,6 +429,15 @@ def main() -> None:
         majors.to_sql("majors", con, index=False)
         adm.to_sql("admissions", con, index=False)
         combos.to_sql("admission_combos", con, index=False)
+        blocks_file = ROOT / "data/raw/blocks.json"
+        blocks = json.loads(blocks_file.read_text(encoding="utf-8"))
+        block_table = pd.DataFrame(block_rows(blocks["data"]), columns=["combo", "subjects"])
+        block_table.to_sql("combos", con, index=False)
+        block_table.to_csv(CLEAN / "combos.csv", index=False, encoding="utf-8-sig")
+        steps.append(("To hop kem mon", len(block_table), ""))
+        steps.append(
+            ("Truong co hang VNUR (ke ca ke thua)", int(unis["vnur_rank"].notna().sum()), "")
+        )
         tfile = MANUAL / "tuition.csv"
         if tfile.exists():
             tu = pd.read_csv(tfile, dtype={"uni_code": str})

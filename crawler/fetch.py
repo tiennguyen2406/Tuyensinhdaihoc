@@ -5,9 +5,11 @@ Chi dung thu vien chuan Python (khong can pip install).
 Cach chay (PowerShell, tai thu muc DiemThiDaiHoc):
     .venv\\Scripts\\python.exe -m crawler.fetch --limit 5      # thu 5 truong
     .venv\\Scripts\\python.exe -m crawler.fetch                # tat ca truong dai hoc, 2024-2026
+    .venv\\Scripts\\python.exe -m crawler.fetch --blocks-only  # chi danh muc to hop
 
 Ket qua:
     data/raw/schools.json                    danh sach truong
+    data/raw/blocks.json                     ma to hop + ten mon tu API
     data/raw/cutoff/<nam>/<MA>.json          JSON goc cua tung truong/nam
     data/raw/fetch_log.csv                   nhat ky (thoi gian, truong, nam, so dong, loi)
 
@@ -25,6 +27,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import urllib.robotparser
 from datetime import datetime
 from pathlib import Path
 
@@ -39,16 +42,43 @@ HEADERS = {
     "Accept": "application/json",
     "Accept-Language": "vi-VN,vi;q=0.9",
 }
+DELAY = 1.5
+_last_request = 0.0
+_robots = None
+
+
+def read_url(url: str) -> bytes:
+    global _last_request
+    time.sleep(max(0, DELAY - (time.monotonic() - _last_request)))
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=HEADERS), timeout=30) as r:
+            return r.read()
+    finally:
+        _last_request = time.monotonic()
+
+
+def check_robots(url: str):
+    global _robots
+    if _robots is None:
+        _robots = urllib.robotparser.RobotFileParser(BASE + "/robots.txt")
+        try:
+            _robots.parse(read_url(BASE + "/robots.txt").decode("utf-8").splitlines())
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                _robots.parse([])
+            else:
+                raise
+    if not _robots.can_fetch(HEADERS["User-Agent"], url):
+        raise RuntimeError(f"robots.txt khong cho phep: {url}")
 
 
 def get_json(path: str, params: dict | None = None, retries: int = 3) -> dict:
     url = BASE + path + ("?" + urllib.parse.urlencode(params) if params else "")
+    check_robots(url)
     last: Exception | None = None
     for attempt in range(1, retries + 1):
         try:
-            req = urllib.request.Request(url, headers=HEADERS)
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                return json.loads(resp.read().decode("utf-8"))
+            return json.loads(read_url(url).decode("utf-8"))
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             last = exc
             wait = 5 * attempt
@@ -69,7 +99,18 @@ def load_schools(force: bool) -> list[dict]:
     return schools
 
 
+def load_blocks(force: bool = False):
+    path = RAW / "blocks.json"
+    if path.exists() and not force:
+        return
+    data = get_json("/api/common/blocks")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"Da luu to hop -> {path.relative_to(ROOT)}")
+
+
 def main() -> int:
+    global DELAY
     ap = argparse.ArgumentParser(description="Tai diem chuan tuyensinh247 (API JSON)")
     ap.add_argument("--years", type=int, nargs="+", default=[2024, 2025, 2026])
     ap.add_argument("--limit", type=int, default=0, help="chi lay N truong dau (de thu)")
@@ -77,7 +118,12 @@ def main() -> int:
     ap.add_argument("--include-colleges", action="store_true", help="lay ca cao dang")
     ap.add_argument("--delay", type=float, default=1.5, help="giay nghi giua 2 request")
     ap.add_argument("--force", action="store_true", help="tai lai ca file da co")
+    ap.add_argument("--blocks-only", action="store_true", help="chi tai danh muc to hop")
     args = ap.parse_args()
+    DELAY = max(1.5, args.delay)
+    load_blocks(args.force)
+    if args.blocks_only:
+        return 0
 
     schools = load_schools(args.force)
     if not args.include_colleges:

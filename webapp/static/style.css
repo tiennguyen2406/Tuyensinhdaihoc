@@ -39,6 +39,17 @@ footer{padding:24px 16px 40px}
 td.code{white-space:nowrap;color:var(--muted);font-size:12px}td.combo{min-width:150px;color:var(--muted);font-size:12px}
 td.prog{min-width:220px}
 .tag-raw{background:var(--warn-soft);color:var(--warn)}
+.uni-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:24px}
+.uni-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.uni-card:hover,.uni-card:focus-visible{border-color:var(--accent);box-shadow:0 2px 10px var(--accent-soft)}
+.uni-code-badge{padding:5px 10px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
+.uni-card-name{font-weight:600}.rank-badge{display:inline-block;color:var(--good);background:var(--good-soft);border-radius:6px;padding:2px 6px;font-size:12px;white-space:nowrap}
+.rank-parent{display:block;margin-top:4px}.rank-value,.combo-values{min-width:0;overflow-wrap:anywhere}
+.combo-code{cursor:help;text-decoration:underline dotted;text-underline-offset:3px;white-space:nowrap}
+.combo-picker{display:flex;flex:1 1 300px;flex-direction:column;gap:6px;min-width:0}.combo-picker input,.combo-picker select{width:100%;min-width:0}
+#uni-out{scroll-margin-top:120px}
+@media(max-width:1023px){.uni-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.uni-grid{grid-template-columns:1fr}.catalog-filters select{flex-basis:100%}}
 .btn-csv{font:inherit;font-size:12px;font-weight:500;padding:3px 10px;margin-left:6px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--accent);cursor:pointer;white-space:nowrap}
 .btn-csv:hover{border-color:var(--accent);background:var(--accent-soft)}
 /* man hinh hep: moi dong bang thanh 1 the, o "main" len dau, cac o khac dang nhan: gia tri */

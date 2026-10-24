@@ -10,7 +10,7 @@ const { chromium } = require("../apps/web/node_modules/@playwright/test");
 
 const root = path.resolve(__dirname, "..");
 const scratch = path.join(root, "_to_delete", "pages-check");
-const screenshots = path.join(root, "docs", "reports", "pages-20261023");
+const screenshots = path.join(root, "docs", "reports", "catalog-20261024");
 const python = path.join(root, ".venv", "Scripts", "python.exe");
 const children = [];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -56,7 +56,7 @@ async function waitServer(url) {
   try {
     await Promise.all([waitServer(base), waitServer(live + "api/meta")]);
     browser = await chromium.launch({ channel: "msedge", headless: true });
-    for (const width of [375, 1280]) {
+    for (const mode of ["static", "api"]) for (const width of [375, 1280]) {
       const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
       const errors = [], badResponses = [], failedRequests = [], requests = [];
       page.on("pageerror", (e) => errors.push(e.message));
@@ -64,9 +64,24 @@ async function waitServer(url) {
       page.on("response", (r) => { if (r.status() >= 400) badResponses.push(`${r.status()} ${r.url()}`); });
       page.on("requestfailed", (r) => failedRequests.push(`${r.url()} ${r.failure()?.errorText}`));
       page.on("request", (r) => requests.push(r.url()));
-      await page.goto(base);
+      await page.goto(mode === "static" ? base : live);
       await page.waitForFunction(() => document.querySelector("#uni-year").options.length === 3);
-      assert.equal(await page.evaluate(() => Data.static), true);
+      await page.waitForFunction(() => document.querySelectorAll(".uni-card").length === 292);
+      assert.equal(await page.evaluate(() => Data.static), mode === "static");
+      assert.equal(await page.locator("#uni-grid").evaluate((e) => getComputedStyle(e).gridTemplateColumns.split(" ").length), width === 375 ? 1 : 3);
+      await page.screenshot({ path: path.join(screenshots, `${mode}-grid-${width}.png`) });
+      await page.locator("#uni-sort").selectOption("rank");
+      assert.match(await page.locator(".uni-card").first().innerText(), /Top 1 VNUR/);
+      await page.locator("#uni-province").selectOption("Thành phố Hà Nội");
+      await page.locator("#uni-letter").selectOption("b");
+      assert.ok(await page.locator('.uni-card[data-uni="BKA"]').count());
+      await page.locator("#uni-q").fill("BKA");
+      assert.equal(await page.locator(".uni-card").count(), 1);
+      assert.match(await page.locator(".uni-card").innerText(), /mã xét tuyển.*phương thức/);
+      await page.locator('.uni-card[data-uni="BKA"]').click();
+      await page.locator("#uni-out tbody tr").first().waitFor();
+      await page.locator("#uni-letter").selectOption("");
+      await page.locator("#uni-province").selectOption("");
 
       // Exercise autocomplete, year changes, and actual renderers at both sizes.
       await page.locator("#uni-q").fill("BKA");
@@ -75,7 +90,8 @@ async function waitServer(url) {
       await page.locator("#uni-out tbody tr").first().waitFor();
       assert.match(await page.locator("#uni-out").innerText(), /BKA/);
       assert.equal(await page.locator("#uni-year").inputValue(), "2026");
-      await page.screenshot({ path: path.join(screenshots, `uni-${width}.png`) });
+      await page.screenshot({ path: path.join(screenshots, `${mode}-uni-${width}.png`) });
+      assert.match(await page.locator('#uni-out .combo-code').first().getAttribute("title"), /Toán|Ngữ văn/);
 
       await page.locator('[data-tab="major"]').click();
       await page.locator("#major-year").selectOption("2025");
@@ -84,17 +100,29 @@ async function waitServer(url) {
       await page.locator("#major-ac li").first().click();
       await page.locator("#major-out tbody tr").first().waitFor();
       assert.match(await page.locator("#major-out").innerText(), /7480201/);
-      await page.screenshot({ path: path.join(screenshots, `major-${width}.png`) });
+      await page.screenshot({ path: path.join(screenshots, `${mode}-major-${width}.png`) });
 
       await page.locator('[data-tab="advice"]').click();
       await page.locator("#adv-method").selectOption("THPT");
+      await page.locator("#adv-combo-search").fill("tin hoc");
+      assert.equal(await page.locator('#adv-combo option[value="A00"]').count(), 0);
+      assert.ok(await page.locator('#adv-combo option[value="X02"]').count());
+      assert.ok(await page.locator('#adv-combo option[value="TH6"]').count());
+      await page.locator("#adv-combo-search").fill("a00");
+      assert.equal(await page.locator('#adv-combo option[value="A00"]').textContent(), "A00 (Toán, Vật lí, Hóa học)");
       await page.locator("#adv-combo").selectOption("A00");
       await page.locator("#adv-score").fill("24");
       await page.locator("#advice-form button[type=submit]").click();
       await page.locator("#advice-out tbody tr").first().waitFor();
       const levels = await page.locator("#advice-out .lvl").allTextContents();
       assert.deepEqual([...new Set(levels)], ["Thử sức", "Vừa sức", "An toàn"]);
-      await page.screenshot({ path: path.join(screenshots, `advice-${width}.png`) });
+      assert.equal(await page.locator("#adv-sort").inputValue(), "rank");
+      assert.ok(await page.locator('#advice-out [data-label="Hạng VNUR"] .rank-badge').count());
+      assert.match(await page.locator("#advice-out").innerText(), /thuộc ĐHQG HN/);
+      await page.screenshot({ path: path.join(screenshots, `${mode}-advice-${width}.png`) });
+      await page.locator("#adv-sort").selectOption("score");
+      await page.locator("#advice-form button[type=submit]").click();
+      await page.waitForFunction(() => document.querySelector("#advice-out .head")?.textContent.includes("theo điểm"));
 
       await page.locator('[data-tab="network"]').click();
       await page.waitForFunction(() => document.querySelector("#net-name").value === "g2_uni_uni_2026");
@@ -103,7 +131,7 @@ async function waitServer(url) {
       // Freeze the force layout for a deterministic screenshot; convergence is not a UI check.
       await page.evaluate(() => { netObj.stopSimulation(); netObj.fit({ animation: false }); });
       assert.ok(await page.locator("#net-canvas canvas").count());
-      await page.screenshot({ path: path.join(screenshots, `network-${width}.png`) });
+      await page.screenshot({ path: path.join(screenshots, `${mode}-network-${width}.png`) });
 
       await page.locator('[data-tab="coverage"]').click();
       await page.locator("#coverage-out tbody tr").first().waitFor();
@@ -123,6 +151,8 @@ async function waitServer(url) {
         "api/majors/7480201/similar?year=2025", "api/network/g2_uni_uni?year=2026",
         "api/universities?q=bach%20khoa", "api/majors?q=cong%20nghe%20thong%20tin",
         "api/advice?method=THPT&score=24&combo=A00&year=2026",
+        "api/advice?method=THPT&score=24&combo=A00&year=2026&sort=score",
+        "api/advice?method=THPT&score=24&year=2026&sort=rank&limit=1000",
         "api/advice?method=THPT&score=24&year=2025",
         "api/advice?method=THPT&score=24&combo=a00&year=2024&limit=17",
         "api/advice?method=DGNL_HCM&score=900&year=2026",
@@ -146,22 +176,12 @@ async function waitServer(url) {
       assert.deepEqual(errors, [], "Console/page errors");
       assert.deepEqual(badResponses, [], "HTTP errors");
       assert.deepEqual(failedRequests, [], "Failed requests");
-      assert.ok(requests.every((u) => u.startsWith(base)), "All requests stay under the project subpath");
-      assert.ok(requests.every((u) => !u.includes("/api/")), "Static mode makes no API probes");
-      results.push({ width, tabs: 4, coverage: true, parity: cases.length, consoleErrors: 0, httpErrors: 0 });
-      console.log(`PASS ${width}px: four tabs, coverage, ${cases.length} API comparisons, no console/HTTP errors`);
+      assert.ok(requests.every((u) => u.startsWith(mode === "static" ? base : live)), "All requests stay under the project subpath");
+      if (mode === "static") assert.ok(requests.every((u) => !u.includes("/api/")), "Static mode makes no API probes");
+      results.push({ mode, width, tabs: 4, coverage: true, parity: cases.length, consoleErrors: 0, httpErrors: 0 });
+      console.log(`PASS ${mode} ${width}px: four tabs, catalog/subjects/rank, ${cases.length} API comparisons, no console/HTTP errors`);
       await page.close();
     }
-    const local = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-    await local.goto(live + "#uni/BKA/2026");
-    await local.locator("#uni-out tbody tr").first().waitFor();
-    assert.equal(await local.evaluate(() => Data.static), false);
-    await local.locator('[data-tab="advice"]').click();
-    await local.locator("#adv-score").fill("24");
-    await local.locator("#adv-combo").selectOption("A00");
-    await local.locator("#advice-form button").click();
-    await local.locator("#advice-out tbody tr").first().waitFor();
-    console.log("PASS FastAPI mode: BKA and THPT 24 A00");
     fs.writeFileSync(path.join(scratch, "results.json"), JSON.stringify(results, null, 2));
   } finally {
     if (browser) await browser.close();

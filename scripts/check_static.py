@@ -26,7 +26,10 @@ def main_check():
     assert read("data/network/g2_uni_uni_2026.json") == main.network("g2_uni_uni", 2026)
     coverage = read("data/coverage.json")
     assert len(coverage["missing"]) == 15
-    assert sum(sum(u["counts"].values()) for u in coverage["universities"]) == 71009
+    assert (
+        sum(sum(u["counts"].values()) for u in coverage["universities"])
+        == main.meta()["stats"]["rows"]
+    )
     files = [p for p in (ROOT / "site").rglob("*") if p.is_file()]
     largest = max(files, key=lambda p: p.stat().st_size)
     assert largest.stat().st_size < 50_000_000

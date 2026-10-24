@@ -15,6 +15,7 @@ import unicodedata
 from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
@@ -81,7 +82,8 @@ def search_index() -> dict:
     unis = [
         dict(r)
         for r in c.execute(
-            "SELECT u.*, COUNT(a.id) AS n_rows FROM universities u "
+            "SELECT u.*, COUNT(a.id) AS n_rows, MIN(a.year) first_year, MAX(a.year) latest_year "
+            "FROM universities u "
             "JOIN admissions a ON a.uni_code = u.uni_code GROUP BY u.uni_code"
         )
     ]
@@ -101,6 +103,12 @@ def search_index() -> dict:
         )
     ]
     for u in unis:
+        latest = c.execute(
+            "SELECT COUNT(DISTINCT program_code), COUNT(DISTINCT method) FROM admissions "
+            "WHERE uni_code=? AND year=?",
+            (u["uni_code"], u["latest_year"]),
+        ).fetchone()
+        u["n_programs"], u["n_methods"] = latest
         u["_k"] = unaccent(f"{u['name']} {u['short_name'] or ''} {u['uni_code']}")
     for m in majors:
         m["_k"] = unaccent(f"{m['major_name']} {m['major_code']}")
@@ -183,7 +191,21 @@ def meta():
             "COUNT(DISTINCT major_code) majors FROM admissions"
         ).fetchone()
     )
-    return {"years": years, "methods": methods, "combos": combos, "stats": stats}
+    subjects = dict(c.execute("SELECT combo, subjects FROM combos ORDER BY combo"))
+    stats["ranked_unis"] = c.execute(
+        "SELECT COUNT(*) FROM universities WHERE vnur_rank IS NOT NULL"
+    ).fetchone()[0]
+    stats["inherited_unis"] = c.execute(
+        "SELECT COUNT(*) FROM universities WHERE vnur_parent != ''"
+    ).fetchone()[0]
+    return {
+        "years": years,
+        "methods": methods,
+        "combos": sorted(set(combos) | subjects.keys()),
+        "combo_subjects": subjects,
+        "stats": stats,
+        "ranking_source": {"name": "VNUR 2026", "url": "https://vnur.vn/bang-xep-hang/"},
+    }
 
 
 @app.get("/api/universities")
@@ -345,6 +367,7 @@ def advice(
     year: int | None = None,
     margin: float | None = None,
     limit: int = Query(300, le=1000),
+    sort: Literal["rank", "score"] = "rank",
 ):
     """margin/nguong muc tinh theo don vi 1 diem tren thang 30, quy doi sang thang cua phuong thuc
     (VD DGNL HCM thang 1200 -> 1 don vi = 40 diem). Moi muc lay toi da ~limit/3 dong gan diem nhat."""
@@ -358,7 +381,7 @@ def advice(
         "AND scale_max IS NOT NULL GROUP BY scale_max ORDER BY COUNT(*) DESC LIMIT 1",
         (method, year),
     ).fetchone()
-    out = {"year": year, "method": method, "combo": combo, "score": score}
+    out = {"year": year, "method": method, "combo": combo, "score": score, "sort": sort}
     if not sc:
         return out | {"scale": None, "margin": margin, "counts": {}, "total": 0, "rows": []}
     scale = sc[0]
@@ -372,6 +395,9 @@ def advice(
         d = r["score"] - score
         r["level"] = levels[0] if d > 0 else (levels[1] if d > -unit else levels[2])
         groups[r["level"]].append(r)
+    if sort == "rank":
+        for group in groups.values():
+            group.sort(key=lambda r: (r["vnur_rank"] is None, r["vnur_rank"] or 0, -r["score"]))
     # chia deu han muc cho 3 muc (muc nao thieu thi nhuong cho muc khac)
     take = dict.fromkeys(levels, 0)
     left = limit
@@ -380,7 +406,7 @@ def advice(
             if left and take[lv] < len(groups[lv]):
                 take[lv] += 1
                 left -= 1
-    # muc An toan: lay cac dong sat diem nhat (dau danh sach vi da sap giam dan)
+    # Moi muc lay theo thu tu da chon (hang truong hoac diem).
     rows = [r for lv in levels for r in groups[lv][: take[lv]]]
     # xu huong 3 nam cua tung chuong trinh, cung thang diem (+ cung to hop neu co loc)
     hist_sql = (
@@ -414,7 +440,8 @@ def advice_candidates(c, method: str, year: int, ceiling: float, scale: float, c
     return [
         dict(r)
         for r in c.execute(
-            "SELECT a.*, u.name AS uni_name, u.short_name FROM admissions a "
+            "SELECT a.*, u.name AS uni_name, u.short_name, "
+            "u.vnur_rank, u.vnur_parent, u.vnur_name, u.vnur_url FROM admissions a "
             f"JOIN universities u ON u.uni_code = a.uni_code WHERE {where} ORDER BY a.score DESC",
             args,
         )
