@@ -46,18 +46,27 @@ td.prog{min-width:220px}
 .uni-card-name{font-weight:600}.rank-badge{display:inline-block;color:var(--good);background:var(--good-soft);border-radius:6px;padding:2px 6px;font-size:12px;white-space:nowrap}
 .combo-values{min-width:0;overflow-wrap:anywhere}
 .rank-inherited{background:var(--bg);color:var(--muted);border:1px solid var(--line);white-space:normal}
-.dean-block h2{font-size:19px;margin:0 0 8px}.dean-block h3{font-size:15px;margin:14px 0 8px}.dean-block h4{margin:10px 0 6px}
-.dean-methods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dean-method{border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0}
-.dean-method h3{margin:0 0 6px}.dean-method p{margin:0;font-size:14px}.dean-note{padding:10px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:13px}
-.dean-link{display:inline-block;padding:9px 12px;border:1px solid var(--accent);border-radius:8px;margin-top:10px}.dean-block li{margin-bottom:6px}
-@media(max-width:640px){.dean-methods{grid-template-columns:1fr}}
+.dean-block h2{font-size:19px;margin:0 0 8px}.dean-block h3{font-size:16px;margin:18px 0 8px}
+.dean-methods{display:flex;flex-direction:column;gap:10px}.dean-method{border:1px solid var(--line);border-radius:10px;padding:0;min-width:0;background:var(--card)}
+.dean-method>summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style-position:inside}.dean-method[open]>summary{border-bottom:1px solid var(--line);background:var(--bg);border-radius:10px 10px 0 0}
+.dean-method>:not(summary){margin-left:14px;margin-right:14px}.dean-method>:last-child{margin-bottom:12px}.dean-common>summary{color:var(--muted)}
+.fact-group h4{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:12px 0 4px}
+.fact-group ul{margin:0;padding-left:20px}.fact-group li{margin-bottom:4px;font-size:14px;overflow-wrap:anywhere}
+.dean-note{padding:10px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:13px}
+.dean-time{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}.dean-time .fact-group h4{margin-top:0}
+table.timeline{font-size:14px}table.timeline td{padding:4px 8px}table.timeline td.num{text-align:left;width:1%;color:var(--accent);font-weight:600}
+.dean-source{margin:16px 0 0;padding-top:10px;border-top:1px solid var(--line)}
+.tuition-card{border-color:var(--accent);background:linear-gradient(0deg,var(--card),var(--accent-soft))}.tuition-card h2{margin:0;font-size:19px}
+.tuition-range{font-size:28px;font-weight:700;color:var(--accent);margin:4px 0 8px;font-variant-numeric:tabular-nums}.tuition-range span{font-size:15px;font-weight:500;color:var(--ink)}
+.tag-hot{background:var(--bad-soft);color:var(--bad)}
+.why summary{cursor:help;font-variant-numeric:tabular-nums;list-style:none;text-decoration:underline dotted;text-underline-offset:3px}.why summary::-webkit-details-marker{display:none}.why .sub{display:block;white-space:nowrap}
+.more{text-align:center;margin:12px 0 0}
+@media(max-width:640px){.dean-time{grid-template-columns:1fr}.tuition-range{font-size:24px}}
 .combo-code{cursor:help;text-decoration:underline dotted;text-underline-offset:3px;white-space:nowrap}
-.combo-picker{display:flex;flex:1 1 300px;flex-direction:column;gap:6px;min-width:0}.combo-picker input,.combo-picker select{width:100%;min-width:0}
+.combo-select{flex:1 1 300px;min-width:0;max-width:100%}
 #uni-out{scroll-margin-top:120px}
 @media(max-width:1023px){.uni-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.uni-grid{grid-template-columns:1fr}.catalog-filters select{flex-basis:100%}}
-.btn-csv{font:inherit;font-size:12px;font-weight:500;padding:3px 10px;margin-left:6px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--accent);cursor:pointer;white-space:nowrap}
-.btn-csv:hover{border-color:var(--accent);background:var(--accent-soft)}
 /* man hinh hep: moi dong bang thanh 1 the, o "main" len dau, cac o khac dang nhan: gia tri */
 @media (max-width:640px){
   body{font-size:14px}h1{font-size:19px;margin:14px 0 10px}.head h2{font-size:17px}

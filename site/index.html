@@ -36,9 +36,7 @@
       <select id="uni-year" aria-label="Năm"></select>
     </form>
     <div class="bar catalog-filters" aria-label="Lọc danh sách trường">
-      <select id="uni-letter" aria-label="Chữ cái đầu"><option value="">Mọi chữ cái</option></select>
       <select id="uni-province" aria-label="Tỉnh thành"><option value="">Mọi tỉnh/thành</option></select>
-      <select id="uni-sort" aria-label="Sắp xếp trường"><option value="name">Tên A–Z</option><option value="rank">Xếp hạng VNUR</option></select>
     </div>
     <p id="uni-count" class="muted small" aria-live="polite"></p>
     <div id="uni-grid" class="uni-grid"></div>
@@ -64,16 +62,12 @@
     <h1>Tư vấn chọn ngành theo điểm</h1>
     <form class="bar" id="advice-form">
       <select id="adv-method" aria-label="Phương thức"></select>
-      <div class="combo-picker">
-        <input id="adv-combo-search" type="search" placeholder="Lọc mã tổ hợp hoặc tên môn…" aria-label="Tìm tổ hợp theo mã hoặc môn">
-        <select id="adv-combo" aria-label="Tổ hợp"><option value="">Mọi tổ hợp</option></select>
-      </div>
+      <select id="adv-combo" class="combo-select" aria-label="Tổ hợp"><option value="">Mọi tổ hợp</option></select>
       <input id="adv-score" type="number" step="0.01" min="0" placeholder="Điểm của bạn" aria-label="Điểm" required>
       <select id="adv-year" aria-label="Năm tham chiếu"></select>
-      <select id="adv-sort" aria-label="Sắp xếp tư vấn"><option value="rank">Theo xếp hạng trường</option><option value="score">Theo điểm</option></select>
       <button type="submit" class="primary">Gợi ý</button>
     </form>
-    <p class="muted small">Hiện các ngành có điểm chuẩn ≤ điểm của bạn + 1. <b>Thử sức</b>: cao hơn điểm bạn tối đa 1 điểm · <b>Vừa sức</b>: thấp hơn dưới 1 điểm · <b>An toàn</b>: thấp hơn từ 1 điểm. Mốc 1 điểm tính trên thang 30 và quy đổi theo thang của phương thức (VD ĐGNL HCM thang 1200: 40 điểm).</p>
+    <p class="muted small">Hiện các ngành có điểm chuẩn ≤ điểm của bạn + 1. <b>Thử sức</b>: cao hơn điểm bạn tối đa 1 điểm · <b>Vừa sức</b>: thấp hơn dưới 1 điểm · <b>An toàn</b>: thấp hơn từ 1 điểm. Mốc 1 điểm tính trên thang 30 và quy đổi theo thang của phương thức (VD ĐGNL HCM thang 1200: 40 điểm). Kết quả xếp theo <b>độ hot</b> = 0,5 × điểm trường (hạng VNUR) + 0,3 × điểm ngành (mức tăng số trường mở ngành 2024→2026) + 0,2 × điểm xu hướng (thay đổi điểm chuẩn 2025→2026); chi tiết ở <a href="#coverage" onclick="showTab('coverage')">Độ phủ dữ liệu</a>.</p>
     <div id="advice-out"></div>
   </section>
 

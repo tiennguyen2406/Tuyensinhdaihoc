@@ -7,15 +7,17 @@ Mo http://127.0.0.1:8000
 
 from __future__ import annotations
 
+import csv
 import json
+import math
 import re
 import sqlite3
 import traceback
 import unicodedata
-from collections import OrderedDict
+from bisect import bisect_left, bisect_right
+from collections import Counter, OrderedDict
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
@@ -196,13 +198,67 @@ def method_sort(m: str) -> int:
     return METHOD_ORDER.index(m) if m in METHOD_ORDER else 99
 
 
-def vnur_sort_key(row: dict):
-    return (
-        row["vnur_rank"] is None,
-        row["vnur_rank"] or 0,
-        bool(row["vnur_parent"]),
-        -row["score"],
-    )
+def percentile(values: dict) -> dict:
+    """Hang phan tram trung binh (0-1]: gia tri bang nhau cung diem."""
+    ordered = sorted(values.values())
+    n = len(ordered)
+    return {
+        k: round((bisect_left(ordered, v) + bisect_right(ordered, v) + 1) / 2 / n, 4)
+        for k, v in values.items()
+    }
+
+
+@lru_cache(maxsize=1)
+def hot_index() -> dict:
+    """Thanh phan 'do hot' cho tu van (cong thuc trong CLAUDE.md va trang Do phu du lieu).
+
+    nganh: percentile muc tang so truong mo nganh (bac nut nganh G1) 2024 -> 2026;
+    xu huong: percentile thay doi diem chuan 2025 -> 2026 cua cung chuong trinh, theo phuong thuc.
+    """
+    degree = {}
+    for year in (2024, 2026):
+        path = NETWORK_DIR / "metrics" / f"g1_uni_major_{year}.csv"
+        with path.open(encoding="utf-8-sig", newline="") as f:
+            degree[year] = {
+                r["id"].removeprefix("M:"): int(r["degree"])
+                for r in csv.DictReader(f)
+                if r["kind"] == "major"
+            }
+    growth = {
+        m: degree[2026].get(m, 0) - degree[2024].get(m, 0)
+        for m in degree[2024].keys() | degree[2026]
+    }
+    major = percentile(growth)
+    top = sorted(major, key=lambda m: (-major[m], m))[: math.ceil(len(major) * 0.1)]
+    c = con()
+    scores: dict[tuple, dict] = {}
+    for uni, program, method, scale, year, score in c.execute(
+        "SELECT uni_code, program_code, method, scale_max, year, MAX(score) FROM admissions "
+        "WHERE year IN (2025, 2026) AND flag = '' AND score IS NOT NULL "
+        "GROUP BY uni_code, program_code, method, scale_max, year"
+    ):
+        scores.setdefault((uni, program, method, scale), {})[year] = score
+    by_method: dict[str, dict] = {}
+    for k, v in scores.items():
+        if len(v) == 2:
+            by_method.setdefault(k[2], {})[k] = v[2026] - v[2025]
+    trend = {k: p for group in by_method.values() for k, p in percentile(group).items()}
+    return {"major": major, "hot_majors": set(top), "trend": trend, "growth": growth}
+
+
+def hot_parts(r: dict) -> dict:
+    h = hot_index()
+    rank = r["vnur_rank"]
+    uni = 0.0 if rank is None else max(0.0, (101 - rank) / 100) * (0.8 if r["vnur_parent"] else 1)
+    major = h["major"].get(r["major_code"], 0.0)
+    trend = h["trend"].get((r["uni_code"], r["program_code"], r["method"], r["scale_max"]), 0.5)
+    return {
+        "hot": round(0.5 * uni + 0.3 * major + 0.2 * trend, 4),
+        "hot_uni": round(uni, 4),
+        "hot_major": major,
+        "hot_trend": trend,
+        "hot_badge": r["major_code"] in h["hot_majors"],
+    }
 
 
 @app.get("/api/meta")
@@ -236,6 +292,13 @@ def meta():
         "SELECT COUNT(*) FROM universities WHERE vnur_parent != ''"
     ).fetchone()[0]
     stats["dean_unis"] = dean_index()["stats"].get("universities", 0)
+    try:
+        stats["tuition_unis"] = c.execute(
+            "SELECT COUNT(DISTINCT uni_code) FROM tuition"
+        ).fetchone()[0]
+    except sqlite3.OperationalError:
+        stats["tuition_unis"] = 0
+    stats["hot_majors"] = len(hot_index()["hot_majors"])
     return {
         "years": years,
         "methods": methods,
@@ -325,10 +388,9 @@ def university_scores(code: str, year: int):
         )
     ]
     tuition = None
-    try:
+    try:  # nam hoc moi nhat co trong data/manual/tuition.csv
         t = c.execute(
-            "SELECT * FROM tuition WHERE uni_code=? AND year<=? ORDER BY year DESC LIMIT 1",
-            (uni["uni_code"], year),
+            "SELECT * FROM tuition WHERE uni_code=? ORDER BY year DESC LIMIT 1", (uni["uni_code"],)
         ).fetchone()
         tuition = dict(t) if t else None
     except sqlite3.OperationalError:
@@ -405,11 +467,12 @@ def advice(
     combo: str = "",
     year: int | None = None,
     margin: float | None = None,
-    limit: int = Query(300, le=1000),
-    sort: Literal["rank", "score"] = "rank",
+    offset: int = 0,
+    limit: int = 50,
 ):
     """margin/nguong muc tinh theo don vi 1 diem tren thang 30, quy doi sang thang cua phuong thuc
-    (VD DGNL HCM thang 1200 -> 1 don vi = 40 diem). Moi muc lay toi da ~limit/3 dong gan diem nhat."""
+    (VD DGNL HCM thang 1200 -> 1 don vi = 40 diem). Moi dong <= diem + margin, xep theo do hot
+    giam dan; tra trang offset..offset+limit."""
     c = con()
     if year is None:
         year = c.execute("SELECT MAX(year) FROM admissions WHERE method = ?", (method,)).fetchone()
@@ -420,7 +483,8 @@ def advice(
         "AND scale_max IS NOT NULL GROUP BY scale_max ORDER BY COUNT(*) DESC LIMIT 1",
         (method, year),
     ).fetchone()
-    out = {"year": year, "method": method, "combo": combo, "score": score, "sort": sort}
+    offset, limit = max(0, offset), max(0, min(limit, 1000))
+    out = {"year": year, "method": method, "combo": combo, "score": score, "offset": offset}
     if not sc:
         return out | {"scale": None, "margin": margin, "counts": {}, "total": 0, "rows": []}
     scale = sc[0]
@@ -429,24 +493,11 @@ def advice(
     combo_sql = " AND a.id IN (SELECT admission_id FROM admission_combos WHERE combo = ?)"
     cands = advice_candidates(c, method, year, score + margin, scale, combo)
     levels = ["Thử sức", "Vừa sức", "An toàn"]
-    groups: dict[str, list[dict]] = {lv: [] for lv in levels}
     for r in cands:
         d = r["score"] - score
         r["level"] = levels[0] if d > 0 else (levels[1] if d > -unit else levels[2])
-        groups[r["level"]].append(r)
-    if sort == "rank":
-        for group in groups.values():
-            group.sort(key=vnur_sort_key)
-    # chia deu han muc cho 3 muc (muc nao thieu thi nhuong cho muc khac)
-    take = dict.fromkeys(levels, 0)
-    left = limit
-    while left and any(take[lv] < len(groups[lv]) for lv in levels):
-        for lv in levels:
-            if left and take[lv] < len(groups[lv]):
-                take[lv] += 1
-                left -= 1
-    # Moi muc lay theo thu tu da chon (hang truong hoac diem).
-    rows = [r for lv in levels for r in groups[lv][: take[lv]]]
+    cands.sort(key=lambda r: -r["hot"])  # on dinh: cung do hot giu thu tu diem giam dan
+    rows = cands[offset : offset + limit]
     # xu huong 3 nam cua tung chuong trinh, cung thang diem (+ cung to hop neu co loc)
     hist_sql = (
         "SELECT a.year, MAX(a.score) FROM admissions a WHERE a.uni_code = ? AND a.program_code = ? "
@@ -459,7 +510,8 @@ def advice(
         hist = c.execute(hist_sql + (combo_sql if combo else "") + " GROUP BY a.year", hargs)
         r["history"] = {str(y): s for y, s in hist}
         r["history"][str(year)] = r["score"]  # nam tham chieu = dung diem cua dong nay
-    counts = {lv: len(groups[lv]) for lv in levels}
+    n = Counter(r["level"] for r in cands)
+    counts = {lv: n[lv] for lv in levels}
     return out | {
         "scale": scale,
         "margin": margin,
@@ -476,7 +528,7 @@ def advice_candidates(c, method: str, year: int, ceiling: float, scale: float, c
     if combo:
         where += " AND a.id IN (SELECT admission_id FROM admission_combos WHERE combo = ?)"
         args.append(combo.upper())
-    return [
+    rows = [
         dict(r)
         for r in c.execute(
             "SELECT a.*, u.name AS uni_name, u.short_name, "
@@ -485,6 +537,7 @@ def advice_candidates(c, method: str, year: int, ceiling: float, scale: float, c
             args,
         )
     ]
+    return [r | hot_parts(r) for r in rows]
 
 
 @app.get("/api/network/{name}")

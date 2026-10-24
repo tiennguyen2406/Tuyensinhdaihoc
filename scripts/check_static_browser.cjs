@@ -10,7 +10,7 @@ const { chromium } = require("../apps/web/node_modules/@playwright/test");
 
 const root = path.resolve(__dirname, "..");
 const scratch = path.join(root, "_to_delete", "pages-check");
-const screenshots = path.join(root, "docs", "reports", "dean-20261024");
+const screenshots = path.join(root, "docs", "reports", "web-20261024");
 const python = path.join(root, ".venv", "Scripts", "python.exe");
 const children = [];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -70,19 +70,22 @@ async function waitServer(url) {
       assert.equal(await page.evaluate(() => Data.static), mode === "static");
       assert.equal(await page.locator("#uni-grid").evaluate((e) => getComputedStyle(e).gridTemplateColumns.split(" ").length), width === 375 ? 1 : 3);
       await page.screenshot({ path: path.join(screenshots, `${mode}-grid-${width}.png`) });
-      await page.locator("#uni-sort").selectOption("rank");
-      assert.match(await page.locator(".uni-card").first().innerText(), /Thuộc ĐHQG HN · Top 1/);
-      assert.equal(await page.locator(".uni-card").first().locator(".rank-inherited").count(), 1);
+      for (const gone of ["#uni-letter", "#uni-sort", "#adv-sort", "#adv-combo-search", "[data-csv]", ".btn-csv"]) assert.equal(await page.locator(gone).count(), 0, gone);
+      assert.doesNotMatch(await page.locator("body").innerText(), /Xuất CSV|Mọi chữ cái|Tên A–Z/);
+      // Direct VNUR ranks first, inherited ranks next, unranked last (by name).
+      const order = await page.evaluate(() => [...document.querySelectorAll(".uni-card")].map((c) => c.querySelector(".rank-badge") ? (c.querySelector(".rank-inherited") ? 1 : 0) : 2));
+      assert.deepEqual(order, [...order].sort((a, b) => a - b));
+      assert.match(await page.locator(".uni-card").first().innerText(), /Top \d+ VNUR/);
+      const ranks = await page.evaluate(() => [...document.querySelectorAll(".uni-card")].filter((c) => c.querySelector(".rank-badge:not(.rank-inherited)")).map((c) => +c.querySelector(".rank-badge").textContent.match(/\d+/)[0]));
+      assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b));
       assert.ok(await page.evaluate(() => UNIVERSITIES.some((u) => u.province_source === "HOCMAI")));
       await page.locator("#uni-province").selectOption("Thành phố Hà Nội");
-      await page.locator("#uni-letter").selectOption("b");
       assert.ok(await page.locator('.uni-card[data-uni="BKA"]').count());
       await page.locator("#uni-q").fill("BKA");
       assert.equal(await page.locator(".uni-card").count(), 1);
       assert.match(await page.locator(".uni-card").innerText(), /mã xét tuyển.*phương thức/);
       await page.locator('.uni-card[data-uni="BKA"]').click();
       await page.locator("#uni-out tbody tr").first().waitFor();
-      await page.locator("#uni-letter").selectOption("");
       await page.locator("#uni-province").selectOption("");
 
       // Exercise autocomplete, year changes, and actual renderers at both sizes.
@@ -94,7 +97,7 @@ async function waitServer(url) {
       assert.equal(await page.locator("#uni-year").inputValue(), "2026");
       await page.screenshot({ path: path.join(screenshots, `${mode}-uni-${width}.png`) });
       assert.match(await page.locator('#uni-out .combo-code').first().getAttribute("title"), /Toán|Ngữ văn/);
-      for (const code of ["BKA", "NTH", "BVS"]) {
+      for (const code of ["BKA", "NTH", "YHB", "DVL", "BVS"]) {
         if (code !== "BKA") {
           await page.locator("#uni-q").fill(code);
           await page.locator("#uni-ac li").first().waitFor({ state: "visible" });
@@ -106,13 +109,22 @@ async function waitServer(url) {
           assert.match(await plan.innerText(), /Chưa có dữ liệu đề án/);
           assert.equal(await plan.locator("a").count(), 0);
         } else {
-          assert.ok(await plan.locator(".dean-method").count());
-          assert.match(await plan.innerText(), /Nguồn: HOCMAI, tóm tắt dữ kiện/);
-          assert.equal(await plan.locator(".dean-link").getAttribute("target"), "_blank");
-          assert.match(await plan.locator(".dean-link").getAttribute("href"), /^https:\/\/huongnghiep.hocmai.vn\/de-an\//);
-          assert.ok((await plan.locator(".dean-method p").allTextContents()).every((s) => s.length <= 300));
-          assert.doesNotMatch(await plan.innerText(), /Danh sách ngành đào tạo|Giới thiệu trường/);
+          const open = await plan.locator("details.dean-method").evaluateAll((ds) => ds.filter((d) => !d.classList.contains("dean-common")).map((d) => d.open));
+          assert.ok(open.length >= 2 && open[0] && open.slice(1).every((x) => !x), `${code} first method open, others collapsed`);
+          assert.ok(await plan.locator("details.dean-method[open] .fact-group h4").count(), `${code} labelled groups`);
+          assert.match(await plan.innerText(), /đối tượng|điều kiện \/ ngưỡng đầu vào|cách tính điểm|điểm cộng \/ ưu tiên|chỉ tiêu|ghi chú/iu);
+          assert.match(await plan.locator(".dean-source").innerText(), /^Nguồn dữ kiện: HOCMAI, năm 20\d\d$/);
+          assert.equal(await plan.locator(".dean-source a").getAttribute("target"), "_blank");
+          assert.match(await plan.locator(".dean-source a").getAttribute("href"), /^https:\/\/huongnghiep.hocmai.vn\/de-an\//);
+          assert.equal(await plan.locator(".dean-link").count(), 0);
+          assert.doesNotMatch(await plan.innerText(), /Xem đề án đầy đủ|Danh sách ngành đào tạo|Giới thiệu trường/);
+          await plan.locator("details.dean-method").evaluateAll((ds) => ds.forEach((d) => (d.open = true)));
+          assert.ok((await plan.locator(".fact-group li").allTextContents()).every((s) => s.length <= 241));
+          await plan.locator("details.dean-method").evaluateAll((ds) => ds.forEach((d, i) => (d.open = i === 0)));
         }
+        const tuition = page.locator("#uni-out .dean-block + .tuition-card");
+        assert.equal(await tuition.count(), 1, `${code} tuition card right under the plan`);
+        assert.match(await tuition.innerText(), /triệu đồng\/năm|Chưa có thông tin học phí/);
         await plan.scrollIntoViewIfNeeded();
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
         await page.screenshot({ path: path.join(screenshots, `${mode}-dean-${code}-${width}.png`) });
@@ -129,25 +141,25 @@ async function waitServer(url) {
 
       await page.locator('[data-tab="advice"]').click();
       await page.locator("#adv-method").selectOption("THPT");
-      await page.locator("#adv-combo-search").fill("tin hoc");
-      assert.equal(await page.locator('#adv-combo option[value="A00"]').count(), 0);
-      assert.ok(await page.locator('#adv-combo option[value="X02"]').count());
-      assert.ok(await page.locator('#adv-combo option[value="TH6"]').count());
-      await page.locator("#adv-combo-search").fill("a00");
       assert.equal(await page.locator('#adv-combo option[value="A00"]').textContent(), "A00 (Toán, Vật lí, Hóa học)");
       await page.locator("#adv-combo").selectOption("A00");
       await page.locator("#adv-score").fill("24");
       await page.locator("#advice-form button[type=submit]").click();
       await page.locator("#advice-out tbody tr").first().waitFor();
+      assert.equal(await page.locator("#advice-out tbody tr").count(), 50);
       const levels = await page.locator("#advice-out .lvl").allTextContents();
-      assert.deepEqual([...new Set(levels)], ["Thử sức", "Vừa sức", "An toàn"]);
-      assert.equal(await page.locator("#adv-sort").inputValue(), "rank");
-      assert.ok(await page.locator('#advice-out [data-label="Hạng VNUR"] .rank-badge').count());
-      assert.match(await page.locator("#advice-out").innerText(), /1 \(ĐHQG HN\)/);
+      assert.equal(levels.length, 50);
+      assert.ok(levels.every((l) => ["Thử sức", "Vừa sức", "An toàn"].includes(l)));
+      const hots = await page.locator("#advice-out .why summary").allTextContents();
+      const num = (x) => Number(x.replace(",", "."));
+      assert.ok(hots.every((h, i) => i === 0 || num(hots[i - 1]) >= num(h)), "hot descending");
+      assert.match(await page.locator("#advice-out .why summary").first().getAttribute("title"), /0,5 × điểm trường .* \+ 0,3 × điểm ngành .* \+ 0,2 × điểm xu hướng/);
+      assert.ok(await page.locator("#advice-out .tag-hot").count(), "Ngành hot 2026 badge");
+      assert.match(await page.locator("#advice-out .head").innerText(), /xếp theo độ hot · đang hiện 50\//);
       await page.screenshot({ path: path.join(screenshots, `${mode}-advice-${width}.png`) });
-      await page.locator("#adv-sort").selectOption("score");
-      await page.locator("#advice-form button[type=submit]").click();
-      await page.waitForFunction(() => document.querySelector("#advice-out .head")?.textContent.includes("theo điểm"));
+      await page.locator("#adv-more").click();
+      await page.waitForFunction(() => document.querySelectorAll("#advice-out tbody tr").length === 100);
+      assert.match(await page.locator("#advice-out .head").innerText(), /đang hiện 100\//);
 
       await page.locator('[data-tab="network"]').click();
       await page.waitForFunction(() => document.querySelector("#net-name").value === "g2_uni_uni_2026");
@@ -161,7 +173,7 @@ async function waitServer(url) {
       await page.locator('[data-tab="coverage"]').click();
       await page.locator("#coverage-out tbody tr").first().waitFor();
       assert.equal(await page.locator("#coverage-out tbody tr").count(), 292);
-      assert.equal(await page.locator("#coverage-out li").count(), 15);
+      assert.equal(await page.locator("#coverage-out .missing-list li").count(), 15);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.evaluate(() => { document.querySelector("#uni-year").value = "2024"; });
       await page.locator('#coverage-out [data-uni="BKA"]').click();
@@ -177,8 +189,9 @@ async function waitServer(url) {
         "api/majors/7480201/similar?year=2025", "api/network/g2_uni_uni?year=2026",
         "api/universities?q=bach%20khoa", "api/majors?q=cong%20nghe%20thong%20tin",
         "api/advice?method=THPT&score=24&combo=A00&year=2026",
-        "api/advice?method=THPT&score=24&combo=A00&year=2026&sort=score",
-        "api/advice?method=THPT&score=24&year=2026&sort=rank&limit=1000",
+        "api/advice?method=THPT&score=24&combo=A00&year=2026&offset=50",
+        "api/advice?method=THPT&score=24&combo=A00&year=2026&offset=3050&limit=100",
+        "api/advice?method=THPT&score=24&year=2026&limit=1000",
         "api/advice?method=THPT&score=24&year=2025",
         "api/advice?method=THPT&score=24&combo=a00&year=2024&limit=17",
         "api/advice?method=DGNL_HCM&score=900&year=2026",
@@ -205,7 +218,7 @@ async function waitServer(url) {
       assert.ok(requests.every((u) => u.startsWith(mode === "static" ? base : live)), "All requests stay under the project subpath");
       if (mode === "static") assert.ok(requests.every((u) => !u.includes("/api/")), "Static mode makes no API probes");
       results.push({ mode, width, tabs: 4, coverage: true, parity: cases.length, consoleErrors: 0, httpErrors: 0 });
-      console.log(`PASS ${mode} ${width}px: four tabs, catalog/subjects/rank, ${cases.length} API comparisons, no console/HTTP errors`);
+      console.log(`PASS ${mode} ${width}px: five tabs, rank grid, plans/tuition, hot advice, ${cases.length} API comparisons, no console/HTTP errors`);
       await page.close();
     }
     fs.writeFileSync(path.join(scratch, "results.json"), JSON.stringify(results, null, 2));

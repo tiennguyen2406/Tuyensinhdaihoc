@@ -45,29 +45,32 @@ def check():
                 (u["uni_code"], u["latest_year"]),
             ).fetchone()
             assert (u["n_programs"], u["n_methods"]) == tuple(expected)[:2]
-    for sorting in ("rank", "score"):
-        d = api.advice("THPT", 24, combo="A00", year=2026, limit=1000, sort=sorting)
-        for level in d["counts"]:
-            group = [r for r in d["rows"] if r["level"] == level]
-            key = (
-                (
-                    lambda r: (
-                        r["vnur_rank"] is None,
-                        r["vnur_rank"] or 0,
-                        bool(r["vnur_parent"]),
-                        -r["score"],
-                    )
-                )
-                if sorting == "rank"
-                else (lambda r: -r["score"])
-            )
-            assert group == sorted(group, key=key)
-    direct = {"vnur_rank": 1, "vnur_parent": "", "score": 20}
-    inherited = {"vnur_rank": 1, "vnur_parent": "ĐHQG HN", "score": 29}
-    assert sorted([inherited, direct], key=api.vnur_sort_key) == [direct, inherited]
-    print(
-        "PASS: block aliases/conflicts, 5 parent groups, renamed schools, card counts, advice sorts"
-    )
+    d = api.advice("THPT", 24, combo="A00", year=2026, limit=1000)
+    assert d["rows"] == sorted(d["rows"], key=lambda r: -r["hot"])
+    assert d["total"] == sum(d["counts"].values()) > 1000
+    page2 = api.advice("THPT", 24, combo="A00", year=2026, offset=50)
+    assert [r["id"] for r in page2["rows"]] == [r["id"] for r in d["rows"][50:100]]
+    for r in d["rows"]:
+        assert all(0 <= r[k] <= 1 for k in ("hot", "hot_uni", "hot_major", "hot_trend"))
+        assert (
+            abs(r["hot"] - (0.5 * r["hot_uni"] + 0.3 * r["hot_major"] + 0.2 * r["hot_trend"]))
+            < 1e-3
+        )
+    base = {
+        "uni_code": "X",
+        "program_code": "X",
+        "method": "THPT",
+        "scale_max": 30,
+        "major_code": None,
+    }
+    assert api.hot_parts(base | {"vnur_rank": 1, "vnur_parent": ""})["hot_uni"] == 1.0
+    assert api.hot_parts(base | {"vnur_rank": 100, "vnur_parent": ""})["hot_uni"] == 0.01
+    assert api.hot_parts(base | {"vnur_rank": 1, "vnur_parent": "ĐHQG HN"})["hot_uni"] == 0.8
+    none = api.hot_parts(base | {"vnur_rank": None, "vnur_parent": ""})
+    assert none["hot_uni"] == 0 and none["hot_trend"] == 0.5 and none["hot_major"] == 0
+    hot = api.hot_index()
+    assert len(hot["hot_majors"]) == -(-len(hot["major"]) // 10)
+    print("PASS: block aliases/conflicts, parent groups, renamed schools, card counts, hot advice")
 
 
 if __name__ == "__main__":

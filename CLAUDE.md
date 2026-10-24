@@ -23,11 +23,28 @@ Hạn nộp ~06/11/2026. Ưu tiên: chạy được, đủ yêu cầu đề bài
 ```
 
 ## Dữ liệu (23/10/2026)
-71.008 dòng sạch, 292 trường, 472 ngành chuẩn, 94% dòng có `major_code` (mã 7 số Bộ GD&ĐT).
+71.011 dòng sạch, 292 trường, 472 ngành chuẩn, 94% dòng có `major_code` (mã 7 số Bộ GD&ĐT).
 Bảng `admissions`: id, uni_code, year, method (THPT, HOCBA, DGNL_HCM, DGNL_HN, DGTD, DGNL_SPT, KETHOP,
 CCQT, UTXT, KHAC), method_name, sub_method, program_code, major_code, program_name, program_type,
 combos ("A00;A01"), score, scale_max, score_equiv, note, flag, match_how, source_url, crawled_at.
 Bảng khác: universities, majors, admission_combos, tuition.
+
+## Tab Tư vấn: độ hot (webapp/main.py `hot_index`, `hot_parts`)
+Kết quả ≤ điểm + mốc, xếp độ hot giảm dần, trang 50 dòng (`offset`, `limit`).
+hot = 0,5 × điểm trường + 0,3 × điểm ngành + 0,2 × điểm xu hướng (mỗi phần 0–1):
+- điểm trường: hạng VNUR trực tiếp (101 − hạng)/100 (1 → 1,0 … 100 → 0,01); kế thừa đại học mẹ × 0,8; chưa xếp hạng 0.
+- điểm ngành: percentile mức tăng bậc nút ngành G1 (`data/network/metrics/g1_uni_major_{2024,2026}.csv`);
+  10% ngành cao nhất gắn "Ngành hot 2026"; dòng chưa có major_code = 0.
+- điểm xu hướng: percentile (trong cùng phương thức) thay đổi điểm chuẩn 2025 → 2026 của cùng
+  (trường, mã chương trình, phương thức, thang); thiếu một năm = 0,5.
+
+## Đề án và học phí
+- `pipeline/dean.py` → `data/clean/dean.json`: mỗi phương thức có `fields` {audience, conditions, formula,
+  bonus, quota, notes} (gạch đầu dòng ≤ 240 ký tự), `common` (ý lặp ở ≥ 2 phương thức), `timeline` [{date, event}],
+  `documents`. Kiểm: `python scripts/check_dean.py`.
+- `data/manual/tuition.csv` (uni_code, year = năm bắt đầu năm học, min_mil, max_mil, unit_note, text, source_url,
+  source_type official|press|aggregator, confidence). 0–0 = miễn học phí (hệ quân sự/công an). Quy đổi:
+  tín chỉ × 30/năm, học kỳ × 2 (FPT × 3), tháng × 10. `data/manual/tuition_checked.csv` ghi trường đã tìm.
 
 ## Quy tắc
 - Sau khi sửa, tự chạy lệnh liên quan để kiểm (clean/sna/uvicorn) và báo con số trước–sau.

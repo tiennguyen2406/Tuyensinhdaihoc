@@ -1,4 +1,4 @@
-"""Extract short admission facts from HOCMAI HTML; never publish article HTML.
+"""Extract structured admission facts from HOCMAI HTML; never publish article HTML.
 
 Run after crawler.fetch_dean: python -m pipeline.dean
 University decisions live in data/manual/dean_map.csv, not generated output.
@@ -41,181 +41,6 @@ def unique(items):
     return list(dict.fromkeys(items))
 
 
-CERTIFICATE = re.compile(
-    r"(?<![\w-])(?:IELTS|TOEFL(?:\s+(?:iBT|ITP|PBT))?|TOEIC(?:\s+L&R)?|PTE|"
-    r"V-SAT(?:-TNU)?|SAT|ACT|HSA|V-ACT|TSA|VSTEP)(?![\w-])",
-    re.I,
-)
-
-
-def certificate_facts(value: str) -> list[str]:
-    matches = list(CERTIFICATE.finditer(value))
-    out = []
-    for i, match in enumerate(matches):
-        # A score belongs only to the certificate immediately before it.
-        tail = value[match.end() : matches[i + 1].start() if i + 1 < len(matches) else len(value)][
-            :120
-        ]
-        tail = re.split(r"[;\n]|\.(?!\d)", tail, maxsplit=1)[0]
-        # Read an immediately attached overall score before looking for a later
-        # threshold: "IELTS 6.5 (kỹ năng viết từ 6.0)" means overall 6.5.
-        direct = re.match(
-            r"\s*(?:\(?Academic\)?\s*)?(?:[:(]\s*)?"
-            r"(đạt\s+từ|đạt\s+trên|từ|tối thiểu|trên|≥|>=|>|đạt|:)?\s*"
-            r"(\d+(?:[.,]\d+)?(?:\s*/\s*\d+)?)",
-            tail,
-            re.I,
-        )
-        found = direct or re.search(
-            r"(đạt\s+từ|đạt\s+trên|từ|tối thiểu|trên|≥|>=|>|đạt|:)\s*"
-            r"(\d+(?:[.,]\d+)?(?:\s*/\s*\d+)?)",
-            tail,
-            re.I,
-        )
-        if not found:
-            continue
-        if not direct and re.search(
-            r"kỹ năng|kĩ năng|điểm (?:trung bình|xét tuyển)|học bạ|quy đổi|điểm thưởng",
-            tail[: found.start()],
-            re.I,
-        ):
-            continue
-        raw, op, rest = found[2], key(found[1] or ":"), tail[found.end() :]
-        if re.match(r"\s*(?:kỹ năng|kĩ năng|năm|tháng|lần|môn)\b", rest, re.I):
-            continue
-        name = match[0].upper()
-        if name in ("SAT", "TOEIC", "TOEIC L&R", "V-ACT"):
-            raw = re.sub(r"(?<=\d)[.,](?=\d{3}(?:\D|$))", "", raw)
-        number = float(raw.split("/")[0].replace(",", "."))
-        caps = {
-            "IELTS": 9,
-            "TOEFL IBT": 120,
-            "TOEFL": 677,
-            "TOEFL ITP": 677,
-            "TOEFL PBT": 677,
-            "TOEIC": 990,
-            "TOEIC L&R": 990,
-            "PTE": 90,
-            "SAT": 1600,
-            "ACT": 36,
-            "HSA": 150,
-            "TSA": 100,
-            "V-ACT": 1200,
-        }
-        cap = caps.get(name)
-        if (cap is not None and not 0 <= number <= cap) or (name == "SAT" and number < 400):
-            continue
-        operator = (
-            ">"
-            if "tren" in op or op == ">"
-            else "≥"
-            if op in ["tu", "dat tu", "toi thieu", "≥", ">="]
-            or key(rest[:15]).startswith("tro len")
-            else ":"
-        )
-        separator = ": " if operator == ":" else f" {operator} "
-        out.append(f"{name}{separator}{raw.replace(' ', '')}")
-    return unique(out)
-
-
-def short_summary(audience: str, conditions: str, method_name: str = "", rules: str = "") -> str:
-    """Write two factual labels from recognized facts, rather than truncating source prose."""
-    a = re.sub(r"trung hoc pho thong(?:\s*\(thpt\))?", "thpt", key(audience))
-    # Some articles put the main eligibility conditions under H4 "Quy chế".
-    # Conversion/bonus tables and program-specific rules are not general entry requirements.
-    safe_rules = (
-        ""
-        if re.search(
-            r"quy doi|diem thuong|diem uu tien|diem cong|khuyen khich|chuong trinh|doi voi",
-            key(rules),
-        )
-        else rules
-    )
-    eligibility = (
-        audience
-        + " "
-        + conditions
-        + (" " + safe_rules if not conditions or "xem them" in key(conditions) else "")
-    )
-    c = re.sub(r"trung hoc pho thong(?:\s*\(thpt\))?", "thpt", key(eligibility))
-    people = []
-    if re.search(r"(?<!thi )tot nghiep thpt", a):
-        people.append("tốt nghiệp THPT" + ("/tương đương" if "tuong duong" in a else ""))
-    if "thi tot nghiep thpt" in a or "thi thpt" in a:
-        people.append("dự thi THPT")
-    if "danh gia tu duy" in a or "dgtd" in a:
-        people.append("dự thi ĐGTD")
-    if "danh gia nang luc" in a or "dgnl" in a:
-        people.append("có kết quả ĐGNL")
-    if "hoc sinh gioi" in a or re.search(r"\bhsg\b", a):
-        levels = [
-            label
-            for phrase, label in [("quoc gia", "quốc gia"), ("quoc te", "quốc tế")]
-            if phrase in a
-        ]
-        people.append("diện HSG" + (" " + "/".join(levels) if levels else ""))
-    if "olympic" in a:
-        people.append("diện Olympic")
-    if "khkt" in a or "khoa hoc ky thuat" in a:
-        people.append("diện giải KHKT")
-    if "nuoc ngoai" in a and not people:
-        people.append("có bằng/chương trình nước ngoài")
-    if "chung chi" in a or re.search(r"(?<![\w-])(?:SAT|ACT|IB|A-Level)(?![\w-])", audience, re.I):
-        people.append("diện chứng chỉ quốc tế")
-    if "hoc ba" in a:
-        people.append("có kết quả học bạ THPT")
-    if "tuyen thang" in a:
-        people.append("thuộc diện tuyển thẳng theo quy chế")
-    facts = certificate_facts(eligibility)
-    for match in re.finditer(
-        r"điểm\s+(?:xét tuyển|trung bình|trung bình chung|học bạ)[^;\n]{0,65}?"
-        r"(từ|đạt\s*(?:từ\s*)?|tối thiểu|trên|≥|>=|>)\s*(\d+(?:[.,]\d+)?)",
-        eligibility,
-        re.I,
-    ):
-        if CERTIFICATE.search(match[0]):
-            continue
-        preceding = re.split(r"[;\n]|\.(?!\d)", eligibility[: match.start()])[-1][-50:]
-        if CERTIFICATE.search(preceding) and not re.search(
-            r"học tập|học bạ|lớp\s*\d", match[0], re.I
-        ):
-            continue
-        label = "điểm xét tuyển" if "xét tuyển" in match[0].lower() else "ĐTB"
-        operator = ">" if key(match[1]) in ("tren", ">") else "≥"
-        facts.append(f"{label} {operator} {match[2]}")
-    for phrase, label in [
-        ("tot nghiep thpt", "tốt nghiệp THPT"),
-        ("so tuyen", "đạt yêu cầu sơ tuyển"),
-        ("suc khoe", "đáp ứng yêu cầu sức khỏe"),
-        ("nguong diem", "đạt ngưỡng điểm của trường"),
-    ]:
-        if phrase in c and (
-            phrase != "tot nghiep thpt" or re.search(r"(?<!thi )tot nghiep thpt", c)
-        ):
-            facts.append(label)
-    if re.search(r"(?:hoc tap|hoc luc)[^.;]{0,50}\bkha\b", c):
-        facts.append("học tập từ Khá (theo diện)")
-    if re.search(r"hanh kiem[^.;]{0,50}\bkha\b", c):
-        facts.append("hạnh kiểm từ Khá")
-    if "giai nhat" in a or "giai nhi" in a or "giai ba" in a:
-        facts.append("giải/thành tích theo diện của trường")
-    first = (
-        "Đối tượng: " + "; ".join(unique(people)[:3])
-        if people
-        else "Đối tượng: theo diện " + (method_name.lower() or "dự tuyển trong bài gốc")
-    )
-    second = (
-        "Điều kiện theo diện: " + "; ".join(unique(facts))
-        if facts
-        else "Điều kiện chi tiết: xem bài gốc"
-    )
-    # A decimal dot is part of a number, not an extra sentence. Do not cut a number/token.
-    budget = 298 - len(first) - 2
-    if len(second) > budget:
-        second = second[: max(0, budget - 1)].rsplit(";", 1)[0].rstrip(" ,;") + "…"
-    return f"{first}. {second}."
-
-
 DOCUMENTS = [
     (r"h[oọ]c b[aạ]", "Học bạ THPT"),
     (
@@ -236,34 +61,224 @@ DOCUMENTS = [
     (r"minh ch[uứ]ng.{0,20}ưu ti[eê]n|gi[aấ]y.{0,25}ưu ti[eê]n", "Giấy tờ minh chứng ưu tiên"),
     (r"gi[aấ]y.{0,15}s[uứ]c kh[oỏ]e", "Giấy khám sức khỏe"),
     (r"[aả]nh.{0,10}(3x4|4x6|ch[aâ]n dung)", "Ảnh thẻ"),
+    (r"l[eệ] ph[ií]", "Lệ phí xét tuyển"),
 ]
+# Each method is split into labelled groups of one-sentence facts.
+FIELDS = ("audience", "conditions", "formula", "bonus", "quota", "notes")
+MAX_BULLET = 240
+MAX_ITEMS = 12
+LEAD = re.compile(
+    r"^(?:[–—\-+•*·]+\)?|\(?[ivx]{1,4}\)|\(?[a-gA-G][.)]|\(?\d+(?:\.\d+)+\)?(?=\s)"
+    r"|\(?\d+[.)](?=\s)|\(\*+\))\s*"
+)
+LABEL = re.compile(
+    r"^(?:đối tượng(?: xét tuyển| dự tuyển| tuyển sinh)?|điều kiện(?: xét tuyển| dự tuyển)?"
+    r"|trong đó|cụ thể|phương thức\s*\d+)\s*:\s*",
+    re.I,
+)
+NOTE = re.compile(r"^(?:lưu ý|chú ý|ghi chú)\s*:?\s*", re.I)
+SKIP = re.compile(
+    r"danh sách ngành|xem chi tiết|tại đây|xem thêm|bảng quy đổi|cơ hội|minh bạch|đa dạng hóa"
+    r"|hàng đầu|uy tín|chào đón|trải nghiệm|tự hào|môi trường học tập",
+    re.I,
+)
+FILLER = [
+    r"ngoài các điều kiện cần thiết \(theo các phương thức tuyển sinh\),?\s*",
+    r"tính tới thời điểm xét tuyển trước khi công bố kết quả xét tuyển chính thức\s*",
+    r",?\s*cụ thể như sau",
+]
+RULES = [
+    ("quota", r"chỉ tiêu"),
+    ("bonus", r"điểm (?:cộng|thưởng|ưu tiên|khuyến khích)|cộng (?:thêm )?(?:\d|điểm)|được cộng"),
+    (
+        "formula",
+        r"công thức|=|×|được tính|hệ số|nhân đôi|thang (?:điểm )?\d+|quy đổi|quy về|tổ hợp|tính điểm"
+        r"|cách tính|chiếm \d+ ?%|điểm xét tuyển (?:được tính|là)|\bĐXT\b",
+    ),
+    (
+        "conditions",
+        r"điều kiện|ngưỡng|tối thiểu|trở lên|đạt từ|\btừ \d|xếp loại|học lực|hạnh kiểm"
+        r"|sức khỏe|sơ tuyển|còn hiệu lực|không quá \d",
+    ),
+]
+THRESHOLD = re.compile(
+    r"(?:trở lên|đạt từ|tối thiểu|\btừ)\s*\S*\d|\d\S*\s*(?:trở lên|điểm trở)"
+    r"|(?:mức|loại|từ)\s+(?:khá|giỏi|tốt|xuất sắc)",
+    re.I,
+)
+HEADER = re.compile(r"^(?:nhóm đối tượng|điều kiện nộp hồ sơ|quy định về)[^.:]{0,70}\.?$", re.I)
 
 
-def time_facts(blocks: list[str]) -> tuple[list[str], list[str]]:
-    dates, documents, round_label = [], [], ""
+def norm(value: str) -> str:
+    """Normalise spacing, counts, date ranges, decimals and multiplication signs."""
+    s = text(value)
+    s = re.sub(r"\bT[Pp]\.\s+", "TP.", s)
+    s = re.sub(r"(một|hai|ba)\s*\(0?\d+\)", r"\1", s)
+    s = re.sub(r"(?<![\w/.,\-–])0(\d)\b(?![/.,\-–]\d)", r"\1", s)
+    s = re.sub(r"\(\s+", "(", re.sub(r"\s+\)", ")", s))
+    s = re.sub(r"(\d{1,2})\s*[-–]\s*(\d{1,2}/\d{1,2})", r"\1–\2", s)
+    s = re.sub(r"(?<=[\w)\]])\s+[xX]\s+(?=[\w(\[])", " × ", s)
+    s = re.sub(r"(?<=\d)\.(?=\d{1,2}\b(?!/))", ",", s)
+    return s.strip()
+
+
+def shorten(s: str) -> str:
+    if len(s) <= MAX_BULLET:
+        return s
+    for pattern in FILLER:
+        s = re.sub(pattern, "", s, flags=re.I)
+    s = re.sub(r"\s*\([^()]{50,}\)", "", s)
+    if len(s) <= MAX_BULLET:
+        return s
+    # Cat o dau phay/khoang trang ngoai ngoac gan gioi han nhat, khong cat giua so/ngoac.
+    depth, comma, space = 0, 0, 0
+    for i, ch in enumerate(s[:MAX_BULLET]):
+        depth += (ch == "(") - (ch == ")")
+        if depth == 0 and ch in ",;" and s[i + 1 : i + 2] == " " and i > 100:
+            comma = i
+        if depth == 0 and ch == " ":
+            space = i
+    return s[: comma or space or MAX_BULLET].rstrip(" ,;:(") + "…"
+
+
+def balance(s: str) -> str:
+    """Drop parentheses left unmatched after a paragraph is split into sentences."""
+    out, open_at = list(s), []
+    for i, ch in enumerate(s):
+        if ch == "(":
+            open_at.append(i)
+        elif ch == ")":
+            if open_at:
+                open_at.pop()
+            else:
+                out[i] = ""
+    for i in open_at:
+        out[i] = ""
+    return re.sub(r"\s+", " ", "".join(out)).strip()
+
+
+def sentences(value: str) -> list[tuple[str, bool]]:
+    """Split one source paragraph into short facts; returns (fact, is_note)."""
+    out = []
+    parts = re.split(
+        r"(?<=[.;!?])\s+(?=[A-ZĐÂĂÊÔƠƯÁÀẢÃẠÉÈÍÌÓÒÚÙÝ\d(+–-])|;\s+|\s+(?=\+\)\s)"
+        r"|(?<=[:;.])\s+(?=[+–•]\s)",
+        norm(value),
+    )
+    for part in parts:
+        s = balance(LEAD.sub("", part.strip()))
+        is_note = bool(NOTE.match(s))
+        s = LABEL.sub("", NOTE.sub("", s)).strip()
+        s = re.sub(r"\s+(?:hoặc|và)\s*[;.]?$", "", s).strip(" ;")
+        s = re.sub(r"^(?:hoặc|và)\s+", "", s, flags=re.I)
+        if s.endswith(":"):
+            s = re.sub(r",?\s*(?:cụ thể\s*)?(?:như sau|cụ thể)\s*:$", "", s).rstrip(" :")
+            if len(s) < 40 and not re.search(r"\d", s):
+                continue
+        if len(s) < 12 or SKIP.search(s) or HEADER.match(s):
+            continue
+        s = shorten(s[0].upper() + s[1:])
+        if not s.endswith(("…", ".", "?", ")")):
+            s += "."
+        out.append((s, is_note))
+    return out
+
+
+def classify(s: str, heading: str, is_note: bool) -> str:
+    if is_note:
+        return "notes"
+    hits = {field for field, pattern in RULES if re.search(pattern, s, re.I)}
+    if "quota" in hits and re.search(r"\d", s):
+        return "quota"
+    if re.search(r"=|công thức", s, re.I):
+        return "formula"
+    if "bonus" in hits:
+        return "bonus"
+    if heading in ("quota", "bonus"):
+        return heading
+    threshold = THRESHOLD.search(s)
+    if heading == "audience":
+        return "conditions" if threshold else "audience"
+    if heading == "conditions":
+        return "formula" if "formula" in hits and not threshold else "conditions"
+    for field in ("formula", "conditions"):
+        if field in hits:
+            return field
+    if re.match(r"(?:thí sinh|học sinh|người)\b", s, re.I):
+        return "audience"
+    return "notes"
+
+
+EVENTS = [
+    ("xac nhan nhap hoc", "Xác nhận nhập học"),
+    ("nhap hoc", "Nhập học"),
+    ("dang ky", "Đăng ký"),
+    ("nop", "Nộp hồ sơ"),
+    ("cong bo|thong bao ket qua|ket qua", "Công bố kết quả"),
+    ("thi", "Thi"),
+    ("xet tuyen", "Xét tuyển"),
+]
+DOCUMENT_ITEM = re.compile(
+    r"^(?:bản sao|bản chính|phiếu|giấy|học bạ|ảnh|chứng chỉ|lệ phí|đơn|sổ|căn cước"
+    r"|\d+\s*(?:ảnh|bản|phong bì))",
+    re.I,
+)
+
+
+def time_facts(blocks: list[str]) -> tuple[list[dict], list[str]]:
+    """Return [{date, event}] and a document list from the timeline/documents section."""
+    events, labels, items = [], [], []
     for block in blocks:
+        block = norm(block)
         for pattern, label in DOCUMENTS:
             if re.search(pattern, block, re.I):
-                documents.append(label)
+                labels.append(label)
+        item = LEAD.sub("", block)
+        if DOCUMENT_ITEM.match(item) and len(item) < 160 and not DATE.search(item):
+            items.append(shorten(item.rstrip(" ;.,")))
+        round_label = ""
         for part in re.split(r"[;\n]|(?=Đợt\s+\d+\s*:)", block):
             round_match = re.search(r"[Đđ]ợt\s+(\d+)", part)
             if round_match:
-                round_label = f"Đợt {round_match[1]} – "
+                round_label = f"Đợt {round_match[1]}"
             found = unique(text(m[0]) for m in DATE.finditer(part))
             if not found:
                 continue
-            k = key(part)
-            event = (
-                "đăng ký"
-                if "dang ky" in k
-                else "nộp hồ sơ"
-                if "nop" in k
-                else "thi"
-                if "thi" in k
-                else "mốc thời gian"
+            between = part[part.find(found[0]) : part.rfind(found[-1])] if len(found) == 2 else ""
+            date = (" – " if re.search(r"đến|[-–]", between) else ", ").join(found)
+            event = re.sub(r"[Đđ]ợt\s+\d+\s*:?", "", DATE.sub(" ", part))
+            event = re.sub(r"\([^)]*\)?|\d{1,2}\s*(?:giờ|g|h)\s*\d{0,2}", " ", event)
+            event = re.sub(
+                r"\b(?:dự kiến|từ ngày|đến ngày|đến hết|từ|đến|ngày|hết|thời gian|trước)\b",
+                " ",
+                event,
+                flags=re.I,
             )
-            dates.append(f"{round_label}{event}: {', '.join(found)}")
-    return unique(dates), unique(documents)
+            event = re.sub(r"\d+\s*/\s*\d+(?:/\d+)?|/\s*\d{2,4}|^\s*\d+\s+", " ", event)
+            event = re.sub(r"\s+", " ", event).strip(" :,.–-•+*")
+            event = re.sub(r"\s*:\s*,?\s*", ": ", event)
+            if not 3 <= len(event) <= 60:
+                k = key(part)
+                event = next((lb for p, lb in EVENTS if re.search(p, k)), "Mốc thời gian")
+            event = event[0].upper() + event[1:]
+            if round_label:
+                event = f"{round_label}: {event}"
+            events.append({"date": date, "event": event})
+    timeline = list({(e["date"], e["event"]): e for e in events}.values())
+    return timeline, unique(items) or unique(labels)
+
+
+def empty_fields() -> dict:
+    return {field: [] for field in FIELDS}
+
+
+H4_FIELDS = [
+    ("doi tuong", "audience"),
+    ("dieu kien", "conditions"),
+    ("chi tieu", "quota"),
+    ("thoi gian|ho so", "time"),
+    ("diem cong|uu tien", "bonus"),
+]
 
 
 def extract_plan(html: str) -> dict:
@@ -274,12 +289,13 @@ def extract_plan(html: str) -> dict:
     for table in soup.find_all("table"):
         if re.search(r"ma nganh|ten nganh", key(table.get_text(" ", strip=True))):
             table.decompose()
-    section, parent_section, detail, current = "", "", "", None
-    methods, time_blocks, title_year, methods_year = [], [], None, None
+    section, parent_section, detail, current, lead = "", "", "", None, ""
+    methods, time_blocks, intro, title_year, methods_year = [], [], [], None, None
     for element in soup.find_all(["h2", "h3", "h4", "p", "li", "tr"]):
         value = text(element.get_text(" ", strip=True))
         k = key(value)
         if element.name in ("h2", "h3", "h4"):
+            lead = ""
             if "gioi thieu truong" in k or "danh sach nganh dao tao" in k:
                 section, current = "excluded", None
                 if element.name == "h2":
@@ -302,44 +318,64 @@ def extract_plan(html: str) -> dict:
                 section = "methods"
                 name = re.sub(r"^\s*\d+[.)]?\s*", "", value)
                 name = re.sub(r"\s*[–—-]\s*20\d{2}\s*$", "", name)
-                current = {"name": name, "audience": [], "conditions": [], "rules": []}
+                current = {"name": name, "fields": empty_fields()}
                 methods.append(current)
                 detail = "audience"
             elif element.name == "h4" and section == "methods":
-                detail = (
-                    "audience"
-                    if "doi tuong" in k
-                    else "conditions"
-                    if "dieu kien" in k
-                    else "rules"
-                    if "quy che" in k
-                    else ""
-                )
+                detail = next((f for p, f in H4_FIELDS if re.search(p, k)), "rules")
             continue
         if element.find_parent(["li", "p", "tr"]):
             continue
         if section == "methods" and current and detail:
-            if "danh sach nganh dao tao" not in k:
-                current[detail].append(value)
+            if detail == "time":
+                time_blocks.append(value)
+            elif element.name != "tr":  # bang quy doi/diem thanh phan: khong chep
+                if lead and len(value) <= 160:
+                    value = f"{lead} {value}"
+                lead = value if value.endswith(":") and len(value) <= 100 else ""
+                if lead:
+                    # "Dieu kien du tuyen:" trong muc Doi tuong -> cac y sau la dieu kien
+                    if key(lead).startswith("dieu kien"):
+                        detail = "conditions"
+                    elif key(lead).startswith("doi tuong"):
+                        detail = "audience"
+                    continue
+                for fact, is_note in sentences(value):
+                    current["fields"][classify(fact, detail, is_note)].append(fact)
         elif section == "time":
             time_blocks.append(value)
-    dates, docs = time_facts(time_blocks)
+        elif section == "other" and element.name != "tr":
+            intro.append(value)
+    for m in methods:
+        m["fields"] = {f: unique(v)[:MAX_ITEMS] for f, v in m["fields"].items()}
+    # Facts repeated in several methods (VD quy dinh ngoai ngu chung) are shown once.
+    seen: dict[tuple, int] = defaultdict(int)
+    for m in methods:
+        for f, items in m["fields"].items():
+            for s in items:
+                seen[(f, s)] += 1
+    common = empty_fields()
+    for m in methods:
+        m["shared"] = False
+        for f in FIELDS:
+            if f == "audience":
+                continue
+            shared = [s for s in m["fields"][f] if seen[(f, s)] >= 2]
+            if shared:
+                m["fields"][f] = [s for s in m["fields"][f] if seen[(f, s)] < 2]
+                m["shared"] = True
+                common[f] = unique(common[f] + shared)
+    timeline, docs = time_facts(time_blocks)
+    quota = unique(
+        s for v in intro for s, _ in sentences(v) if "chỉ tiêu" in s.lower() and re.search(r"\d", s)
+    )
     return {
         "year": title_year or methods_year,
         "methods_year": methods_year,
-        "methods": [
-            {
-                "name": m["name"],
-                "summary": short_summary(
-                    " ".join(m["audience"]),
-                    " ".join(m["conditions"]),
-                    m["name"],
-                    "\n".join(m["rules"]),
-                ),
-            }
-            for m in methods
-        ],
-        "timeline": dates,
+        "quota": quota[:3],
+        "methods": methods,
+        "common": common,
+        "timeline": timeline,
         "documents": docs,
     }
 
