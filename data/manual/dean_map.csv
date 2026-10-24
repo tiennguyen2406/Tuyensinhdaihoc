@@ -1,0 +1,272 @@
+post_id,hocmai_name,uni_code,ghi_chu
+38257,Trường Đại Học Kỹ Thuật – Hậu Cần Công An Nhân Dân (Phía Bắc),HCB,Khớp tên không dấu; đối chiếu tên bài và H2; tên nguồn khác tên hiện tại
+38230,Trường Đại Học Kỹ Thuật – Hậu Cần Công An Nhân Dân (Phía Nam),HCN,Khớp tên không dấu; đối chiếu tên bài và H2; tên nguồn khác tên hiện tại
+38255,Học Viện Kỹ Thuật Quân Sự – Hệ Quân sự,KQH,Khớp tên không dấu; đối chiếu tên bài và H2
+38228,Trường Khoa học liên ngành và Nghệ thuật Hà Nội,QHK,Khớp tên không dấu; đối chiếu tên bài và H2
+28874,Trường Đại Học Bà Rịa – Vũng Tàu,BVU,Khớp tên không dấu; đối chiếu tên bài và H2
+28872,Trường Đại Học Đông Á,DAD,Khớp tên không dấu; đối chiếu tên bài và H2
+28870,Học viện Báo chí và Tuyên truyền,HBT,Khớp tên không dấu; đối chiếu tên bài và H2
+28868,Học Viện Hậu Cần – Hệ Dân sự,HFH,Khớp tên không dấu; đối chiếu tên bài và H2
+28866,Học Viện Quân Y – Hệ Dân sự,DYH,Khớp tên không dấu; đối chiếu tên bài và H2
+28864,Học Viện Kỹ Thuật Quân Sự – Hệ Dân sự,DQH,Khớp tên không dấu; đối chiếu tên bài và H2
+28862,Trường Đại học Y Dược Buôn Ma Thuột,BMU,Khớp tên không dấu; đối chiếu tên bài và H2
+28860,Trường Đại Học Anh Quốc Việt Nam,,Ngoài danh mục 292 trường có điểm; không gán sang trường tên gần giống
+28858,Trường Đại Học Công Nghệ Đông Á,DDA,Khớp tên không dấu; đối chiếu tên bài và H2
+28856,Trường Đại Học Sân Khấu Điện Ảnh Hà Nội,SKD,Khớp tên không dấu; đối chiếu tên bài và H2
+28854,Trường Đại Học Mỹ Thuật Việt Nam,MTH,Khớp tên không dấu; đối chiếu tên bài và H2
+28852,Trường Đại Học Mỹ Thuật TPHCM,MTS,Khớp tên không dấu; đối chiếu tên bài và H2
+28850,Trường Đại Học Mỹ Thuật Công Nghiệp,MTC,Khớp tên không dấu; đối chiếu tên bài và H2
+28848,Trường Đại Học Công Nghệ Vạn Xuân,,Ngoài danh mục 292 trường có điểm; không gán sang trường tên gần giống
+28846,Nhạc Viện TPHCM,NVS,Khớp tên không dấu; đối chiếu tên bài và H2
+28844,Học Viện Âm Nhạc Quốc Gia Việt Nam,,Ngoài danh mục 292 trường có điểm; không gán sang trường tên gần giống
+28842,Học Viện Âm Nhạc Huế,HVA,Khớp tên không dấu; đối chiếu tên bài và H2
+28840,Trường Đại Học Hoa Lư,DNB,Khớp tên không dấu; đối chiếu tên bài và H2
+28838,Phân hiệu Đại học Thái Nguyên tại Hà Giang,DTG,Khớp tên không dấu; đối chiếu tên bài và H2
+28836,"Trường Đại Học Văn Hóa, Thể Thao Và Du Lịch Thanh Hóa",DVD,Khớp tên không dấu; đối chiếu tên bài và H2
+28834,Trường Đại học Kiên Giang,TKG,Khớp tên không dấu; đối chiếu tên bài và H2
+28832,Trường Đại học Tân Trào,TQU,Khớp tên không dấu; đối chiếu tên bài và H2
+28830,Phân Hiệu Đại Học Thái Nguyên Tại Lào Cai,DTP,Khớp tên không dấu; đối chiếu tên bài và H2
+28828,Trường Đại Học Đà Lạt,TDL,Khớp tên không dấu; đối chiếu tên bài và H2
+28826,Trường Đại Học Tây Bắc,TTB,Khớp tên không dấu; đối chiếu tên bài và H2
+28824,Trường Đại học Nông Lâm Bắc Giang,DBG,Khớp tên không dấu; đối chiếu tên bài và H2
+28822,Trường Đại Học Công Nghệ Sài Gòn,DSG,Khớp tên không dấu; đối chiếu tên bài và H2
+28820,Trường Đại Học Xây Dựng Miền Trung,XDT,Khớp tên không dấu; đối chiếu tên bài và H2
+28818,Trường Đại Học Công Nghiệp Quảng Ninh,DDM,Khớp tên không dấu; đối chiếu tên bài và H2
+28816,Trường Đại Học Gia Định,GDU,Khớp tên không dấu; đối chiếu tên bài và H2
+28814,Trường Đại học Tài Chính Kế Toán,UFA,Đề án 2025 của trường tiền thân; nay Phân hiệu ĐH Tài chính - Marketing tại Quảng Ngãi; QĐ 807/QĐ-TTg 06/05/2026; tên nguồn khác tên hiện tại
+28812,Học Viện Ngân Hàng (Phân Viện Phú Yên),NHP,Khớp tên không dấu; đối chiếu tên bài và H2
+28810,Phân hiệu Đại học Lâm nghiệp tỉnh Gia Lai,LNA,Khớp tên không dấu; đối chiếu tên bài và H2
+28808,Trường Đại Học Công Nghiệp Việt – Hung,VHD,Khớp tên không dấu; đối chiếu tên bài và H2
+28806,Trường Đại Học Xây Dựng Miền Tây,MTU,Khớp tên không dấu; đối chiếu tên bài và H2
+28804,Trường Đại học Quản lý và Công nghệ Hải Phòng,HPU,Khớp tên không dấu; đối chiếu tên bài và H2
+28802,Trường Đại Học Phú Xuân,DPX,Khớp tên không dấu; đối chiếu tên bài và H2
+28800,Trường Đại Học Kinh tế công nghệ Thái Nguyên,DVB,Khớp tên không dấu; đối chiếu tên bài và H2
+28798,Trường Đại học Hùng Vương TPHCM,DHV,Khớp tên không dấu; đối chiếu tên bài và H2
+28796,Trường Đại Học Thái Bình Dương,TBD,Khớp tên không dấu; đối chiếu tên bài và H2
+28794,Phân Hiệu Đại Học Huế tại Quảng Trị,DHQ,Khớp tên không dấu; đối chiếu tên bài và H2
+28792,Trường Đại Học Công Nghệ và Quản Lý Hữu Nghị,DCQ,Khớp tên không dấu; đối chiếu tên bài và H2
+28790,Trường Đại học Quản lý và công nghệ TPHCM,UMT,Khớp tên không dấu; đối chiếu tên bài và H2
+28788,Trường Đại Học Nông Lâm Thái Nguyên,DTN,Khớp tên không dấu; đối chiếu tên bài và H2
+28786,Trường Đại Học Sư Phạm Kỹ Thuật Nam Định,SKN,Khớp tên không dấu; đối chiếu tên bài và H2
+28784,Trường Đại Học Quốc Tế Bắc Hà,DBH,Khớp tên không dấu; đối chiếu tên bài và H2
+28782,Trường Đại Học Kinh Tế Công Nghiệp Long An,DLA,Khớp tên không dấu; đối chiếu tên bài và H2
+28780,Trường Đại Học Chu Văn An,DCA,Khớp tên không dấu; đối chiếu tên bài và H2; tên nguồn khác tên hiện tại
+28778,Trường Đại học Tư thục Quốc Tế Sài Gòn,SIU,Đối chiếu tên có tiền tố Tư thục; đúng Trường ĐH Quốc tế Sài Gòn; tên nguồn khác tên hiện tại
+28776,Khoa Quốc Tế – Đại Học Thái Nguyên,DTQ,Khớp tên không dấu; đối chiếu tên bài và H2
+28774,Trường Đại Học Nông Lâm Huế,DHL,Khớp tên không dấu; đối chiếu tên bài và H2
+28772,Phân hiệu Đại học Quốc gia TPHCM tại Bến Tre,QSP,Khớp tên không dấu; đối chiếu tên bài và H2
+28770,Trường Đại Học Công Nghiệp Việt Trì,VUI,Khớp tên không dấu; đối chiếu tên bài và H2
+28768,Trường Đại học Công nghiệp và Thương mại Hà Nội,CCM,Khớp tên không dấu; đối chiếu tên bài và H2
+28766,Trường Đại Học Nguyễn Trãi,NTU,Khớp tên không dấu; đối chiếu tên bài và H2
+28764,Trường Đại học Tài Nguyên và Môi Trường TPHCM,DTM,Khớp tên không dấu; đối chiếu tên bài và H2
+28762,Phân hiệu Đại Học Lâm nghiệp tại Đồng Nai,LNS,Khớp tên không dấu; đối chiếu tên bài và H2
+28760,Trường Đại Học Đồng Nai,DNU,Khớp tên không dấu; đối chiếu tên bài và H2
+28758,Trường Đại Học Khoa Học Thái Nguyên,DTZ,Khớp tên không dấu; đối chiếu tên bài và H2
+28756,Trường Đại Học Khoa Học Huế,DHT,Khớp tên không dấu; đối chiếu tên bài và H2
+28754,Học Viện Dân Tộc,HVD,Khớp tên không dấu; đối chiếu tên bài và H2
+28752,Trường Đại Học Thái Bình,DTB,Khớp tên không dấu; đối chiếu tên bài và H2
+28750,Trường Đại Học Thể Dục Thể Thao Bắc Ninh,TDB,Khớp tên không dấu; đối chiếu tên bài và H2
+28748,Viện nghiên cứu và đào tạo Việt Anh – Đại học Đà Nẵng,DDV,Khớp tên không dấu; đối chiếu tên bài và H2
+28746,Trường Đại Học Quốc Tế Miền Đông,EIU,Khớp tên không dấu; đối chiếu tên bài và H2
+28744,Trường Đại Học Công Nghệ Đồng Nai,DCD,Khớp tên không dấu; đối chiếu tên bài và H2
+28742,Trường Đại học Y khoa Tokyo Việt Nam,THU,Khớp tên không dấu; đối chiếu tên bài và H2
+28740,Trường Đại Học Điều Dưỡng Nam Định,YDD,Khớp tên không dấu; đối chiếu tên bài và H2
+28738,Trường Đại Học Trưng Vương,DVP,Khớp tên không dấu; đối chiếu tên bài và H2
+28736,Trường Đại Học Phan Thiết,DPT,Khớp tên không dấu; đối chiếu tên bài và H2
+28734,Trường Đại Học Hoa Sen,HSU,Khớp tên không dấu; đối chiếu tên bài và H2
+28732,Trường Đại Học Quang Trung,DQT,Khớp tên không dấu; đối chiếu tên bài và H2
+28730,Trường Đại Học Văn Hiến,DVH,Khớp tên không dấu; đối chiếu tên bài và H2
+28728,Trường Đại Học Lâm nghiệp,LNH,Khớp tên không dấu; đối chiếu tên bài và H2
+28726,Trường Đại học Nghệ An,CEA,Khớp tên không dấu; đối chiếu tên bài và H2
+28724,Trường Đại Học Sư Phạm Kỹ Thuật Vinh,SKV,Khớp tên không dấu; đối chiếu tên bài và H2
+28722,Trường Đại Học Ngoại Ngữ Tin Học TPHCM,DNT,Khớp tên không dấu; đối chiếu tên bài và H2
+28720,Trường Đại Học Dầu Khí Việt Nam,PVU,Khớp tên không dấu; đối chiếu tên bài và H2
+28718,Trường Đại học Kinh tế Quản trị kinh doanh Thái Nguyên,DTE,Tên bài thiếu từ và; đối chiếu đúng ĐH Kinh tế và QTKD Thái Nguyên; tên nguồn khác tên hiện tại
+28716,Trường Đại Học Tiền Giang,TTG,Khớp tên không dấu; đối chiếu tên bài và H2
+28714,Trường Đại học Tài chính Quản trị kinh doanh,HTY,Đề án trường tiền thân ĐH Tài chính - QTKD; nay Phân hiệu Học viện Tài chính tại Hưng Yên; tên nguồn khác tên hiện tại
+28712,Trường Đại Học Kinh Tế Tài Chính TPHCM,UEF,Khớp tên không dấu; đối chiếu tên bài và H2
+28710,Trường Đại Học Kinh Tế Kỹ Thuật Bình Dương,DKB,Khớp tên không dấu; đối chiếu tên bài và H2
+28708,Trường Đại Học FPT,FPT,Khớp tên không dấu; đối chiếu tên bài và H2
+28706,Trường Đại học Công nghệ Miền Đông,MIT,Khớp tên không dấu; đối chiếu tên bài và H2
+28704,Trường Đại Học Nghệ Thuật Huế,DHN,Khớp tên không dấu; đối chiếu tên bài và H2
+28702,Trường Đại Học Lương Thế Vinh,DTV,Khớp tên không dấu; đối chiếu tên bài và H2
+28700,Trường Đại Học Bình Dương,DBD,Khớp tên không dấu; đối chiếu tên bài và H2
+28698,Trường Đại học Thành Đô,TDD,Khớp tên không dấu; đối chiếu tên bài và H2
+28696,Trường Đại Học Yersin Đà Lạt,DYD,Khớp tên không dấu; đối chiếu tên bài và H2
+28694,Trường Đại học Luật Huế,DHA,Khớp tên không dấu; đối chiếu tên bài và H2
+28692,Trường Đại Học Thành Đông,DDB,Khớp tên không dấu; đối chiếu tên bài và H2
+28690,Trường Đại Học Lạc Hồng,DLH,Khớp tên không dấu; đối chiếu tên bài và H2
+28688,Trường Đại Học Đông Đô,DDU,Khớp tên không dấu; đối chiếu tên bài và H2
+28686,Trường Đại học Công Nghệ TPHCM,DKC,Khớp tên không dấu; đối chiếu tên bài và H2
+28684,Trường Đại Học Tây Đô,DTD,Khớp tên không dấu; đối chiếu tên bài và H2
+28682,Trường Đại Học Phòng Cháy Chữa Cháy (Phía Bắc),PCH,Tên cũ; đối chiếu Học viện Phòng cháy chữa cháy và Cứu nạn cứu hộ phía Bắc; tên nguồn khác tên hiện tại
+28680,Trường Đại học Sao Đỏ,SDU,Khớp tên không dấu; đối chiếu tên bài và H2
+28678,Trường Đại Học Thủy Lợi (Cơ sở 2),TLS,Khớp tên không dấu; đối chiếu tên bài và H2
+28676,Trường Đại Học Việt Đức,VGU,Khớp tên không dấu; đối chiếu tên bài và H2
+28674,Trường Quản Trị và Kinh Doanh – ĐHQG Hà Nội,QHD,Khớp tên không dấu; đối chiếu tên bài và H2
+28672,Trường Sĩ Quan Pháo Binh,PBH,Khớp tên không dấu; đối chiếu tên bài và H2
+28670,Trường Đại Học Kỹ Thuật – Hậu Cần Công An Nhân Dân (Phía Bắc),HCB,Khớp tên không dấu; đối chiếu tên bài và H2; tên nguồn khác tên hiện tại
+28668,Trường Sĩ Quan Đặc Công,DCH,Khớp tên không dấu; đối chiếu tên bài và H2
+28666,Trường Sĩ Quan Công Binh – Hệ Quân sự – Đại học Ngô Quyền,SNH,Khớp tên không dấu; đối chiếu tên bài và H2
+28664,Trường Đại Học Võ Trường Toản,VTT,Khớp tên không dấu; đối chiếu tên bài và H2
+28662,Trường Đại Học Đại Nam,DDN,Khớp tên không dấu; đối chiếu tên bài và H2
+28660,Trường Đại Học Hòa Bình,ETU,Khớp tên không dấu; đối chiếu tên bài và H2
+28658,Trường Đại Học Kinh Bắc,UKB,Khớp tên không dấu; đối chiếu tên bài và H2
+28656,Trường Đại Học Phan Châu Trinh,DPC,Khớp tên không dấu; đối chiếu tên bài và H2
+28654,Trường Đại Học Văn Lang,DVL,Khớp tên không dấu; đối chiếu tên bài và H2
+28652,Trường Đại Học Cửu Long,DCL,Khớp tên không dấu; đối chiếu tên bài và H2
+28650,Trường Đại Học Thể Dục Thể Thao Đà Nẵng,TTD,Khớp tên không dấu; đối chiếu tên bài và H2
+28648,Trường Đại học Tân Tạo,TTU,Khớp tên không dấu; đối chiếu tên bài và H2
+28646,Trường Đại Học Quốc Tế Hồng Bàng,HIU,Khớp tên không dấu; đối chiếu tên bài và H2
+28644,Trường Đại học Nam Cần Thơ,DNC,Khớp tên không dấu; đối chiếu tên bài và H2
+28642,Đại Học Duy Tân,DDT,Khớp tên không dấu; đối chiếu tên bài và H2
+28640,Học Viện Quản Lý Giáo Dục,HVQ,Khớp tên không dấu; đối chiếu tên bài và H2
+28638,Trường Sĩ Quan Tăng – Thiết Giáp,TGH,Khớp tên không dấu; đối chiếu tên bài và H2
+28636,Trường Sĩ Quan Phòng Hóa,HGH,Khớp tên không dấu; đối chiếu tên bài và H2
+28634,Trường Đại học Công Nghệ Thông Tin và Truyền Thông Thái Nguyên,DTC,Khớp tên không dấu; đối chiếu tên bài và H2
+28632,Trường Sĩ Quan Không Quân – Hệ Đại học,KGH,Khớp tên không dấu; đối chiếu tên bài và H2
+28630,Trường Du Lịch – Đại Học Huế,DHD,Khớp tên không dấu; đối chiếu tên bài và H2
+28628,Trường Đại Học Kinh Tế – Đại Học Huế,DHK,Khớp tên không dấu; đối chiếu tên bài và H2
+28626,Trường Đại Học Nguyễn Tất Thành,NTT,Khớp tên không dấu; đối chiếu tên bài và H2
+28624,Trường Đại Học CMC,CMC,Khớp tên không dấu; đối chiếu tên bài và H2
+28622,Học Viện Ngân Hàng (Phân Viện Bắc Ninh),NHB,Khớp tên không dấu; đối chiếu tên bài và H2
+28620,Trường Đại học Sư phạm Kỹ thuật – Đại học Đà Nẵng,DSK,Khớp tên không dấu; đối chiếu tên bài và H2
+28618,Trường Đại Học Sư Phạm Thể Dục Thể Thao TPHCM,STS,Khớp tên không dấu; đối chiếu tên bài và H2
+28616,Trường Đại Học Kỹ Thuật Công Nghiệp Thái Nguyên,DTK,Khớp tên không dấu; đối chiếu tên bài và H2
+28614,Trường Đại Học Kinh Doanh và Công Nghệ Hà Nội,DQK,Khớp tên không dấu; đối chiếu tên bài và H2
+28612,Trường Đại Học Kiến Trúc Đà Nẵng,KTD,Khớp tên không dấu; đối chiếu tên bài và H2
+28610,Trường Đại Học Sư Phạm Kỹ Thuật Vĩnh Long,VLU,Đổi tên: ĐH Sư phạm Kỹ thuật Vĩnh Long thành ĐH Công nghệ Kỹ thuật Vĩnh Long; QĐ 2636/QĐ-BGDĐT 07/09/2026; tên nguồn khác tên hiện tại
+28608,Trường Đại Học Phương Đông,DPD,Khớp tên không dấu; đối chiếu tên bài và H2
+28606,Trường Đại Học Điện Lực,DDL,Khớp tên không dấu; đối chiếu tên bài và H2
+28604,Trường Đại Học Mỏ Địa Chất,MDA,Khớp tên không dấu; đối chiếu tên bài và H2
+28602,Trường Đại học Công nghệ Giao thông vận tải,GTA,Khớp tên không dấu; đối chiếu tên bài và H2
+28600,Trường Đại Học Tài Chính Ngân Hàng Hà Nội,FBU,Khớp tên không dấu; đối chiếu tên bài và H2
+28598,Trường Đại Học Mở TPHCM,MBS,Khớp tên không dấu; đối chiếu tên bài và H2
+28596,Trường Đại Học Sư Phạm Kỹ Thuật Hưng Yên,SKH,Khớp tên không dấu; đối chiếu tên bài và H2
+28594,Trường Đại Học Xây Dựng Hà Nội,XDA,Khớp tên không dấu; đối chiếu tên bài và H2
+28592,Học viện cán bộ TPHCM,HVC,Khớp tên không dấu; đối chiếu tên bài và H2
+28590,Trường Đại Học Nông Lâm TPHCM,NLS,Khớp tên không dấu; đối chiếu tên bài và H2
+28588,Trường Đại Học Trà Vinh,DVT,Khớp tên không dấu; đối chiếu tên bài và H2
+28586,Trường Đại học Công nghiệp Vinh,DCV,Khớp tên không dấu; đối chiếu tên bài và H2
+28584,Trường Đại Học Khoa Học Và Công Nghệ Hà Nội,KCN,Khớp tên không dấu; đối chiếu tên bài và H2
+28582,Trường Đại học Kỹ Thuật Công Nghệ Cần Thơ,KCC,Khớp tên không dấu; đối chiếu tên bài và H2
+28580,Trường Đại Học Sư Phạm Thể Dục Thể Thao Hà Nội,TDH,Khớp tên không dấu; đối chiếu tên bài và H2
+28578,Phân Hiệu Đại Học Đà Nẵng tại Kon Tum,DDP,Khớp tên không dấu; đối chiếu tên bài và H2
+28576,Trường Đại Học Phú Yên,DPY,Khớp tên không dấu; đối chiếu tên bài và H2
+28574,Trường Đại Học Lao Động – Xã Hội (Cơ sở II),DLS,Khớp tên không dấu; đối chiếu tên bài và H2
+28572,Trường Đại Học Quảng Nam,DQU,Khớp tên không dấu; đối chiếu tên bài và H2
+28570,Trường Đại Học Bạc Liêu,DBL,Khớp tên không dấu; đối chiếu tên bài và H2
+28568,Trường Đại Học Lao Động – Xã Hội,DLX,Khớp tên không dấu; đối chiếu tên bài và H2
+28566,Trường Đại Học Ngân Hàng TPHCM,NHS,Khớp tên không dấu; đối chiếu tên bài và H2
+28564,Trường Đại học Tài Nguyên và Môi Trường Hà Nội,DMT,Khớp tên không dấu; đối chiếu tên bài và H2
+28562,Trường Đại Học Hà Tĩnh,HHT,Khớp tên không dấu; đối chiếu tên bài và H2
+28560,Trường Đại Học Phạm Văn Đồng,DPQ,Khớp tên không dấu; đối chiếu tên bài và H2
+28558,Trường Đại Học Quảng Bình,DQB,Khớp tên không dấu; đối chiếu tên bài và H2
+28556,Trường Đại Học Hải Dương,DKT,Khớp tên không dấu; đối chiếu tên bài và H2
+28554,Trường Đại Học Hạ Long,HLU,Khớp tên không dấu; đối chiếu tên bài và H2
+28552,Trường Ngoại Ngữ Thái Nguyên,DTF,Khớp tên không dấu; đối chiếu tên bài và H2
+28550,Trường Đại Học Kinh Tế – Đại Học Đà Nẵng,DDQ,Khớp tên không dấu; đối chiếu tên bài và H2
+28548,Trường Đại Học Sư Phạm Nghệ Thuật Trung Ương,GNT,Khớp tên không dấu; đối chiếu tên bài và H2
+28546,Trường Đại Học Quy Nhơn,DQN,Khớp tên không dấu; đối chiếu tên bài và H2
+28544,Trường Đại Học Tây Nguyên,TTN,Khớp tên không dấu; đối chiếu tên bài và H2
+28542,Trường Đại Học Đồng Tháp,SPD,Khớp tên không dấu; đối chiếu tên bài và H2
+28540,Học Viện Hành Chính và Quản trị công,HCH,Khớp tên không dấu; đối chiếu tên bài và H2
+28538,Trường Đại Học Vinh,TDV,Khớp tên không dấu; đối chiếu tên bài và H2
+28536,Trường Đại Học Kiến Trúc Hà Nội,KTA,Khớp tên không dấu; đối chiếu tên bài và H2
+28534,Trường Đại Học Hàng Hải Việt Nam,HHA,Khớp tên không dấu; đối chiếu tên bài và H2
+28532,Trường Đại Học Công Đoàn,LDA,Khớp tên không dấu; đối chiếu tên bài và H2
+28530,Trường Đại Học Mở Hà Nội,MHN,Khớp tên không dấu; đối chiếu tên bài và H2
+28528,Học Viện Chính Sách và Phát Triển,HCP,Khớp tên không dấu; đối chiếu tên bài và H2
+28526,Trường Đại Học Hải Phòng,THP,Khớp tên không dấu; đối chiếu tên bài và H2
+28524,Trường Đại Học Hùng Vương,THV,Khớp tên không dấu; đối chiếu tên bài và H2
+28522,Trường Đại Học Quốc Tế – ĐHQG TPHCM,QSQ,Khớp tên không dấu; đối chiếu tên bài và H2
+28520,Trường Đại học Khoa học sức khỏe TPHCM,QSY,Khớp tên không dấu; đối chiếu tên bài và H2
+28518,Học Viện Chính Trị Công An Nhân Dân,HCA,Khớp tên không dấu; đối chiếu tên bài và H2
+28516,Trường Đại Học Kiến Trúc TPHCM,KTS,Khớp tên không dấu; đối chiếu tên bài và H2
+28514,Trường Y Dược Đà Nẵng,DDY,Khớp tên không dấu; đối chiếu tên bài và H2
+28512,Trường Đại Học Y Dược Huế,DHY,Khớp tên không dấu; đối chiếu tên bài và H2
+28510,Trường Đại Học Y Dược Thái Nguyên,DTY,Khớp tên không dấu; đối chiếu tên bài và H2
+28508,Trường Đại học Kỹ thuật Y Dược Đà Nẵng,YDN,Khớp tên không dấu; đối chiếu tên bài và H2
+28506,Trường Đại Học Y Khoa Vinh,YKV,Khớp tên không dấu; đối chiếu tên bài và H2
+28504,Trường Sĩ Quan Lục Quân 2 – Đại học Nguyễn Huệ,LBH,Khớp tên không dấu; đối chiếu tên bài và H2
+28502,Trường Đại Học Nha Trang,TSN,Khớp tên không dấu; đối chiếu tên bài và H2
+28500,Trường Đại Học Giao Thông Vận Tải (Cơ sở 2),GSA,Khớp tên không dấu; đối chiếu tên bài và H2
+28498,Trường Đại Học Tài Chính Marketing,DMS,Khớp tên không dấu; đối chiếu tên bài và H2
+28496,Trường Đại Học Ngoại Ngữ Huế,DHF,Khớp tên không dấu; đối chiếu tên bài và H2
+28494,Trường Đại Học Bách Khoa Đà Nẵng,DDK,Khớp tên không dấu; đối chiếu tên bài và H2
+28492,Đại Học Kinh Tế TPHCM,KSA,Khớp tên không dấu; đối chiếu tên bài và H2
+28490,Trường Đại Học Ngoại Ngữ Đà Nẵng,DDF,Khớp tên không dấu; đối chiếu tên bài và H2
+28488,Trường Đại Học Luật TPHCM,LPS,Khớp tên không dấu; đối chiếu tên bài và H2
+28486,Trường Đại học Kinh Tế Luật TPHCM,QSK,Khớp tên không dấu; đối chiếu tên bài và H2
+28484,Học Viện Thanh Thiếu Niên Việt Nam,HTN,Khớp tên không dấu; đối chiếu tên bài và H2
+28482,Trường Đại Học Sư Phạm Kỹ Thuật TPHCM,SPK,Khớp tên không dấu; đối chiếu tên bài và H2; tên nguồn khác tên hiện tại
+28480,Trường Đại Học Văn Hóa TPHCM,VHS,Khớp tên không dấu; đối chiếu tên bài và H2
+28478,Trường Đại Học Giáo Dục – ĐHQG Hà Nội,QHS,Khớp tên không dấu; đối chiếu tên bài và H2
+28476,Trường Đại Học Sư Phạm Hà Nội 2,SP2,Khớp tên không dấu; đối chiếu tên bài và H2
+28474,Trường Đại Học Sư Phạm – Đại Học Đà Nẵng,DDS,Khớp tên không dấu; đối chiếu tên bài và H2
+28472,Học viện Tòa án,HTA,Khớp tên không dấu; đối chiếu tên bài và H2
+28470,Trường Đại học Ngoại thương (Cơ sở II),NTS,Khớp tên không dấu; đối chiếu tên bài và H2
+28468,Học Viện Khoa Học Quân Sự – Hệ Quân sự,NQH,Khớp tên không dấu; đối chiếu tên bài và H2
+28466,Trường Đại Học Sài Gòn,SGD,Khớp tên không dấu; đối chiếu tên bài và H2
+28464,Trường Đại Học Công Nghệ Thông Tin – ĐHQG TPHCM,QSC,Khớp tên không dấu; đối chiếu tên bài và H2
+28462,Trường Đại Học Sư Phạm Huế,DHS,Khớp tên không dấu; đối chiếu tên bài và H2
+28460,Trường Đại học Luật – ĐHQG Hà Nội,QHL,Khớp tên không dấu; đối chiếu tên bài và H2
+28458,Học Viện Biên Phòng,BPH,Khớp tên không dấu; đối chiếu tên bài và H2
+28456,Trường Đại học Kiểm Sát,DKS,Khớp tên không dấu; đối chiếu tên bài và H2
+28454,Đại Học Cần Thơ,TCT,Khớp tên không dấu; đối chiếu tên bài và H2
+28452,Trường Sĩ Quan Chính Trị – Đại Học Chính Trị,LCH,Khớp tên không dấu; đối chiếu tên bài và H2
+28450,Đại Học Sư Phạm Thái Nguyên,DTS,Khớp tên không dấu; đối chiếu tên bài và H2
+28448,Trường Đại Học Khoa Học Xã Hội và Nhân Văn TPHCM,QSX,Khớp tên không dấu; đối chiếu tên bài và H2
+28446,Trường Đại Học Kinh Tế – ĐHQG Hà Nội,QHE,Khớp tên không dấu; đối chiếu tên bài và H2
+28444,Trường Đại Học Khoa Học Tự Nhiên Hà Nội,QHT,Khớp tên không dấu; đối chiếu tên bài và H2
+28442,Trường Đại Học Ngoại Ngữ – ĐH Quốc gia Hà Nội,QHF,Khớp tên không dấu; đối chiếu tên bài và H2
+28440,Trường Đại Học Luật Hà Nội,LPH,Khớp tên không dấu; đối chiếu tên bài và H2
+28438,Trường Đại Học Khoa Học Xã Hội và Nhân Văn Hà Nội,QHX,Khớp tên không dấu; đối chiếu tên bài và H2
+28436,Học Viện Nông Nghiệp Việt Nam,HVN,Khớp tên không dấu; đối chiếu tên bài và H2
+28434,Trường Đại Học Tôn Đức Thắng,DTT,Khớp tên không dấu; đối chiếu tên bài và H2
+28432,Trường Đại Học Văn Hóa Hà Nội,VHH,Khớp tên không dấu; đối chiếu tên bài và H2
+28430,Trường Đại Học Khoa Học Tự Nhiên TPHCM,QST,Khớp tên không dấu; đối chiếu tên bài và H2
+28428,Trường Đại Học Thủy Lợi,TLA,Khớp tên không dấu; đối chiếu tên bài và H2
+28426,Trường Đại Học Thăng Long,DTL,Khớp tên không dấu; đối chiếu tên bài và H2
+28424,Trường Đại Học Y Khoa Phạm Ngọc Thạch,TYS,Khớp tên không dấu; đối chiếu tên bài và H2
+28422,Trường Đại học Thủ Dầu Một,TDM,Khớp tên không dấu; đối chiếu tên bài và H2
+28420,Trường Đại Học Y Dược Cần Thơ,YCT,Khớp tên không dấu; đối chiếu tên bài và H2
+28418,Trường Đại Học An Ninh Nhân Dân,ANS,Khớp tên không dấu; đối chiếu tên bài và H2
+28416,Học Viện Ngoại Giao,HQT,Khớp tên không dấu; đối chiếu tên bài và H2
+28414,Trường Đại Học Y Tế Công Cộng,YTC,Khớp tên không dấu; đối chiếu tên bài và H2
+28412,Trường Đại Học Hà Nội,NHF,Khớp tên không dấu; đối chiếu tên bài và H2
+28409,Trường Sĩ Quan Thông Tin – Hệ Quân sự – Đại Học Thông Tin Liên Lạc,TTH,Khớp tên không dấu; đối chiếu tên bài và H2
+28407,Trường Đại Học Cảnh Sát Nhân Dân,CSS,Khớp tên không dấu; đối chiếu tên bài và H2
+28405,Học Viện Phòng Không – Không Quân,PKH,Khớp tên không dấu; đối chiếu tên bài và H2
+28403,Đại Học Phenikaa,PKA,Khớp tên không dấu; đối chiếu tên bài và H2
+28401,Học Viện Hàng không Việt Nam,HHK,Khớp tên không dấu; đối chiếu tên bài và H2
+28399,Học Viện Hải Quân,HQH,Khớp tên không dấu; đối chiếu tên bài và H2
+28397,Trường Sĩ Quan Lục Quân 1 – Đại học Trần Quốc Tuấn,LAH,Khớp tên không dấu; đối chiếu tên bài và H2
+28394,Trường Đại Học Công Thương TPHCM,DCT,Khớp tên không dấu; đối chiếu tên bài và H2
+28392,Trường Đại Học Kinh Tế Kỹ Thuật Công Nghiệp,DKK,Khớp tên không dấu; đối chiếu tên bài và H2
+28390,Học Viện Cảnh Sát Nhân Dân,CSH,Khớp tên không dấu; đối chiếu tên bài và H2
+28388,Học Viện Y Dược Học Cổ Truyền Việt Nam,HYD,Khớp tên không dấu; đối chiếu tên bài và H2
+28386,Trường Đại Học Kỹ Thuật Y Tế Hải Dương,DKY,Khớp tên không dấu; đối chiếu tên bài và H2
+28384,Học Viện An Ninh Nhân Dân,ANH,Khớp tên không dấu; đối chiếu tên bài và H2
+28382,Trường Đại Học Dược Hà Nội,DKH,Khớp tên không dấu; đối chiếu tên bài và H2
+28380,Học Viện Phụ Nữ Việt Nam,HPN,Khớp tên không dấu; đối chiếu tên bài và H2
+28378,Trường Đại Học Công Nghiệp TPHCM,IUH,Khớp tên không dấu; đối chiếu tên bài và H2
+28376,Trường Đại Học Y Dược Hải Phòng,YPB,Khớp tên không dấu; đối chiếu tên bài và H2
+28374,Trường Đại Học Công Nghiệp Hà Nội,DCN,Khớp tên không dấu; đối chiếu tên bài và H2
+28372,Học Viện Kỹ Thuật Mật Mã,KMA,Khớp tên không dấu; đối chiếu tên bài và H2
+28370,Trường Đại Học Y Dược Thái Bình,YTB,Khớp tên không dấu; đối chiếu tên bài và H2
+28368,Trường Đại Học Giao Thông Vận Tải,GHA,Khớp tên không dấu; đối chiếu tên bài và H2
+28366,Trường Đại học Thủ Đô Hà Nội,HNM,Khớp tên không dấu; đối chiếu tên bài và H2
+28364,Trường Đại Học Công Nghệ – Đại Học Quốc Gia Hà Nội,QHI,Khớp tên không dấu; đối chiếu tên bài và H2
+28362,Đại Học Y Dược TPHCM,YDS,Khớp tên không dấu; đối chiếu tên bài và H2
+28360,Trường Đại Học Sư Phạm TPHCM,SPS,Khớp tên không dấu; đối chiếu tên bài và H2
+28358,Trường Đại Học Thương Mại,TMU,Khớp tên không dấu; đối chiếu tên bài và H2
+28356,Trường Đại Học Sư Phạm Hà Nội,SPH,Khớp tên không dấu; đối chiếu tên bài và H2
+28354,Học Viện Công Nghệ Bưu Chính Viễn Thông,BVH,Khớp tên không dấu; đối chiếu tên bài và H2
+28352,Trường Đại Học Y Hà Nội,YHB,Khớp tên không dấu; đối chiếu tên bài và H2
+28350,Trường Đại Học Bách Khoa HCM,QSB,Khớp tên không dấu; đối chiếu tên bài và H2
+28348,Trường Đại học Ngoại thương,NTH,Khớp tên không dấu; đối chiếu tên bài và H2
+28346,Học Viện Ngân Hàng,NHH,Khớp tên không dấu; đối chiếu tên bài và H2
+28344,Học Viện Tài chính,HTC,Khớp tên không dấu; đối chiếu tên bài và H2
+28342,Đại Học Bách Khoa Hà Nội,BKA,Khớp tên không dấu; đối chiếu tên bài và H2
+28340,Đại Học Kinh Tế Quốc Dân,KHA,Khớp tên không dấu; đối chiếu tên bài và H2

@@ -50,11 +50,21 @@ def check():
         for level in d["counts"]:
             group = [r for r in d["rows"] if r["level"] == level]
             key = (
-                (lambda r: (r["vnur_rank"] is None, r["vnur_rank"] or 0, -r["score"]))
+                (
+                    lambda r: (
+                        r["vnur_rank"] is None,
+                        r["vnur_rank"] or 0,
+                        bool(r["vnur_parent"]),
+                        -r["score"],
+                    )
+                )
                 if sorting == "rank"
                 else (lambda r: -r["score"])
             )
             assert group == sorted(group, key=key)
+    direct = {"vnur_rank": 1, "vnur_parent": "", "score": 20}
+    inherited = {"vnur_rank": 1, "vnur_parent": "ĐHQG HN", "score": 29}
+    assert sorted([inherited, direct], key=api.vnur_sort_key) == [direct, inherited]
     print(
         "PASS: block aliases/conflicts, 5 parent groups, renamed schools, card counts, advice sorts"
     )

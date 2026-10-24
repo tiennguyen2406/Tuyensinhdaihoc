@@ -77,6 +77,31 @@ def unaccent(s: str) -> str:
 
 
 @lru_cache(maxsize=1)
+def dean_index() -> dict:
+    path = ROOT / "data/clean/dean.json"
+    return (
+        json.loads(path.read_text(encoding="utf-8"))
+        if path.exists()
+        else {"plans": {}, "stats": {}}
+    )
+
+
+def university_plan(code: str, year: int = 9999):
+    plans = dean_index()["plans"].get(code, [])
+    candidates = [p for p in plans if p["year"] is not None and p["year"] <= year]
+    return max(candidates or plans, key=lambda p: (p["year"] or 0, p["modified"]), default=None)
+
+
+def university_info(row: dict) -> dict:
+    if row["province"] == "Khác":
+        plan = university_plan(row["uni_code"])
+        if plan and plan["province"] != "Khác":
+            row["province"] = plan["province"]
+            row["province_source"] = "HOCMAI"
+    return row
+
+
+@lru_cache(maxsize=1)
 def search_index() -> dict:
     c = con()
     unis = [
@@ -103,6 +128,7 @@ def search_index() -> dict:
         )
     ]
     for u in unis:
+        university_info(u)
         latest = c.execute(
             "SELECT COUNT(DISTINCT program_code), COUNT(DISTINCT method) FROM admissions "
             "WHERE uni_code=? AND year=?",
@@ -142,7 +168,9 @@ def coverage():
             "SELECT uni_code, year, COUNT(*) FROM admissions GROUP BY uni_code, year"
         )
     }
-    unis = [dict(r) for r in c.execute("SELECT * FROM universities ORDER BY uni_code")]
+    unis = [
+        university_info(dict(r)) for r in c.execute("SELECT * FROM universities ORDER BY uni_code")
+    ]
     for u in unis:
         u["counts"] = {str(y): counts.get((u["uni_code"], y), 0) for y in years}
     source = ROOT / "data/raw/schools.json"
@@ -166,6 +194,15 @@ def coverage():
 
 def method_sort(m: str) -> int:
     return METHOD_ORDER.index(m) if m in METHOD_ORDER else 99
+
+
+def vnur_sort_key(row: dict):
+    return (
+        row["vnur_rank"] is None,
+        row["vnur_rank"] or 0,
+        bool(row["vnur_parent"]),
+        -row["score"],
+    )
 
 
 @app.get("/api/meta")
@@ -198,6 +235,7 @@ def meta():
     stats["inherited_unis"] = c.execute(
         "SELECT COUNT(*) FROM universities WHERE vnur_parent != ''"
     ).fetchone()[0]
+    stats["dean_unis"] = dean_index()["stats"].get("universities", 0)
     return {
         "years": years,
         "methods": methods,
@@ -296,13 +334,14 @@ def university_scores(code: str, year: int):
     except sqlite3.OperationalError:
         pass
     return {
-        "university": dict(uni),
+        "university": university_info(dict(uni)),
         "year": year,
         "years": years,
         "methods": [{"method": m, "method_name": names[m]} for m in methods],
         "rows": list(table.values()),
         "tuition": tuition,
         "source_url": rows[0]["source_url"] if rows else None,
+        "dean": university_plan(uni["uni_code"], year),
     }
 
 
@@ -397,7 +436,7 @@ def advice(
         groups[r["level"]].append(r)
     if sort == "rank":
         for group in groups.values():
-            group.sort(key=lambda r: (r["vnur_rank"] is None, r["vnur_rank"] or 0, -r["score"]))
+            group.sort(key=vnur_sort_key)
     # chia deu han muc cho 3 muc (muc nao thieu thi nhuong cho muc khac)
     take = dict.fromkeys(levels, 0)
     left = limit

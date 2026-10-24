@@ -74,6 +74,7 @@ def export():
     programs = [dict(p, file=f"p{i:04}") for i, p in enumerate(idx["programs"])]
     write("data/majors.json", {"majors": idx["majors"], "programs": programs})
     write("data/coverage.json", api.coverage())
+    write("data/dean.json", api.dean_index())
     for year in meta["years"]:
         for u in idx["unis"]:
             write(

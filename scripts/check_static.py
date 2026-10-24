@@ -16,6 +16,7 @@ def read(path):
 
 def main_check():
     assert read("data/meta.json") == main.meta()
+    assert read("data/dean.json") == main.dean_index()
     assert read("data/uni/BKA_2026.json") == main.university_scores("BKA", 2026)
     assert read("data/major/7480201_2025.json") == main.major_scores("7480201", 2025)
     idx = read("data/majors.json")

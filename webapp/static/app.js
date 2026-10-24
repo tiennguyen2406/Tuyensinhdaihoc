@@ -45,7 +45,7 @@ const Data = {
       r.level = levels[level]; groups[level].push(r);
     }
     if (sort === "rank") groups.forEach((g) => g.sort((a, b) =>
-      Number(a.vnur_rank == null) - Number(b.vnur_rank == null) || (a.vnur_rank ?? 0) - (b.vnur_rank ?? 0) || b.score - a.score
+      Number(a.vnur_rank == null) - Number(b.vnur_rank == null) || (a.vnur_rank ?? 0) - (b.vnur_rank ?? 0) || Number(!!a.vnur_parent) - Number(!!b.vnur_parent) || b.score - a.score
     ));
     const take = [0, 0, 0];
     let left = q.has("limit") ? Number(q.get("limit")) : 300;
@@ -104,7 +104,19 @@ const shortUni = (n) => String(n || "").replace(/^(Trường\s+)?(Đại\s+Học
 const tag = (t) => (PT[t] ? `<span class="tag">${PT[t]}</span>` : "");
 const combos = (s) => (s || "").replaceAll(";", ", ");
 const comboHtml = (s) => !s ? "" : `<span class="combo-values">` + s.split(";").filter(Boolean).map((c) => `<span class="combo-code" title="${esc(META?.combo_subjects[c] || "Chưa có tên môn từ nguồn")}">${esc(c)}</span>`).join(", ") + "</span>";
-const rankHtml = (u) => u.vnur_rank == null ? `<span class="sub">Chưa có hạng</span>` : `<span class="rank-value"><span class="rank-badge">Top ${u.vnur_rank} VNUR</span>${u.vnur_parent ? `<span class="sub rank-parent">thuộc ${esc(u.vnur_parent)} (hạng ${u.vnur_rank})</span>` : ""}</span>`;
+const rankHtml = (u, compact = false) => u.vnur_rank == null ? `<span class="sub">Chưa có hạng</span>` : `<span class="rank-badge${u.vnur_parent ? " rank-inherited" : ""}">${compact ? `${u.vnur_rank}${u.vnur_parent ? ` (${esc(u.vnur_parent)})` : ""}` : u.vnur_parent ? `Thuộc ${esc(u.vnur_parent)} · Top ${u.vnur_rank}` : `Top ${u.vnur_rank} VNUR`}</span>`;
+function deanHtml(plan, scoreYear) {
+  if (!plan) return `<section class="card dean-block"><h2>Đề án tuyển sinh</h2><p class="muted">Chưa có dữ liệu đề án</p></section>`;
+  const bullets = (title, items) => items.length ? `<h4>${title}</h4><ul>${items.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
+  return `<section class="card dean-block"><h2>Đề án tuyển sinh ${plan.year || ""}</h2>
+    <p class="muted small">${esc(plan.province)}${plan.groups.length ? " · " + esc(plan.groups.join(", ")) : ""}${plan.year !== scoreYear ? ` · Đề án khác năm bảng điểm ${scoreYear}` : ""}</p>
+    ${plan.methods_year && plan.methods_year !== plan.year ? `<p class="dean-note">Phần phương thức trong bài vẫn ghi năm ${plan.methods_year}; tiêu đề đề án ghi năm ${plan.year}.</p>` : ""}
+    <div class="dean-methods">${plan.methods.map((m) => `<article class="dean-method"><h3>${esc(m.name)}</h3><p>${esc(m.summary)}</p></article>`).join("") || `<p class="muted">Chưa có dữ kiện phương thức để tóm tắt; xem bài gốc.</p>`}</div>
+    <h3>Thời gian &amp; hồ sơ</h3>${bullets("Mốc thời gian", plan.timeline)}${bullets("Giấy tờ", plan.documents)}
+    ${!plan.timeline.length && !plan.documents.length ? `<p class="muted small">Chưa có dữ kiện thời gian hoặc giấy tờ trong mục này của bài nguồn.</p>` : ""}
+    <a class="dean-link" href="${esc(plan.source_url)}" target="_blank" rel="noopener noreferrer">Xem đề án đầy đủ tại HOCMAI</a>
+    <p class="muted small">Nguồn: HOCMAI, tóm tắt dữ kiện. Điều kiện đầy đủ và các diện đặc thù: xem bài gốc.</p></section>`;
+}
 const fail = (out, e) => (out.innerHTML = `<div class="card empty">Lỗi: ${esc(e.message)}</div>`);
 const TABS = ["uni", "major", "advice", "network", "coverage"];
 let META = null;
@@ -114,7 +126,7 @@ const uniNameKey = (u) => unaccent(u.name).replace(/^(truong\s+)?dai hoc\s+|^hoc
 function renderUniGrid() {
   const words = unaccent($("#uni-q").value).split(" "), letter = $("#uni-letter").value, province = $("#uni-province").value;
   const items = UNIVERSITIES.filter((u) => words.every((w) => u._k.includes(w)) && (!letter || uniNameKey(u).startsWith(letter)) && (!province || u.province === province));
-  items.sort((a, b) => ($("#uni-sort").value === "rank" ? (a.vnur_rank ?? Infinity) - (b.vnur_rank ?? Infinity) : 0) || uniNameKey(a).localeCompare(uniNameKey(b), "vi") || a.uni_code.localeCompare(b.uni_code));
+  items.sort((a, b) => ($("#uni-sort").value === "rank" ? (a.vnur_rank ?? Infinity) - (b.vnur_rank ?? Infinity) || Number(!!a.vnur_parent) - Number(!!b.vnur_parent) : 0) || uniNameKey(a).localeCompare(uniNameKey(b), "vi") || a.uni_code.localeCompare(b.uni_code));
   $("#uni-count").textContent = `${items.length} trường · Thống kê theo năm mới nhất của từng trường. Bộ lọc chữ cái bỏ tiền tố Trường Đại học / Đại học / Học viện.`;
   $("#uni-grid").innerHTML = items.length ? items.map((u) => `<button type="button" class="uni-card" data-uni="${esc(u.uni_code)}" data-year="${u.latest_year}">
     <span class="uni-code-badge">${esc(u.uni_code)}</span><span class="uni-card-name">${esc(u.name)}</span>
@@ -211,7 +223,7 @@ async function loadUni() {
   $("#uni-q").value = d.university.name;
   renderUniGrid();
   if (!d.rows.length) {
-    out.innerHTML = `<div class="card empty">${esc(d.university.name)} chưa có dữ liệu năm ${d.year}. Năm có dữ liệu: ${d.years.join(", ") || "—"}</div>`;
+    out.innerHTML = `<div class="card empty">${esc(d.university.name)} chưa có dữ liệu năm ${d.year}. Năm có dữ liệu: ${d.years.join(", ") || "—"}</div>${deanHtml(d.dean, d.year)}`;
     return;
   }
   const cols = d.methods;
@@ -235,7 +247,7 @@ async function loadUni() {
       <span class="muted small">${d.rows.length} chương trình · năm ${d.year} · <a href="${esc(d.source_url)}" target="_blank" rel="noopener">nguồn</a> ${csvBtn("uni")}</span></div>
     <div class="tbl-wrap"><table class="stack">
       <thead><tr><th>Mã</th><th>Ngành / chương trình</th><th>Tổ hợp</th>${cols.map((m) => `<th class="num">${esc(m.method_name)}</th>`).join("")}</tr></thead>
-      <tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div></div>`;
+      <tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div></div>${deanHtml(d.dean, d.year)}`;
   out.scrollIntoView({ block: "start" });
 }
 
@@ -308,7 +320,7 @@ $("#advice-form").addEventListener("submit", async (e) => {
     <span class="muted small">Thử sức ${cnt("Thử sức")} · Vừa sức ${cnt("Vừa sức")} · An toàn ${cnt("An toàn")} · tham chiếu năm ${d.year} · theo ${d.sort === "rank" ? "xếp hạng trường" : "điểm"}${d.rows.length < d.total ? ` · hiện ${d.rows.length} dòng` : ""} ${csvBtn("advice")}</span></div>
     <div class="tbl-wrap"><table class="stack"><thead><tr><th>Mức</th><th>Trường</th><th>Hạng VNUR</th><th>Ngành / chương trình</th><th>Tổ hợp</th>${yrs.map((y) => `<th class="num">${y}</th>`).join("")}</tr></thead>
     <tbody>${d.rows.map((r) => `<tr><td data-label="Mức"><span class="lvl ${cls[r.level]}">${r.level}</span></td>
-      <td data-label="Trường">${uniCell(r)}</td><td data-label="Hạng VNUR">${rankHtml(r)}</td><td class="main">${esc(r.program_name)}${tag(r.program_type)}</td>
+      <td data-label="Trường">${uniCell(r)}</td><td data-label="Hạng VNUR">${rankHtml(r, true)}</td><td class="main">${esc(r.program_name)}${tag(r.program_type)}</td>
       <td class="sub" data-label="Tổ hợp">${comboHtml(r.combos)}</td>
       ${yrs.map((y) => `<td class="num" data-label="${y}">${y == d.year ? `<b>${fmt(r.history[y])}</b>` : fmt(r.history[y])}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
 });
@@ -365,7 +377,8 @@ async function loadCoverage() {
     const d = await api("api/coverage");
     out.innerHTML = `<div class="card"><p>Nguồn: <a href="${esc(d.source_url)}" target="_blank" rel="noopener">tuyensinh247</a> · Thu thập: ${esc(d.collected_from?.slice(0, 10))} đến ${esc(d.collected_to?.slice(0, 10))}.</p>
       <p>${d.universities.length} trường có điểm · ${d.missing.length} trường trong danh mục nguồn chưa có điểm trong các năm ${d.years.join(", ")}. Ô số là số dòng điểm, dấu — là chưa có dữ liệu; không có nghĩa trường không tuyển sinh.</p>
-      <p>Xếp hạng: <a href="${esc(META.ranking_source.url)}" target="_blank" rel="noopener">VNUR 2026</a> · ${META.stats.ranked_unis} trường có hạng, gồm ${META.stats.inherited_unis} đơn vị kế thừa hạng đại học mẹ. Hạng 2026 dùng tham khảo cho mọi năm, không phải hạng riêng của trường thành viên. Tỉnh/thành chỉ lấy từ mục VNUR khớp trực tiếp; chưa biết ghi “Khác”.</p>
+      <p>Xếp hạng: <a href="${esc(META.ranking_source.url)}" target="_blank" rel="noopener">VNUR 2026</a> · ${META.stats.ranked_unis} trường có hạng, gồm ${META.stats.inherited_unis} đơn vị kế thừa hạng đại học mẹ. Hạng 2026 dùng tham khảo cho mọi năm, không phải hạng riêng của trường thành viên.</p>
+      <p>Đề án: ${META.stats.dean_unis}/${META.stats.unis} trường có bài nguồn <a href="https://huongnghiep.hocmai.vn/" target="_blank" rel="noopener">HOCMAI</a>, chỉ tóm tắt dữ kiện. Tỉnh/thành ưu tiên VNUR; HOCMAI bổ sung khi còn thiếu; chưa biết ghi “Khác”.</p>
       <div class="tbl-wrap"><table><thead><tr><th>Trường</th>${d.years.map((y) => `<th class="num">${y}</th>`).join("")}</tr></thead><tbody>
       ${d.universities.map((u) => `<tr><td><a href="#uni/${esc(u.uni_code)}/${d.years[0]}" data-uni="${esc(u.uni_code)}">${esc(u.uni_code)} · ${esc(u.name)}</a></td>${d.years.map((y) => `<td class="num">${u.counts[y] ? fmt(u.counts[y]) : "—"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
       <h2>${d.missing.length} trường nguồn chưa có điểm</h2><ul>${d.missing.map((u) => `<li>${esc(u.uni_code)} · ${esc(u.name)}</li>`).join("")}</ul></div>`;

@@ -10,7 +10,7 @@ const { chromium } = require("../apps/web/node_modules/@playwright/test");
 
 const root = path.resolve(__dirname, "..");
 const scratch = path.join(root, "_to_delete", "pages-check");
-const screenshots = path.join(root, "docs", "reports", "catalog-20261024");
+const screenshots = path.join(root, "docs", "reports", "dean-20261024");
 const python = path.join(root, ".venv", "Scripts", "python.exe");
 const children = [];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -71,7 +71,9 @@ async function waitServer(url) {
       assert.equal(await page.locator("#uni-grid").evaluate((e) => getComputedStyle(e).gridTemplateColumns.split(" ").length), width === 375 ? 1 : 3);
       await page.screenshot({ path: path.join(screenshots, `${mode}-grid-${width}.png`) });
       await page.locator("#uni-sort").selectOption("rank");
-      assert.match(await page.locator(".uni-card").first().innerText(), /Top 1 VNUR/);
+      assert.match(await page.locator(".uni-card").first().innerText(), /Thuộc ĐHQG HN · Top 1/);
+      assert.equal(await page.locator(".uni-card").first().locator(".rank-inherited").count(), 1);
+      assert.ok(await page.evaluate(() => UNIVERSITIES.some((u) => u.province_source === "HOCMAI")));
       await page.locator("#uni-province").selectOption("Thành phố Hà Nội");
       await page.locator("#uni-letter").selectOption("b");
       assert.ok(await page.locator('.uni-card[data-uni="BKA"]').count());
@@ -92,6 +94,29 @@ async function waitServer(url) {
       assert.equal(await page.locator("#uni-year").inputValue(), "2026");
       await page.screenshot({ path: path.join(screenshots, `${mode}-uni-${width}.png`) });
       assert.match(await page.locator('#uni-out .combo-code').first().getAttribute("title"), /Toán|Ngữ văn/);
+      for (const code of ["BKA", "NTH", "BVS"]) {
+        if (code !== "BKA") {
+          await page.locator("#uni-q").fill(code);
+          await page.locator("#uni-ac li").first().waitFor({ state: "visible" });
+          await page.locator("#uni-ac li").first().click();
+        }
+        await page.locator("#uni-out .dean-block").waitFor();
+        const plan = page.locator("#uni-out .dean-block");
+        if (code === "BVS") {
+          assert.match(await plan.innerText(), /Chưa có dữ liệu đề án/);
+          assert.equal(await plan.locator("a").count(), 0);
+        } else {
+          assert.ok(await plan.locator(".dean-method").count());
+          assert.match(await plan.innerText(), /Nguồn: HOCMAI, tóm tắt dữ kiện/);
+          assert.equal(await plan.locator(".dean-link").getAttribute("target"), "_blank");
+          assert.match(await plan.locator(".dean-link").getAttribute("href"), /^https:\/\/huongnghiep.hocmai.vn\/de-an\//);
+          assert.ok((await plan.locator(".dean-method p").allTextContents()).every((s) => s.length <= 300));
+          assert.doesNotMatch(await plan.innerText(), /Danh sách ngành đào tạo|Giới thiệu trường/);
+        }
+        await plan.scrollIntoViewIfNeeded();
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        await page.screenshot({ path: path.join(screenshots, `${mode}-dean-${code}-${width}.png`) });
+      }
 
       await page.locator('[data-tab="major"]').click();
       await page.locator("#major-year").selectOption("2025");
@@ -118,7 +143,7 @@ async function waitServer(url) {
       assert.deepEqual([...new Set(levels)], ["Thử sức", "Vừa sức", "An toàn"]);
       assert.equal(await page.locator("#adv-sort").inputValue(), "rank");
       assert.ok(await page.locator('#advice-out [data-label="Hạng VNUR"] .rank-badge').count());
-      assert.match(await page.locator("#advice-out").innerText(), /thuộc ĐHQG HN/);
+      assert.match(await page.locator("#advice-out").innerText(), /1 \(ĐHQG HN\)/);
       await page.screenshot({ path: path.join(screenshots, `${mode}-advice-${width}.png`) });
       await page.locator("#adv-sort").selectOption("score");
       await page.locator("#advice-form button[type=submit]").click();
@@ -146,6 +171,7 @@ async function waitServer(url) {
       // Full JSON equality with live FastAPI, including ties and combo-specific history.
       const cases = [
         "api/meta", "api/universities/BKA/scores?year=2026",
+        "api/universities/NTH/scores?year=2026", "api/universities/BVS/scores?year=2026",
         "api/majors/7480201/scores?year=2025&method=THPT",
         "api/majors/7480201/scores?year=2025",
         "api/majors/7480201/similar?year=2025", "api/network/g2_uni_uni?year=2026",

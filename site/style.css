@@ -44,7 +44,13 @@ td.prog{min-width:220px}
 .uni-card:hover,.uni-card:focus-visible{border-color:var(--accent);box-shadow:0 2px 10px var(--accent-soft)}
 .uni-code-badge{padding:5px 10px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
 .uni-card-name{font-weight:600}.rank-badge{display:inline-block;color:var(--good);background:var(--good-soft);border-radius:6px;padding:2px 6px;font-size:12px;white-space:nowrap}
-.rank-parent{display:block;margin-top:4px}.rank-value,.combo-values{min-width:0;overflow-wrap:anywhere}
+.combo-values{min-width:0;overflow-wrap:anywhere}
+.rank-inherited{background:var(--bg);color:var(--muted);border:1px solid var(--line);white-space:normal}
+.dean-block h2{font-size:19px;margin:0 0 8px}.dean-block h3{font-size:15px;margin:14px 0 8px}.dean-block h4{margin:10px 0 6px}
+.dean-methods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dean-method{border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0}
+.dean-method h3{margin:0 0 6px}.dean-method p{margin:0;font-size:14px}.dean-note{padding:10px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:13px}
+.dean-link{display:inline-block;padding:9px 12px;border:1px solid var(--accent);border-radius:8px;margin-top:10px}.dean-block li{margin-bottom:6px}
+@media(max-width:640px){.dean-methods{grid-template-columns:1fr}}
 .combo-code{cursor:help;text-decoration:underline dotted;text-underline-offset:3px;white-space:nowrap}
 .combo-picker{display:flex;flex:1 1 300px;flex-direction:column;gap:6px;min-width:0}.combo-picker input,.combo-picker select{width:100%;min-width:0}
 #uni-out{scroll-margin-top:120px}
