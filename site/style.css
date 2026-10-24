@@ -90,3 +90,13 @@ table.timeline{font-size:14px}table.timeline td{padding:4px 8px}table.timeline t
 }
 .tuition-meta{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}.src-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .src-official{background:var(--good-soft);color:var(--good)}.src-press{background:var(--accent-soft);color:var(--accent)}.src-aggregator{background:var(--warn-soft);color:var(--warn)}
+.ev-official,.ev-official_archived{background:var(--good-soft);color:var(--good)}.ev-secondary{background:var(--warn-soft);color:var(--warn)}.ev-unverified{background:var(--bad-soft);color:var(--bad)}
+.tuition-card.tuition-old{border:2px solid var(--warn);background:linear-gradient(0deg,var(--card),var(--warn-soft))}
+.tuition-summary{font-size:16px;font-weight:600;margin:4px 0 8px;overflow-wrap:anywhere}
+.tuition-items{width:100%;border-collapse:collapse;font-size:14px}.tuition-items td{padding:5px 6px;border-top:1px solid var(--line);vertical-align:top}.tuition-items td.num{white-space:nowrap;text-align:right}
+.more-items summary{cursor:pointer;color:var(--accent);font-size:13px;padding:6px 0}
+.tuition-notes{margin:8px 0;padding-left:20px;font-size:14px}.tuition-notes li{margin:2px 0}
+.tuition-old .tuition-notes li:first-child{color:var(--warn);font-weight:600}
+.tuition-convert{color:var(--muted);font-style:italic}
+.tuition-missing-list{columns:2 280px;font-size:14px}
+@media(max-width:640px){.tuition-items td.num{white-space:normal}}

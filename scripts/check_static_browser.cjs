@@ -100,7 +100,16 @@ async function waitServer(url) {
       assert.equal(await page.locator("#uni-year").inputValue(), "2026");
       await page.screenshot({ path: path.join(screenshots, `${mode}-uni-${width}.png`) });
       assert.match(await page.locator('#uni-out .combo-code').first().getAttribute("title"), /Toán|Ngữ văn/);
-      for (const code of ["BKA", "QHI", "SPH", "IUH", "BVS"]) {
+      // Hand-researched tuition (tuition_extra.json): keep the source unit, flag-driven notes.
+      const EXTRA = {
+        DBG: [/350\.000 – 370\.000 đ\/tín chỉ/, /tổng mỗi năm phụ thuộc số tín chỉ đăng ký/, /Mức học phí năm 2024–2025, có thể đã thay đổi/],
+        DCA: [/Theo ngành/iu, /Mức niêm yết, chưa trừ ưu đãi/, /Xem thêm 5 dòng/],
+        DLH: [/18 – 30 triệu đ\/học kỳ/, /Mức theo học kỳ\/tháng, không phải cả năm/],
+        DLS: [/Khoảng 23,6 triệu đ\/năm/, /dự kiến/i],
+        DVP: [/Chỉ có thông tin cho ngành Dược học/],
+        DBH: [/Chưa có mức học phí được xác minh/, /Xem thông báo của trường/],
+      };
+      for (const code of ["BKA", "QHI", "IUH", "BVS", "DBD", ...Object.keys(EXTRA)]) {
         if (code !== "BKA") {
           await page.locator("#uni-q").fill(code);
           await page.locator("#uni-ac li").first().waitFor({ state: "visible" });
@@ -108,7 +117,7 @@ async function waitServer(url) {
         }
         await page.locator("#uni-out .dean-block").waitFor();
         const plan = page.locator("#uni-out .dean-block");
-        if (code === "BVS") {
+        if (code === "BVS" || /Chưa có dữ liệu đề án/.test(await plan.innerText())) {
           assert.match(await plan.innerText(), /Chưa có dữ liệu đề án/);
           assert.equal(await plan.locator("a").count(), 0);
         } else {
@@ -128,8 +137,21 @@ async function waitServer(url) {
         const tuition = page.locator("#uni-out .dean-block + .tuition-card");
         assert.equal(await tuition.count(), 1, `${code} tuition card right under the plan`);
         const tuitionText = await tuition.innerText();
-        assert.match(tuitionText, /triệu đồng\/năm|Miễn học phí|Chưa có thông tin học phí/);
-        if (!/Chưa có thông tin học phí/.test(tuitionText)) {
+        if (EXTRA[code]) {
+          for (const re of EXTRA[code]) assert.match(tuitionText, re, `${code} tuition ${re}`);
+          assert.match(await tuition.locator(".src-tag").innerText(), /^(Chính thức|Văn bản chính thức \(bản lưu\)|Tham khảo|Chưa xác minh)$/i, `${code} evidence label`);
+          assert.doesNotMatch(tuitionText, /triệu đồng\/năm/, `${code} not forced into a yearly range`);
+          const links = await tuition.locator("a").evaluateAll((as) => as.map((a) => a.target));
+          assert.ok(links.length >= 1 && links.length <= 3 && links.every((t) => t === "_blank"), `${code} 1-3 source links in new tab`);
+          assert.equal(await tuition.evaluate((el) => el.classList.contains("tuition-old")), code === "DBG", `${code} amber border only for old years`);
+          if (code === "DBH") assert.doesNotMatch(tuitionText, /\d\.\d{3}|triệu/, "unverified shows no amount");
+          if (code === "DCA") {
+            assert.equal(await tuition.locator(".fact-group > table.tuition-items tr").count(), 6);
+            assert.equal(await tuition.locator("details.more-items").evaluate((d) => d.open), false);
+          }
+        } else assert.match(tuitionText, /triệu đồng\/năm|Miễn học phí|Chưa có thông tin học phí/);
+        if (code === "DBD") assert.match(tuitionText, /Ước tính quy đổi: .*tín chỉ × 30/);
+        if (!EXTRA[code] && !/Chưa có thông tin học phí/.test(tuitionText)) {
           assert.match(await tuition.locator(".src-tag").innerText(), /^(Chính thức|Báo chí|Tổng hợp)$/, `${code} source label`);
           assert.match(tuitionText, /Năm học 20\d\d–20\d\d/);
         }
@@ -184,6 +206,8 @@ async function waitServer(url) {
       await page.locator("#coverage-out tbody tr").first().waitFor();
       assert.equal(await page.locator("#coverage-out tbody tr").count(), 292);
       assert.equal(await page.locator("#coverage-out .missing-list li").count(), 15);
+      assert.match(await page.locator("#coverage-out").innerText(), /285\/292 trường có mức học phí/);
+      assert.equal(await page.locator("#coverage-out .tuition-missing-list li").count(), 7);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.evaluate(() => { document.querySelector("#uni-year").value = "2024"; });
       await page.locator('#coverage-out [data-uni="BKA"]').click();
@@ -194,6 +218,7 @@ async function waitServer(url) {
       const cases = [
         "api/meta", "api/universities/BKA/scores?year=2026",
         "api/universities/NTH/scores?year=2026", "api/universities/BVS/scores?year=2026",
+        "api/universities/DCA/scores?year=2026", "api/universities/DBH/scores?year=2026", "api/coverage",
         "api/majors/7480201/scores?year=2025&method=THPT",
         "api/majors/7480201/scores?year=2025",
         "api/majors/7480201/similar?year=2025", "api/network/g2_uni_uni?year=2026",

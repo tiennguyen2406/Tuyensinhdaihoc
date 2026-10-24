@@ -88,6 +88,28 @@ def dean_index() -> dict:
     )
 
 
+@lru_cache(maxsize=1)
+def tuition_extra_index() -> dict:
+    """89 truong tra tay (pipeline/tuition_import.py): giu don vi goc, khong quy doi sang nam."""
+    path = ROOT / "data/clean/tuition_extra.json"
+    if not path.exists():
+        return {}
+    return {s["uni_code"]: s for s in json.loads(path.read_text(encoding="utf-8"))["schools"]}
+
+
+def tuition_stats(c: sqlite3.Connection) -> dict:
+    try:
+        old = dict(c.execute("SELECT source_type, COUNT(DISTINCT uni_code) FROM tuition GROUP BY source_type"))
+        old_codes = {r[0] for r in c.execute("SELECT DISTINCT uni_code FROM tuition")}
+    except sqlite3.OperationalError:
+        old, old_codes = {}, set()
+    new: dict[str, int] = {}
+    for s in tuition_extra_index().values():
+        new[s["evidence"]] = new.get(s["evidence"], 0) + 1
+    with_fee = old_codes | {k for k, s in tuition_extra_index().items() if s["summary"]}
+    return {"total": len(with_fee), "old": old, "new": new, "codes": with_fee}
+
+
 def university_plan(code: str, year: int = 9999):
     plans = dean_index()["plans"].get(code, [])
     candidates = [p for p in plans if p["year"] is not None and p["year"] <= year]
@@ -184,10 +206,19 @@ def coverage():
         if s.get("level") == 2 and s["code"] not in codes
     ]
     dates = c.execute("SELECT MIN(crawled_at), MAX(crawled_at) FROM admissions").fetchone()
+    has_fee = tuition_stats(c)["codes"]
+    extra = tuition_extra_index()
+    tuition_missing = [
+        {"uni_code": u["uni_code"], "name": u["name"],
+         "unverified": extra.get(u["uni_code"], {}).get("evidence") == "unverified"}
+        for u in unis
+        if u["uni_code"] not in has_fee
+    ]
     return {
         "years": years,
         "universities": unis,
         "missing": missing,
+        "tuition_missing": tuition_missing,
         "collected_from": dates[0],
         "collected_to": dates[1],
         "source_url": "https://diemthi.tuyensinh247.com",
@@ -292,12 +323,9 @@ def meta():
         "SELECT COUNT(*) FROM universities WHERE vnur_parent != ''"
     ).fetchone()[0]
     stats["dean_unis"] = dean_index()["stats"].get("universities", 0)
-    try:
-        stats["tuition_unis"] = c.execute(
-            "SELECT COUNT(DISTINCT uni_code) FROM tuition"
-        ).fetchone()[0]
-    except sqlite3.OperationalError:
-        stats["tuition_unis"] = 0
+    tuition = tuition_stats(c)
+    stats["tuition_unis"] = tuition["total"]
+    stats["tuition_sources"] = {"old": tuition["old"], "new": tuition["new"]}
     stats["hot_majors"] = len(hot_index()["hot_majors"])
     return {
         "years": years,
@@ -402,6 +430,7 @@ def university_scores(code: str, year: int):
         "methods": [{"method": m, "method_name": names[m]} for m in methods],
         "rows": list(table.values()),
         "tuition": tuition,
+        "tuition_extra": None if tuition else tuition_extra_index().get(uni["uni_code"]),
         "source_url": rows[0]["source_url"] if rows else None,
         "dean": university_plan(uni["uni_code"], year),
     }

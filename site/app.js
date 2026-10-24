@@ -128,9 +128,43 @@ function tuitionHtml(t) {
   const label = { official: "Chính thức", press: "Báo chí", aggregator: "Tổng hợp" }[t.source_type];
   return `<section class="card tuition-card"><div class="head"><h2>Học phí</h2><span class="tuition-meta">${label ? `<span class="src-tag src-${esc(t.source_type)}">${label}</span>` : ""}<span class="muted small">Năm học ${t.year}–${t.year + 1}</span></span></div>
     <p class="tuition-range">${free ? "Miễn học phí" : `${t.max_mil == null ? "Từ " : ""}${one ? fmt(t.min_mil) : `${fmt(t.min_mil)}–${fmt(t.max_mil)}`} <span>triệu đồng/năm</span>`}</p>
-    ${free ? `<p class="muted small">Theo quy định chung đối với học viên hệ quân sự/công an.</p>` : `${t.text ? `<p>${esc(t.text)}</p>` : ""}${t.unit_note ? `<p class="muted small">${esc(t.unit_note)}</p>` : ""}`}
+    ${free ? `<p class="muted small">Theo quy định chung đối với học viên hệ quân sự/công an.</p>` : `${t.text ? `<p>${esc(t.text)}</p>` : ""}${!t.unit_note ? "" : /×|quy đổi/.test(t.unit_note) ? `<p class="tuition-convert small">Ước tính quy đổi: ${esc(t.unit_note)}</p>` : `<p class="muted small">${esc(t.unit_note)}</p>`}`}
     <p class="muted small">Nguồn: <a href="${esc(t.source_url)}" target="_blank" rel="noopener noreferrer">${esc(SOURCE_TYPES[t.source_type] || "Nguồn")}${host ? ` (${esc(host)})` : ""}</a></p></section>`;
 }
+// 89 truong tra tay (data/clean/tuition_extra.json): giu don vi goc, khong quy doi sang nam
+const EVIDENCE = { official: "Chính thức", official_archived: "Văn bản chính thức (bản lưu)", secondary: "Tham khảo", unverified: "Chưa xác minh" };
+const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return "nguồn"; } };
+const itemRows = (items) => items.map((i) => `<tr><td>${esc(i.name)}</td><td class="num">${esc(i.amount)} ${esc(i.unit)}${i.extra ? `<div class="muted small">${esc(i.extra)}</div>` : ""}</td></tr>`).join("");
+function tuitionExtraHtml(x) {
+  const f = new Set(x.flags);
+  const year = /^\d{4}–\d{4}$/.test(x.school_year) ? `Năm học ${x.school_year}` : x.school_year;
+  const links = x.sources.slice(0, 3);
+  const head = `<div class="head"><h2>Học phí</h2><span class="tuition-meta"><span class="src-tag ev-${esc(x.evidence)}">${EVIDENCE[x.evidence]}</span>${year ? `<span class="muted small">${esc(year)}</span>` : ""}</span></div>`;
+  if (x.evidence === "unverified")
+    return `<section class="card tuition-card tuition-extra">${head}<p>Chưa có mức học phí được xác minh</p>
+      ${links.length ? `<p class="small"><a href="${esc(links[0])}" target="_blank" rel="noopener noreferrer">Xem thông báo của trường</a></p>` : ""}</section>`;
+  const notes = [];
+  if (f.has("nam_cu")) notes.push(`Mức học phí năm ${x.school_year}, có thể đã thay đổi`);
+  if (f.has("theo_tin_chi")) notes.push("Học phí tính theo tín chỉ; tổng mỗi năm phụ thuộc số tín chỉ đăng ký");
+  if (f.has("theo_hoc_ky") || f.has("theo_thang")) notes.push("Mức theo học kỳ/tháng, không phải cả năm");
+  if (f.has("toan_khoa")) notes.push("Có mức tính cho toàn khoá, không phải mỗi năm");
+  if (f.has("du_kien")) notes.push("Mức dự kiến, chưa phải quyết định chính thức");
+  if (f.has("tam_thu")) notes.push("Mức tạm thu, có thể điều chỉnh khi có quyết định chính thức");
+  if (f.has("trung_binh")) notes.push("Mức trung bình, học phí từng ngành có thể khác");
+  if (f.has("chi_mot_nganh")) notes.push(x.only_major ? `Chỉ có thông tin cho ngành ${x.only_major}` : "Chỉ có thông tin cho một số ngành");
+  if (f.has("co_uu_dai")) notes.push("Mức niêm yết, chưa trừ ưu đãi");
+  if (x.evidence === "secondary") notes.push("Thông tin tham khảo, chưa đối chiếu văn bản gốc của trường");
+  const items = x.items.length ? `<div class="fact-group"><h4>Theo ngành</h4><table class="tuition-items"><tbody>${itemRows(x.items.slice(0, 6))}</tbody></table>
+    ${x.items.length > 6 ? `<details class="more-items"><summary>Xem thêm ${x.items.length - 6} dòng</summary><table class="tuition-items"><tbody>${itemRows(x.items.slice(6))}</tbody></table></details>` : ""}</div>` : "";
+  return `<section class="card tuition-card tuition-extra${f.has("nam_cu") ? " tuition-old" : ""}">${head}
+    <p class="${x.summary.length <= 60 ? "tuition-range" : "tuition-summary"}">${esc(x.summary)}</p>
+    ${x.scope && x.scope !== x.school_year ? `<p class="muted small">Phạm vi: ${esc(x.scope)}</p>` : ""}
+    ${items}
+    ${notes.length ? `<ul class="tuition-notes">${notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+    ${x.note ? `<p class="muted small">${esc(x.note)}</p>` : ""}
+    <p class="muted small">Nguồn: ${links.map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(hostOf(u))}</a>`).join(" · ")}</p></section>`;
+}
+const feeHtml = (d) => (d.tuition_extra ? tuitionExtraHtml(d.tuition_extra) : tuitionHtml(d.tuition));
 const fail = (out, e) => (out.innerHTML = `<div class="card empty">Lỗi: ${esc(e.message)}</div>`);
 const TABS = ["uni", "major", "advice", "network", "coverage"];
 let META = null;
@@ -216,7 +250,7 @@ async function loadUni() {
   $("#uni-q").value = d.university.name;
   renderUniGrid();
   if (!d.rows.length) {
-    out.innerHTML = `<div class="card empty">${esc(d.university.name)} chưa có dữ liệu năm ${d.year}. Năm có dữ liệu: ${d.years.join(", ") || "—"}</div>${deanHtml(d.dean, d.year)}${tuitionHtml(d.tuition)}`;
+    out.innerHTML = `<div class="card empty">${esc(d.university.name)} chưa có dữ liệu năm ${d.year}. Năm có dữ liệu: ${d.years.join(", ") || "—"}</div>${deanHtml(d.dean, d.year)}${feeHtml(d)}`;
     return;
   }
   const cols = d.methods;
@@ -233,7 +267,7 @@ async function loadUni() {
       <span class="muted small">${d.rows.length} chương trình · năm ${d.year} · <a href="${esc(d.source_url)}" target="_blank" rel="noopener">nguồn</a></span></div>
     <div class="tbl-wrap"><table class="stack">
       <thead><tr><th>Mã</th><th>Ngành / chương trình</th><th>Tổ hợp</th>${cols.map((m) => `<th class="num">${esc(m.method_name)}</th>`).join("")}</tr></thead>
-      <tbody>${body}</tbody></table></div></div>${deanHtml(d.dean, d.year)}${tuitionHtml(d.tuition)}`;
+      <tbody>${body}</tbody></table></div></div>${deanHtml(d.dean, d.year)}${feeHtml(d)}`;
   out.scrollIntoView({ block: "start" });
 }
 
@@ -362,6 +396,17 @@ async function drawNetwork() {
 }
 
 /* ---------- init ---------- */
+function tuitionCoverageHtml(d) {
+  const s = META.stats, src = s.tuition_sources || { old: {}, new: {} };
+  const n = (o, k) => o[k] || 0;
+  const unverified = d.tuition_missing.filter((u) => u.unverified).length;
+  return `<h2>Học phí</h2>
+    <p><b>${s.tuition_unis}/${s.unis} trường có mức học phí</b> (${fmt(s.tuition_unis / s.unis * 100)}%).</p>
+    <ul><li>Bộ đầu (${Object.values(src.old).reduce((a, b) => a + b, 0)} trường, quy về triệu đồng/năm; tín chỉ × 30, học kỳ × 2, tháng × 10 ghi ở từng thẻ): ${n(src.old, "official")} trang/đề án chính thức · ${n(src.old, "press")} báo chí · ${n(src.old, "aggregator")} trang tổng hợp.</li>
+    <li>Bộ tra tay bổ sung (${Object.values(src.new).reduce((a, b) => a + b, 0)} trường, giữ đơn vị gốc, không quy đổi sang năm): ${n(src.new, "official")} chính thức · ${n(src.new, "official_archived")} văn bản chính thức (bản lưu) · ${n(src.new, "secondary")} tham khảo · ${n(src.new, "unverified")} chưa xác minh được mức tiền.</li></ul>
+    <h3>${d.tuition_missing.length} trường còn thiếu mức học phí${unverified ? ` (${unverified} có thông báo nhưng chưa xác minh được số tiền)` : ""}</h3>
+    <ul class="tuition-missing-list">${d.tuition_missing.map((u) => `<li>${esc(u.uni_code)} · ${esc(u.name)}${u.unverified ? ` <span class="muted small">— chưa xác minh</span>` : ""}</li>`).join("")}</ul>`;
+}
 async function loadCoverage() {
   const out = $("#coverage-out");
   try {
@@ -369,7 +414,7 @@ async function loadCoverage() {
     out.innerHTML = `<div class="card"><p>Nguồn: <a href="${esc(d.source_url)}" target="_blank" rel="noopener">tuyensinh247</a> · Thu thập: ${esc(d.collected_from?.slice(0, 10))} đến ${esc(d.collected_to?.slice(0, 10))}.</p>
       <p>${d.universities.length} trường có điểm · ${d.missing.length} trường trong danh mục nguồn chưa có điểm trong các năm ${d.years.join(", ")}. Ô số là số dòng điểm, dấu — là chưa có dữ liệu; không có nghĩa trường không tuyển sinh.</p>
       <p>Xếp hạng: <a href="${esc(META.ranking_source.url)}" target="_blank" rel="noopener">VNUR 2026</a> · ${META.stats.ranked_unis} trường có hạng, gồm ${META.stats.inherited_unis} đơn vị kế thừa hạng đại học mẹ. Hạng 2026 dùng tham khảo cho mọi năm, không phải hạng riêng của trường thành viên.</p>
-      <p>Học phí: ${META.stats.tuition_unis}/${META.stats.unis} trường có số liệu (năm học mới nhất tìm được: 2026–2027, nếu chưa có thì 2025–2026), ưu tiên trang/đề án chính thức của trường, rồi báo lớn, rồi trang tổng hợp; quy đổi theo tín chỉ/tháng sang triệu đồng/năm ghi ở từng thẻ. Thiếu thì ghi “Chưa có thông tin học phí”.</p>
+      ${tuitionCoverageHtml(d)}
       <h2>Độ hot trong tab Tư vấn</h2>
       <p><b>Độ hot = 0,5 × điểm trường + 0,3 × điểm ngành + 0,2 × điểm xu hướng</b>, mỗi phần trong khoảng 0–1; kết quả xếp từ cao xuống thấp.</p>
       <ul><li><b>Điểm trường</b>: hạng VNUR 2026 trực tiếp 1 → 1,0 … 100 → 0,01 (= (101 − hạng)/100); hạng kế thừa đại học mẹ nhân 0,8; chưa xếp hạng = 0.</li>

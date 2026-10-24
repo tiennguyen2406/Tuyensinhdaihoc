@@ -45,6 +45,9 @@ hot = 0,5 × điểm trường + 0,3 × điểm ngành + 0,2 × điểm xu hư�
 - `data/manual/tuition.csv` (uni_code, year = năm bắt đầu năm học, min_mil, max_mil, unit_note, text, source_url,
   source_type official|press|aggregator, confidence). 0–0 = miễn học phí (hệ quân sự/công an). Quy đổi:
   tín chỉ × 30/năm, học kỳ × 2 (FPT × 3), tháng × 10. `data/manual/tuition_checked.csv` ghi trường đã tìm.
+- 89 trường còn lại: `data/manual/hoc_phi_bo_sung_89_truong_20261024.md` → `python -m pipeline.tuition_import`
+  → `data/clean/tuition_extra.json` (giữ đơn vị gốc, không quy đổi; mục không chắc ghi nguyên văn và liệt kê ở
+  `data/interim/tuition_extra_review.csv`, `docs/hoc-phi-bo-sung-xem-tay.md`). Web dùng khi trường không có dòng trong tuition.csv.
 
 ## Quy tắc
 - Sau khi sửa, tự chạy lệnh liên quan để kiểm (clean/sna/uvicorn) và báo con số trước–sau.
