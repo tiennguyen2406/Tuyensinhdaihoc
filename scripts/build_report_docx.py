@@ -4,7 +4,7 @@ Buoc 1: pypandoc (pandoc) md -> docx, co muc luc, KHONG danh so muc (tieu de da 
 Buoc 2: python-docx hau xu ly:
   - le 2 cm; chu chinh 12 pt, gian dong 1,15
   - moi bang: style "Table Grid" (ke o), rong 100% vung chu, do rong cot ti le theo
-    noi dung dai nhat cua cot; chu 9 pt, code 8 pt; hang tieu de dam, nen xam, lap lai khi sang trang
+    noi dung dai nhat cua cot; chu va code trong bang 9 pt; hang tieu de dam, nen xam, lap lai khi sang trang
   - "Phu luc C" dat trong section kho ngang
 
 Chay: python scripts/build_report_docx.py [--md docs/BAO_CAO_DO_AN.md] [--out docs/BAO_CAO_DO_AN.docx]
@@ -22,12 +22,14 @@ from pathlib import Path
 import pypandoc
 from docx import Document
 from docx.enum.section import WD_ORIENT
+from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Cm, Pt
+from docx.shared import Cm, Pt, RGBColor
 
 ROOT = Path(__file__).resolve().parent.parent
-BODY_PT, TABLE_PT, CODE_PT = 12, 9, 8
+BODY_PT, TABLE_PT, CODE_PT = 12, 9, 9
 LANDSCAPE_HEADING = "Phụ lục C"
 HEADER_FILL = "D9D9D9"
 CODE_STYLES = {"Verbatim Char", "VerbatimChar"}
@@ -39,14 +41,10 @@ def pandoc_docx(md: Path, out: Path) -> None:
         str(md),
         "docx",
         # cho phep danh sach ngay sau cau dan (khong dong trong) nhu GitHub, khong bi gop vao doan
-        format="markdown+lists_without_preceding_blankline",
+        format="markdown+lists_without_preceding_blankline-implicit_figures",
         outputfile=str(out),
         extra_args=[
             f"--resource-path={md.parent}",
-            "--toc",
-            "--toc-depth=2",
-            "-M",
-            "toc-title=Mục lục",
         ],
     )
 
@@ -68,7 +66,7 @@ def add_table_grid_style(doc) -> None:
         b.set(qn("w:val"), "single")
         b.set(qn("w:sz"), "4")
         b.set(qn("w:space"), "0")
-        b.set(qn("w:color"), "808080")
+        b.set(qn("w:color"), "D9D9D9")
         borders.append(b)
     tbl_pr.append(borders)
     mar = OxmlElement("w:tblCellMar")
@@ -143,6 +141,22 @@ def set_widths(table, text_twips: int) -> None:
     tbl_pr.append(layout)
 
     widths = fit_widths(column_stats(table), text_twips)
+    if [cell_text(c) for c in table.rows[0].cells] == [
+        "STT",
+        "ID",
+        "Trường",
+        "Năm",
+        "Phương thức",
+        "Chương trình",
+        "Tổ hợp",
+        "Điểm",
+        "Thang",
+        "Mã ngành",
+        "Đúng/Sai",
+    ]:
+        # Phu luc C: ma phuong thuc can du rong; danh nhieu cho ten va nhom to hop.
+        ratios = [0.8, 1.1, 1.4, 1.1, 2.3, 7.8, 5.2, 1.3, 1.3, 1.7, 1.7]
+        widths = [int(text_twips * r / sum(ratios)) for r in ratios]
     grid = tbl.tblGrid
     for gc, w in zip(grid.findall(qn("w:gridCol")), widths):
         gc.set(qn("w:w"), str(w))
@@ -179,7 +193,10 @@ def format_table(table, text_twips: int) -> None:
             tr_pr = row._tr.get_or_add_trPr()
             if tr_pr.find(qn("w:tblHeader")) is None:
                 tr_pr.append(OxmlElement("w:tblHeader"))
+        tr_pr = row._tr.get_or_add_trPr()
+        tr_pr.append(OxmlElement("w:cantSplit"))
         for cell in row.cells:
+            cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
             if i == 0:
                 shd = OxmlElement("w:shd")
                 shd.set(qn("w:val"), "clear")
@@ -193,9 +210,22 @@ def format_table(table, text_twips: int) -> None:
                 for r in p.runs:
                     is_code = r.style is not None and r.style.name in CODE_STYLES
                     r.font.size = Pt(CODE_PT if is_code else TABLE_PT)
+                    r.font.name = "Times New Roman"
                     if i == 0:
                         r.font.bold = True
             size_math_runs(cell, TABLE_PT)
+            # paragraph.runs khong bao gom run nam trong hyperlink cua Pandoc.
+            for run in cell._tc.iter(qn("w:r")):
+                rpr = run.find(qn("w:rPr"))
+                if rpr is None:
+                    rpr = OxmlElement("w:rPr")
+                    run.insert(0, rpr)
+                for tag in ("w:sz", "w:szCs"):
+                    size = rpr.find(qn(tag))
+                    if size is None:
+                        size = OxmlElement(tag)
+                        rpr.append(size)
+                    size.set(qn("w:val"), str(TABLE_PT * 2))
 
 
 def text_width_twips(section) -> int:
@@ -228,7 +258,71 @@ def postprocess(path: Path) -> dict:
         st = next((s for s in doc.styles if s.name == name), None)
         if st is not None:
             st.font.size = Pt(BODY_PT)
+            st.font.name = "Times New Roman"
             st.paragraph_format.line_spacing = 1.15
+            st.paragraph_format.space_after = Pt(6)
+    for style in doc.styles:
+        if style.type == 1:
+            style.font.color.rgb = RGBColor(0, 0, 0)
+            if style.name.startswith("Heading"):
+                style.font.name = "Times New Roman"
+                style.font.bold = True
+                style.font.size = Pt(
+                    16 if style.name == "Heading 1" else 14 if style.name == "Heading 2" else 12
+                )
+                style.paragraph_format.keep_with_next = True
+                if style.name == "Heading 1":
+                    style.paragraph_format.page_break_before = True
+    for p in doc.paragraphs:
+        if p.style.name in ("Title", "Subtitle"):
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.paragraph_format.space_before = Pt(55 if p.style.name == "Title" else 18)
+            p.paragraph_format.space_after = Pt(25)
+            for r in p.runs:
+                r.font.name = "Times New Roman"
+                r.font.size = Pt(22 if p.style.name == "Title" else 14)
+                r.font.bold = True
+                r.font.color.rgb = RGBColor(0, 0, 0)
+        if p.text.strip() in ("[Họ tên — MSSV]", "[Lớp]", "[Giảng viên]", "[Ngày nộp]"):
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.paragraph_format.space_after = Pt(18)
+        if p.text.strip() == "[[TOC]]":
+            title = p.insert_paragraph_before("Mục lục")
+            title.paragraph_format.page_break_before = True
+            title.runs[0].font.size = Pt(16)
+            title.runs[0].bold = True
+            p.clear()
+            for kind in ("begin", "separate", "end"):
+                run = p.add_run()
+                if kind == "separate":
+                    instr = OxmlElement("w:instrText")
+                    instr.set(qn("xml:space"), "preserve")
+                    instr.text = ' TOC \\o "1-2" \\h \\z \\u '
+                    run._r.append(instr)
+                fld = OxmlElement("w:fldChar")
+                fld.set(qn("w:fldCharType"), kind)
+                run._r.append(fld)
+        if p._p.xpath(".//w:drawing"):
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.paragraph_format.keep_with_next = True
+        if re.match(r"^Hình \d+\.\d+\.", p.text):
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.paragraph_format.keep_together = True
+            for r in p.runs:
+                r.font.size = Pt(10)
+        if p.text.startswith("Nguồn:"):
+            for r in p.runs:
+                r.font.size = Pt(10)
+        if p.text.startswith("Bảng "):
+            p.paragraph_format.keep_with_next = True
+    for shape in doc.inline_shapes:
+        # Khong chi thu nho chieu rong: gioi han ca chieu cao de caption cung trang.
+        factor = min(1, Cm(17) / shape.width, Cm(16) / shape.height)
+        shape.width, shape.height = int(shape.width * factor), int(shape.height * factor)
+    settings = doc.settings.element
+    update = OxmlElement("w:updateFields")
+    update.set(qn("w:val"), "true")
+    settings.append(update)
     add_table_grid_style(doc)
     landscape_from(doc, LANDSCAPE_HEADING)
 
@@ -243,6 +337,12 @@ def postprocess(path: Path) -> dict:
         landscape = order.index(t._tbl) > land_start
         n_land += landscape
         format_table(t, land_tw if landscape else portrait_tw)
+    # Cac section lien ket cung footer; chi them field mot lan.
+    p = doc.sections[0].footer.paragraphs[0]
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    field = OxmlElement("w:fldSimple")
+    field.set(qn("w:instr"), "PAGE")
+    p._p.append(field)
     doc.save(str(path))
     return {"tables": len(doc.tables), "landscape_tables": n_land, "sections": len(doc.sections)}
 
@@ -257,13 +357,13 @@ def main() -> None:
         pandoc_docx(args.md, raw)
         info = postprocess(raw)
         args.out.write_bytes(raw.read_bytes())
-    print(f"Da xuat {args.out.relative_to(ROOT)}: {info}")
+    print(f"Exported {args.out.relative_to(ROOT)}: {info}")
     # kiem khong con so muc lap kieu "1 1." hay "2.1 2.1"
     heads = [
         p.text for p in Document(str(args.out)).paragraphs if p.style.name.startswith("Heading")
     ]
     doubled = [h for h in heads if re.match(r"^\d+(\.\d+)*\.?\s+\d", h)]
-    print("Tieu de mau:", heads[:3], "| so muc lap:", len(doubled))
+    print("Repeated heading numbers:", len(doubled))
 
 
 if __name__ == "__main__":
