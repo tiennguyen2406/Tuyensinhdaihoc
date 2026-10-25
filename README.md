@@ -91,6 +91,8 @@ chiếu với các hàm FastAPI. Kiểm Edge headless cần Node.js và Microsof
 ```powershell
 npm install --prefix .venv/browser-check playwright@1.64.1
 node scripts/check_static_browser.cjs
+# Kiểm cả 5 tab trên web GitHub Pages, đối chiếu với dữ liệu FastAPI ở máy
+node scripts/check_static_browser.cjs --live
 ```
 
 Bộ kiểm chạy đủ 5 tab ở 375px và 1280px trên cả FastAPI và bản tĩnh dưới đường dẫn con;
@@ -126,6 +128,7 @@ Hạng kế thừa đại học mẹ được ghi rõ, không phải VNUR xếp 
 
 Trong **Settings → Pages → Build and deployment → Source**, chọn **GitHub Actions**.
 Workflow `.github/workflows/pages.yml` upload và deploy thư mục `site/` đã commit.
+Workflow chạy khi push vào `main`, hoặc chạy thủ công với nhánh `main`.
 CI V2 không crawl và không cần DB. Các file xuất phải dưới 50 MB mỗi file.
 
 Code v1 còn trong lịch sử nhánh [`codex/crawler-pilot`](https://github.com/tiennguyen2406/Tuyensinhdaihoc/tree/codex/crawler-pilot).
