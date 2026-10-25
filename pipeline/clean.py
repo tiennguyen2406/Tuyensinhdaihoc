@@ -22,7 +22,7 @@ import sqlite3
 import tempfile
 import unicodedata
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -108,24 +108,40 @@ def infer_scale(score: float, default) -> int | None:
 
 
 def split_combos(block) -> list[str]:
-    parts = re.split(r"[;,/\s]+", nfc(block).upper())
-    return sorted({p for p in parts if re.fullmatch(r"[A-Z]\d[A-Z0-9]|[A-Z]{2}\d{1,2}", p)})
+    parts = re.findall(
+        r"\b(?:[A-Z]\s*[0-9O]\s*[A-Z0-9O]|[A-Z]{2}\s*[0-9O]{1,2}|DK)\b",
+        nfc(block).upper(),
+    )
+    return sorted({normalize_combo(p) for p in parts})
 
 
-def block_rows(blocks: list[dict]) -> list[tuple[str, str]]:
+def normalize_combo(code: str) -> str:
+    code = re.sub(r"\s+", "", code.upper())
+    if re.fullmatch(r"[A-Z][0-9O][A-Z0-9]", code):
+        return code[0] + code[1:].replace("O", "0")
+    if re.fullmatch(r"[A-Z]{2}[0-9O]{1,2}", code):
+        return code[:2] + code[2:].replace("O", "0")
+    return code
+
+
+def block_definitions(blocks: list[dict]) -> dict[str, dict[str, int]]:
     out = {}
     for block in blocks:
         for code in re.split(r"[,;]", nfc(block.get("code")).upper()):
-            code = code.strip()
+            code = normalize_combo(code)
             if re.fullmatch(r"[A-Z][A-Z0-9]{1,3}", code):
                 subjects = nfc(block.get("name"))
-                out.setdefault(code, [])
-                if subjects not in out[code]:
-                    out[code].append(subjects)
-    # The source reuses some aliases (e.g. TH3) for different subject sets; show both.
+                if subjects:
+                    names = out.setdefault(code, {})
+                    names[subjects] = max(
+                        names.get(subjects, 0), int(block.get("school_count") or 0)
+                    )
+    return out
+
+
+def block_rows(blocks: list[dict]) -> list[tuple[str, str]]:
     return sorted(
-        (code, " / ".join(names) + (" (nguồn có nhiều định nghĩa)" if len(names) > 1 else ""))
-        for code, names in out.items()
+        (code, max(names, key=names.get)) for code, names in block_definitions(blocks).items()
     )
 
 
@@ -162,6 +178,22 @@ def add_rankings(unis: pd.DataFrame) -> pd.DataFrame:
     for column in ("vnur_name", "vnur_note", "vnur_parent", "vnur_url"):
         merged[column] = merged[column].fillna("")
     merged["province"] = merged["province"].fillna("Khác")
+    provinces = pd.read_csv(MANUAL / "province_map.csv", dtype=str).fillna("")
+    if provinces["uni_code"].duplicated().any() or not set(provinces["uni_code"]) <= set(
+        unis["uni_code"]
+    ):
+        raise ValueError("province_map.csv có mã trùng hoặc ngoài danh mục")
+    provinces = provinces.set_index("uni_code")
+    merged["province_source"] = merged["province"].map(lambda p: "VNUR" if p != "Khác" else "")
+    merged["province_url"] = ""
+    for i, row in merged.iterrows():
+        if row["uni_code"] in provinces.index:
+            source = provinces.loc[row["uni_code"]]
+            merged.loc[i, ["province", "province_source", "province_url"]] = [
+                source["tinh"],
+                "website chính thức",
+                source["nguon"],
+            ]
     return merged
 
 
@@ -412,6 +444,7 @@ def main() -> None:
     unis = unis[["uni_code", "name", "short_name", "alias", "source_id", "level"]]
     unis = unis[unis["uni_code"].isin(adm["uni_code"])]
     unis = add_rankings(unis)
+    unis["updated_on"] = datetime.now(timezone(timedelta(hours=7))).date().isoformat()
     unis.to_csv(CLEAN / "universities.csv", index=False, encoding="utf-8-sig")
 
     used = adm["major_code"].dropna().unique()
@@ -432,6 +465,16 @@ def main() -> None:
         blocks_file = ROOT / "data/raw/blocks.json"
         blocks = json.loads(blocks_file.read_text(encoding="utf-8"))
         block_table = pd.DataFrame(block_rows(blocks["data"]), columns=["combo", "subjects"])
+        definitions = block_definitions(blocks["data"])
+        block_table["definitions"] = block_table["combo"].map(
+            lambda code: (
+                "; ".join(
+                    f"{name} ({count} trường theo nguồn)"
+                    for name, count in sorted(definitions[code].items(), key=lambda pair: -pair[1])
+                )
+                + (" (nguồn có nhiều định nghĩa)" if len(definitions[code]) > 1 else "")
+            )
+        )
         block_table.to_sql("combos", con, index=False)
         block_table.to_csv(CLEAN / "combos.csv", index=False, encoding="utf-8-sig")
         steps.append(("To hop kem mon", len(block_table), ""))

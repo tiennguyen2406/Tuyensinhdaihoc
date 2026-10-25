@@ -4,13 +4,14 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const os = require("node:os");
 const net = require("node:net");
 const { spawn } = require("node:child_process");
 const { chromium } = require("../apps/web/node_modules/@playwright/test");
 
 const root = path.resolve(__dirname, "..");
-const scratch = path.join(root, "_to_delete", "pages-check");
-const screenshots = path.join(root, "docs", "reports", "web-20261024");
+const scratch = path.join(os.tmpdir(), "eduradar-pages-check");
+const screenshots = path.join(scratch, "screenshots");
 const python = path.join(root, ".venv", "Scripts", "python.exe");
 const children = [];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -82,6 +83,8 @@ async function waitServer(url) {
       const firstUnranked = keys.findIndex((k) => k[0] === Infinity);
       assert.ok(keys.findIndex((k) => k[1] === 0) < keys.slice(0, firstUnranked).map((k) => k[1]).lastIndexOf(1), "inherited and direct ranks interleave");
       assert.ok(await page.evaluate(() => UNIVERSITIES.some((u) => u.province_source === "HOCMAI")));
+      assert.ok(await page.evaluate(() => UNIVERSITIES.every((u) => u.province !== "Khác")));
+      assert.match(await page.locator("#data-updated").innerText(), /Dữ liệu cập nhật ngày \d{2}\/\d{2}\/\d{4}/);
       await page.locator("#uni-province").selectOption("Thành phố Hà Nội");
       assert.ok(await page.locator('.uni-card[data-uni="BKA"]').count());
       await page.locator("#uni-q").fill("BKA");
@@ -108,6 +111,12 @@ async function waitServer(url) {
         DLS: [/Khoảng 23,6 triệu đ\/năm/, /dự kiến/i],
         DVP: [/Chỉ có thông tin cho ngành Dược học/],
         DBH: [/Chưa có mức học phí được xác minh/, /Xem thông báo của trường/],
+        NTS: [/28–32 triệu đồng\/năm/, /không ghi đơn vị trong nguồn/],
+        HHA: [/gần 700\.000/, /942\.000 đ\/tín chỉ/, /1\.413\.000 đ\/tín chỉ/],
+        MDA: [/513\.100–635\.900 đồng\/tín chỉ/, /miễn học phí năm 2026–2027/i],
+        KTA: [/1\.600\.000 đồng\/tín chỉ/, /DEEA 75/],
+        DVB: [/60\.000\.000 đ\/toàn khóa/, /480\.000 đ\/tín chỉ/],
+        TDB: [/596\.666 đ\/tín chỉ/, /17\.900\.000 đ\/năm/],
       };
       for (const code of ["BKA", "QHI", "IUH", "BVS", "DBD", ...Object.keys(EXTRA)]) {
         if (code !== "BKA") {
@@ -140,10 +149,10 @@ async function waitServer(url) {
         if (EXTRA[code]) {
           for (const re of EXTRA[code]) assert.match(tuitionText, re, `${code} tuition ${re}`);
           assert.match(await tuition.locator(".src-tag").innerText(), /^(Chính thức|Văn bản chính thức \(bản lưu\)|Tham khảo|Chưa xác minh)$/i, `${code} evidence label`);
-          assert.doesNotMatch(tuitionText, /triệu đồng\/năm/, `${code} not forced into a yearly range`);
+          if (!["NTS", "KTA"].includes(code)) assert.doesNotMatch(tuitionText, /triệu đồng\/năm/, `${code} not forced into a yearly range`);
           const links = await tuition.locator("a").evaluateAll((as) => as.map((a) => a.target));
           assert.ok(links.length >= 1 && links.length <= 3 && links.every((t) => t === "_blank"), `${code} 1-3 source links in new tab`);
-          assert.equal(await tuition.evaluate((el) => el.classList.contains("tuition-old")), code === "DBG", `${code} amber border only for old years`);
+          assert.equal(await tuition.evaluate((el) => el.classList.contains("tuition-old")), ["DBG", "HHA"].includes(code), `${code} amber border only for old years`);
           if (code === "DBH") assert.doesNotMatch(tuitionText, /\d\.\d{3}|triệu/, "unverified shows no amount");
           if (code === "DCA") {
             assert.equal(await tuition.locator(".fact-group > table.tuition-items tr").count(), 6);
@@ -172,6 +181,18 @@ async function waitServer(url) {
       await page.screenshot({ path: path.join(screenshots, `${mode}-major-${width}.png`) });
 
       await page.locator('[data-tab="advice"]').click();
+      for (const year of ["2026", "2025", "2024"]) for (const method of ["THPT", "HOCBA", "DGNL_HCM"]) {
+        await page.locator("#adv-year").selectOption(year);
+        await page.locator("#adv-method").selectOption(method);
+        const choices = await page.evaluate(() => ({
+          actual: [...document.querySelector("#adv-combo").options].slice(1).map((o) => o.value),
+          expected: (META.combo_usage[document.querySelector("#adv-year").value]?.[document.querySelector("#adv-method").value] || []).map((r) => r.combo),
+          labels: [...document.querySelector("#adv-combo").options].map((o) => o.textContent)
+        }));
+        assert.deepEqual(choices.actual, choices.expected);
+        assert.ok(choices.labels.every((label) => !label.includes("nguồn có nhiều định nghĩa")));
+      }
+      await page.locator("#adv-year").selectOption("2026");
       await page.locator("#adv-method").selectOption("THPT");
       assert.equal(await page.locator('#adv-combo option[value="A00"]').textContent(), "A00 (Toán, Vật lí, Hóa học)");
       await page.locator("#adv-combo").selectOption("A00");
@@ -204,6 +225,7 @@ async function waitServer(url) {
 
       await page.locator('[data-tab="coverage"]').click();
       await page.locator("#coverage-out tbody tr").first().waitFor();
+      assert.match(await page.locator("#coverage-out").innerText(), /Dữ liệu cập nhật ngày \d{2}\/\d{2}\/\d{4}/);
       assert.equal(await page.locator("#coverage-out tbody tr").count(), 292);
       assert.equal(await page.locator("#coverage-out .missing-list li").count(), 15);
       assert.match(await page.locator("#coverage-out").innerText(), /285\/292 trường có mức học phí/);
@@ -252,7 +274,7 @@ async function waitServer(url) {
       assert.deepEqual(failedRequests, [], "Failed requests");
       assert.ok(requests.every((u) => u.startsWith(mode === "static" ? base : live)), "All requests stay under the project subpath");
       if (mode === "static") assert.ok(requests.every((u) => !u.includes("/api/")), "Static mode makes no API probes");
-      results.push({ mode, width, tabs: 4, coverage: true, parity: cases.length, consoleErrors: 0, httpErrors: 0 });
+      results.push({ mode, width, tabs: 5, coverage: true, parity: cases.length, consoleErrors: 0, httpErrors: 0 });
       console.log(`PASS ${mode} ${width}px: five tabs, rank grid, plans/tuition, hot advice, ${cases.length} API comparisons, no console/HTTP errors`);
       await page.close();
     }

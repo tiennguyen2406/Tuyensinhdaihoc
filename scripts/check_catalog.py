@@ -1,16 +1,20 @@
 """Small V2 catalog regressions; no PostgreSQL or crawling required."""
 
+import json
+import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from pipeline.clean import block_rows  # noqa: E402
+from pipeline.clean import block_rows, split_combos  # noqa: E402
+from pipeline.tuition_import import SOURCE, parse  # noqa: E402
 from webapp import main as api  # noqa: E402
 
 
 def check():
+    assert split_combos("BO3; b o0; A O 1; A00 A01; TH6") == ["A00", "A01", "B00", "B03", "TH6"]
     rows = block_rows(
         [
             {"code": "X02, K21; TH6", "name": "Toán, Ngữ văn, Tin học"},
@@ -22,13 +26,51 @@ def check():
     conflicts = dict(
         block_rows(
             [
-                {"code": "X02, TH3", "name": "Tin học"},
-                {"code": "X07, TH3", "name": "Công nghệ"},
+                {"code": "X02, TH3", "name": "Tin học", "school_count": 98},
+                {"code": "X07, TH3", "name": "Công nghệ", "school_count": 66},
             ]
         )
     )
-    assert "Tin học / Công nghệ" in conflicts["TH3"]
+    assert conflicts["TH3"] == "Tin học"
+    overrides = json.loads(
+        (ROOT / "data/manual/tuition_extra_overrides.json").read_text(encoding="utf-8")
+    )
+    tuition, review = parse()
+    by_code = {r["uni_code"]: r for r in tuition}
+    assert len(overrides) == 32
+    assert not any(r["uni_code"] in overrides for r in review)
+    source_parts = re.split(
+        r"^### \d{2}\. ([A-Z0-9]{3}) — .+$", SOURCE.read_text(encoding="utf-8"), flags=re.M
+    )
+    source_by_code = dict(zip(source_parts[1::2], source_parts[2::2]))
+    for code, override in overrides.items():
+        assert by_code[code]["manual_override"] and by_code[code]["items"] == override["items"]
+        source_numbers = set(re.findall(r"\d+(?:[.,]\d+)*", source_by_code[code]))
+        for item in override["items"]:
+            assert set(re.findall(r"\d+(?:[.,]\d+)*", item["amount"])) <= source_numbers, (
+                code,
+                item,
+            )
+    assert by_code["HHA"]["items"][1]["amount"] == "gần 700.000"
+    assert "miễn học phí" in by_code["MDA"]["summary"]
+    assert {i["unit"] for i in by_code["KTA"]["items"]} == {"đ/tín chỉ", "triệu đ/năm"}
+    assert {i["unit"] for i in by_code["DVB"]["items"]} == {"đ/toàn khóa", "đ/tín chỉ"}
+    assert len(by_code["TDB"]["items"]) == 8
+    assert all(i["unit"] == "không ghi đơn vị trong nguồn" for i in by_code["NTS"]["items"][1:])
     idx = {u["uni_code"]: u for u in api.search_index()["unis"]}
+    assert all(u["province"] != "Khác" for u in idx.values())
+    for code, province in {
+        "VJU": "Thành phố Hà Nội",
+        "QHQ": "Thành phố Hà Nội",
+        "QHY": "Thành phố Hà Nội",
+        "QSA": "An Giang",
+        "DTK": "Thái Nguyên",
+        "DTG": "Tuyên Quang",
+        "DTP": "Lào Cai",
+        "DDP": "Quảng Ngãi",
+        "QSP": "Vĩnh Long",
+    }.items():
+        assert idx[code]["province"] == province
     assert idx["BKA"]["vnur_rank"] == 3
     assert idx["QHI"]["vnur_rank"] == 1 and idx["QHI"]["vnur_parent"] == "ĐHQG HN"
     assert idx["QSB"]["vnur_rank"] == 2
@@ -38,6 +80,23 @@ def check():
     assert idx["SPK"]["vnur_rank"] == 38 and idx["DKS"]["vnur_rank"] == 64
     assert idx["THV"]["vnur_rank"] == 89 and idx["DHV"]["vnur_rank"] is None
     with api.con() as c:
+        metadata = api.meta()
+        for year, methods in metadata["combo_usage"].items():
+            for method, items in methods.items():
+                assert items == sorted(items, key=lambda r: (-r["n"], r["combo"]))
+                for item in items:
+                    assert metadata["combo_subjects"][item["combo"]]
+                    assert (
+                        item["n"]
+                        == c.execute(
+                            "SELECT COUNT(*) FROM admission_combos ac JOIN admissions a "
+                            "ON a.id=ac.admission_id WHERE a.year=? AND a.method=? AND ac.combo=?",
+                            (year, method, item["combo"]),
+                        ).fetchone()[0]
+                    )
+        assert not c.execute(
+            "SELECT 1 FROM admission_combos WHERE combo IN ('BO3','BO0','AO1')"
+        ).fetchone()
         for u in idx.values():
             expected = c.execute(
                 "SELECT COUNT(DISTINCT program_code),COUNT(DISTINCT method),MIN(year) "

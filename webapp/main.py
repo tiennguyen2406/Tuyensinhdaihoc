@@ -99,7 +99,11 @@ def tuition_extra_index() -> dict:
 
 def tuition_stats(c: sqlite3.Connection) -> dict:
     try:
-        old = dict(c.execute("SELECT source_type, COUNT(DISTINCT uni_code) FROM tuition GROUP BY source_type"))
+        old = dict(
+            c.execute(
+                "SELECT source_type, COUNT(DISTINCT uni_code) FROM tuition GROUP BY source_type"
+            )
+        )
         old_codes = {r[0] for r in c.execute("SELECT DISTINCT uni_code FROM tuition")}
     except sqlite3.OperationalError:
         old, old_codes = {}, set()
@@ -209,8 +213,11 @@ def coverage():
     has_fee = tuition_stats(c)["codes"]
     extra = tuition_extra_index()
     tuition_missing = [
-        {"uni_code": u["uni_code"], "name": u["name"],
-         "unverified": extra.get(u["uni_code"], {}).get("evidence") == "unverified"}
+        {
+            "uni_code": u["uni_code"],
+            "name": u["name"],
+            "unverified": extra.get(u["uni_code"], {}).get("evidence") == "unverified",
+        }
         for u in unis
         if u["uni_code"] not in has_fee
     ]
@@ -303,12 +310,16 @@ def meta():
         )
     ]
     methods.sort(key=lambda m: method_sort(m["method"]))
-    combos = [
-        r[0]
-        for r in c.execute(
-            "SELECT combo FROM admission_combos GROUP BY combo HAVING COUNT(*) >= 5 ORDER BY combo"
+    usage = {}
+    for r in c.execute(
+        "SELECT a.year,a.method,ac.combo,COUNT(*) n FROM admission_combos ac "
+        "JOIN admissions a ON a.id=ac.admission_id JOIN combos c ON c.combo=ac.combo "
+        "WHERE c.subjects != '' GROUP BY a.year,a.method,ac.combo "
+        "ORDER BY a.year DESC,a.method,n DESC,ac.combo"
+    ):
+        usage.setdefault(str(r["year"]), {}).setdefault(r["method"], []).append(
+            {"combo": r["combo"], "n": r["n"]}
         )
-    ]
     stats = dict(
         c.execute(
             "SELECT COUNT(*) rows, COUNT(DISTINCT uni_code) unis, "
@@ -316,6 +327,7 @@ def meta():
         ).fetchone()
     )
     subjects = dict(c.execute("SELECT combo, subjects FROM combos ORDER BY combo"))
+    tooltips = dict(c.execute("SELECT combo, definitions FROM combos ORDER BY combo"))
     stats["ranked_unis"] = c.execute(
         "SELECT COUNT(*) FROM universities WHERE vnur_rank IS NOT NULL"
     ).fetchone()[0]
@@ -330,8 +342,11 @@ def meta():
     return {
         "years": years,
         "methods": methods,
-        "combos": sorted(set(combos) | subjects.keys()),
+        "combos": sorted(subjects),
         "combo_subjects": subjects,
+        "combo_tooltips": tooltips,
+        "combo_usage": usage,
+        "updated_on": c.execute("SELECT MAX(updated_on) FROM universities").fetchone()[0],
         "stats": stats,
         "ranking_source": {"name": "VNUR 2026", "url": "https://vnur.vn/bang-xep-hang/"},
     }

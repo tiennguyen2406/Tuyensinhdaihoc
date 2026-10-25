@@ -95,7 +95,7 @@ const PT = { CHUAN: "", CLC: "CLC", TIEN_TIEN: "Tiên tiến", LIEN_KET: "Liên 
 const uniCell = (r) => `<span title="${esc(r.uni_name)}">${esc(shortUni(r.uni_name))}</span> <span class="sub">${esc(r.uni_code)}</span>`;
 const shortUni = (n) => String(n || "").replace(/^(Trường\s+)?(Đại\s+Học|Đại\s+học)\s+/i, "ĐH ").replace(/^Học\s+Viện\s+/i, "HV ");
 const tag = (t) => (PT[t] ? `<span class="tag">${PT[t]}</span>` : "");
-const comboHtml = (s) => !s ? "" : `<span class="combo-values">` + s.split(";").filter(Boolean).map((c) => `<span class="combo-code" title="${esc(META?.combo_subjects[c] || "Chưa có tên môn từ nguồn")}">${esc(c)}</span>`).join(", ") + "</span>";
+const comboHtml = (s) => !s ? "" : `<span class="combo-values">` + s.split(";").filter(Boolean).map((c) => `<span class="combo-code" title="${esc(META?.combo_tooltips[c] || "Chưa có tên môn từ nguồn")}">${esc(c)}</span>`).join(", ") + "</span>";
 const rankHtml = (u, compact = false) => u.vnur_rank == null ? `<span class="sub">Chưa có hạng</span>` : `<span class="rank-badge${u.vnur_parent ? " rank-inherited" : ""}">${compact ? `${u.vnur_rank}${u.vnur_parent ? ` (${esc(u.vnur_parent)})` : ""}` : u.vnur_parent ? `Thuộc ${esc(u.vnur_parent)} · Top ${u.vnur_rank}` : `Top ${u.vnur_rank} VNUR`}</span>`;
 const DEAN_FIELDS = [["audience", "Đối tượng"], ["conditions", "Điều kiện / ngưỡng đầu vào"], ["formula", "Cách tính điểm"], ["bonus", "Điểm cộng / ưu tiên"], ["quota", "Chỉ tiêu"], ["notes", "Ghi chú"]];
 const bulletList = (items) => `<ul>${items.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
@@ -153,6 +153,7 @@ function tuitionExtraHtml(x) {
   if (f.has("trung_binh")) notes.push("Mức trung bình, học phí từng ngành có thể khác");
   if (f.has("chi_mot_nganh")) notes.push(x.only_major ? `Chỉ có thông tin cho ngành ${x.only_major}` : "Chỉ có thông tin cho một số ngành");
   if (f.has("co_uu_dai")) notes.push("Mức niêm yết, chưa trừ ưu đãi");
+  if (f.has("da_tru_uu_dai")) notes.push("Biểu đã gồm ưu đãi theo ngành và cách thanh toán; xem chi tiết từng dòng");
   if (x.evidence === "secondary") notes.push("Thông tin tham khảo, chưa đối chiếu văn bản gốc của trường");
   const items = x.items.length ? `<div class="fact-group"><h4>Theo ngành</h4><table class="tuition-items"><tbody>${itemRows(x.items.slice(0, 6))}</tbody></table>
     ${x.items.length > 6 ? `<details class="more-items"><summary>Xem thêm ${x.items.length - 6} dòng</summary><table class="tuition-items"><tbody>${itemRows(x.items.slice(6))}</tbody></table></details>` : ""}</div>` : "";
@@ -192,8 +193,13 @@ $("#uni-grid").addEventListener("click", (e) => {
 });
 
 function fillCombos() {
-  $("#adv-combo").innerHTML = `<option value="">Mọi tổ hợp</option>` + META.combos.map((c) => `<option value="${esc(c)}">${esc(c)}${META.combo_subjects[c] ? ` (${esc(META.combo_subjects[c])})` : ""}</option>`).join("");
+  const selected = $("#adv-combo").value;
+  const used = META.combo_usage[$("#adv-year").value]?.[$("#adv-method").value] || [];
+  $("#adv-combo").innerHTML = `<option value="">Mọi tổ hợp</option>` + used.map(({ combo: c }) => `<option value="${esc(c)}" title="${esc(META.combo_tooltips[c])}">${esc(c)} (${esc(META.combo_subjects[c])})</option>`).join("");
+  $("#adv-combo").value = used.some((r) => r.combo === selected) ? selected : "";
 }
+$("#adv-method").addEventListener("change", fillCombos);
+$("#adv-year").addEventListener("change", fillCombos);
 
 /* ---------- tabs ---------- */
 document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
@@ -411,7 +417,7 @@ async function loadCoverage() {
   const out = $("#coverage-out");
   try {
     const d = await api("api/coverage");
-    out.innerHTML = `<div class="card"><p>Nguồn: <a href="${esc(d.source_url)}" target="_blank" rel="noopener">tuyensinh247</a> · Thu thập: ${esc(d.collected_from?.slice(0, 10))} đến ${esc(d.collected_to?.slice(0, 10))}.</p>
+    out.innerHTML = `<div class="card"><p>Dữ liệu cập nhật ngày ${esc(META.updated_on.split("-").reverse().join("/"))}.</p><p>Nguồn: <a href="${esc(d.source_url)}" target="_blank" rel="noopener">tuyensinh247</a> · Thu thập: ${esc(d.collected_from?.slice(0, 10))} đến ${esc(d.collected_to?.slice(0, 10))}.</p>
       <p>${d.universities.length} trường có điểm · ${d.missing.length} trường trong danh mục nguồn chưa có điểm trong các năm ${d.years.join(", ")}. Ô số là số dòng điểm, dấu — là chưa có dữ liệu; không có nghĩa trường không tuyển sinh.</p>
       <p>Xếp hạng: <a href="${esc(META.ranking_source.url)}" target="_blank" rel="noopener">VNUR 2026</a> · ${META.stats.ranked_unis} trường có hạng, gồm ${META.stats.inherited_unis} đơn vị kế thừa hạng đại học mẹ. Hạng 2026 dùng tham khảo cho mọi năm, không phải hạng riêng của trường thành viên.</p>
       ${tuitionCoverageHtml(d)}
@@ -420,7 +426,7 @@ async function loadCoverage() {
       <ul><li><b>Điểm trường</b>: hạng VNUR 2026 trực tiếp 1 → 1,0 … 100 → 0,01 (= (101 − hạng)/100); hạng kế thừa đại học mẹ nhân 0,8; chưa xếp hạng = 0.</li>
       <li><b>Điểm ngành</b>: percentile của mức tăng số trường mở ngành (mã ngành 7 số) từ 2024 đến 2026, lấy từ bậc của nút ngành trong mạng G1. ${META.stats.hot_majors} ngành (10% cao nhất) gắn nhãn “Ngành hot 2026”. Dòng chưa có mã ngành = 0.</li>
       <li><b>Điểm xu hướng</b>: percentile mức thay đổi điểm chuẩn 2025 → 2026 của chính chương trình (cùng trường, mã chương trình, phương thức, thang điểm), so trong cùng phương thức; thiếu một trong hai năm = 0,5.</li></ul>
-      <p>Đề án: ${META.stats.dean_unis}/${META.stats.unis} trường có bài nguồn <a href="https://huongnghiep.hocmai.vn/" target="_blank" rel="noopener">HOCMAI</a>; mỗi phương thức tách thành đối tượng, điều kiện, cách tính điểm, điểm cộng, chỉ tiêu, ghi chú (gạch đầu dòng ngắn, không chép nguyên đoạn). Tỉnh/thành ưu tiên VNUR; HOCMAI bổ sung khi còn thiếu; chưa biết ghi “Khác”.</p>
+      <p>Đề án: ${META.stats.dean_unis}/${META.stats.unis} trường có bài nguồn <a href="https://huongnghiep.hocmai.vn/" target="_blank" rel="noopener">HOCMAI</a>; mỗi phương thức tách thành đối tượng, điều kiện, cách tính điểm, điểm cộng, chỉ tiêu, ghi chú (gạch đầu dòng ngắn, không chép nguyên đoạn). Tỉnh/thành dùng địa chỉ chính thức đã đối chiếu, VNUR và HOCMAI; thống nhất tên tỉnh sau sắp xếp 2025. Còn ${d.universities.filter((u) => u.province === "Khác").length} trường “Khác”. Với trường có nhiều cơ sở dùng tỉnh trụ sở chính; phân hiệu có mã riêng dùng tỉnh của phân hiệu.</p>
       <div class="tbl-wrap"><table><thead><tr><th>Trường</th>${d.years.map((y) => `<th class="num">${y}</th>`).join("")}</tr></thead><tbody>
       ${d.universities.map((u) => `<tr><td><a href="#uni/${esc(u.uni_code)}/${d.years[0]}" data-uni="${esc(u.uni_code)}">${esc(u.uni_code)} · ${esc(u.name)}</a></td>${d.years.map((y) => `<td class="num">${u.counts[y] ? fmt(u.counts[y]) : "—"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
       <h2>${d.missing.length} trường nguồn chưa có điểm</h2><ul class="missing-list">${d.missing.map((u) => `<li>${esc(u.uni_code)} · ${esc(u.name)}</li>`).join("")}</ul></div>`;
@@ -437,6 +443,7 @@ $("#coverage-out").addEventListener("click", (e) => {
 
 (async function init() {
   try { META = await api("api/meta"); } catch (e) { $("#stats").textContent = "Lỗi: " + e.message; return; }
+  $("#data-updated").textContent = `Dữ liệu cập nhật ngày ${META.updated_on.split("-").reverse().join("/")}. `;
   const yearOpts = META.years.map((y) => `<option>${y}</option>`).join("");
   ["#uni-year", "#major-year", "#adv-year"].forEach((s) => ($(s).innerHTML = yearOpts));
   const mOpts = META.methods.map((m) => `<option value="${m.method}">${esc(m.method_name)}</option>`).join("");

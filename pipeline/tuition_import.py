@@ -3,8 +3,8 @@
 Run: python -m pipeline.tuition_import
 Source: data/manual/hoc_phi_bo_sung_89_truong_20261024.md, one "### NN. MÃ — Tên" section per school.
 Amounts keep the source unit (tín chỉ, học kỳ, tháng, năm, toàn khoá); nothing is converted to a year.
-Sections the rules cannot read with confidence are listed in data/interim/tuition_extra_review.csv
-and keep the source sentence verbatim as their summary.
+Hand-reviewed summaries/items in data/manual/tuition_extra_overrides.json take precedence.
+Remaining uncertain sections are listed in data/interim/tuition_extra_review.csv.
 """
 
 from __future__ import annotations
@@ -41,7 +41,9 @@ CURRENCY = r"\s*(?:đ|đồng|VNĐ)?"
 RANGE_SEP = r"\s*(?:–|-|đến)\s*"
 BARE_TRIEU = re.compile(r"(?<![\d.,])\d+(?:,\d+)?\s*triệu")
 HEAD_UNIT = re.compile(r"^Mức(?: công bố)?\s*(?:/\s*|theo\s+)(năm|học kỳ|tháng|tín chỉ)\s*:", re.I)
-BARE_RANGE = re.compile(r"(?<![\d.,])\d{1,3}(?:,\d+)?\s*–\s*\d{1,3}(?:,\d+)?(?![\d.,]*\s*(?:triệu|nghìn|đ|%|tín|năm|tháng))")
+BARE_RANGE = re.compile(
+    r"(?<![\d.,])\d{1,3}(?:,\d+)?\s*–\s*\d{1,3}(?:,\d+)?(?![\d.,]*\s*(?:triệu|nghìn|đ|%|tín|năm|tháng))"
+)
 TECH = re.compile(
     r"đã kiểm chứng|đã đọc|đã xem|đã mở|đã tải|urllib|trang in|dòng \d|hàng \d|PDF trang|"
     r"đọc trực tiếp|bản scan|^nguồn chính thức$|^chưa xác minh$|^nguồn thứ cấp|:\s*$|\(\s*,|"
@@ -69,7 +71,11 @@ def value(token: str) -> float:
 def head_unit(fee: str) -> str | None:
     """'Mức/học kỳ: A 18 triệu; …' or 'Mức công bố theo năm: …' -> unit category for amounts written bare."""
     m = HEAD_UNIT.match(fee)
-    return {"năm": "nam", "học kỳ": "hoc_ky", "tháng": "thang", "tín chỉ": "tin_chi"}[m[1].lower()] if m else None
+    return (
+        {"năm": "nam", "học kỳ": "hoc_ky", "tháng": "thang", "tín chỉ": "tin_chi"}[m[1].lower()]
+        if m
+        else None
+    )
 
 
 def money(text: str, default: str | None = None) -> list[dict]:
@@ -82,16 +88,30 @@ def money(text: str, default: str | None = None) -> list[dict]:
             lo += " triệu"
         for tok in (lo, hi):
             if tok:
-                found.append({"cat": cat, "label": label, "token": tok.strip(), "pos": m.start(), "end": m.end(),
-                              "in_paren": text[: m.start()].count("(") > text[: m.start()].count(")")})
+                found.append(
+                    {
+                        "cat": cat,
+                        "label": label,
+                        "token": tok.strip(),
+                        "pos": m.start(),
+                        "end": m.end(),
+                        "in_paren": text[: m.start()].count("(") > text[: m.start()].count(")"),
+                    }
+                )
 
     for cat, unit_re, label in UNITS:
-        for m in re.finditer(rf"(?:{LOW}{CURRENCY}{RANGE_SEP})?{AMOUNT}{CURRENCY}\s*{unit_re}", text, re.I):
+        for m in re.finditer(
+            rf"(?:{LOW}{CURRENCY}{RANGE_SEP})?{AMOUNT}{CURRENCY}\s*{unit_re}", text, re.I
+        ):
             add(m, cat, label)
     if default:
         label = next(lb for c, _, lb in UNITS if c == default)
-        for m in re.finditer(rf"(?:{LOW}{CURRENCY}{RANGE_SEP})?{AMOUNT}(?![.,]?\d){CURRENCY}", text):
-            if not re.match(r"\s*/", text[m.end():]) and not any(f["pos"] <= m.start() < f["end"] for f in found):
+        for m in re.finditer(
+            rf"(?:{LOW}{CURRENCY}{RANGE_SEP})?{AMOUNT}(?![.,]?\d){CURRENCY}", text
+        ):
+            if not re.match(r"\s*/", text[m.end() :]) and not any(
+                f["pos"] <= m.start() < f["end"] for f in found
+            ):
                 add(m, default, label)
     return sorted(found, key=lambda x: x["pos"])
 
@@ -123,11 +143,18 @@ def summary_of(fee: str, pairs: list[dict], flags: set[str]) -> tuple[str | None
     primary = pairs[0]["cat"]
     sentence = re.split(r"(?<=\.)\s+(?=[A-ZĐ])", fee)[0]
     unit_spans = [(p["pos"], p["end"]) for p in pairs]
-    bare = [m for m in [*BARE.finditer(sentence), *BARE_TRIEU.finditer(sentence)]
-            if not any(a <= m.start() < b for a, b in unit_spans)]
+    bare = [
+        m
+        for m in [*BARE.finditer(sentence), *BARE_TRIEU.finditer(sentence)]
+        if not any(a <= m.start() < b for a, b in unit_spans)
+    ]
     if bare:
         return None, [f"có {len(bare)} số tiền không ghi đơn vị trong câu (VD {bare[0].group(0)})"]
-    loose = [m for m in BARE_RANGE.finditer(sentence) if not any(a <= m.start() < b for a, b in unit_spans)]
+    loose = [
+        m
+        for m in BARE_RANGE.finditer(sentence)
+        if not any(a <= m.start() < b for a, b in unit_spans)
+    ]
     if loose:
         return None, [f"có khoảng số không ghi đơn vị (VD {loose[0].group(0)})"]
     others = {p["cat"] for p in pairs if p["cat"] != primary and not p["in_paren"]}
@@ -150,7 +177,9 @@ def summary_of(fee: str, pairs: list[dict], flags: set[str]) -> tuple[str | None
         prefix.append("Dự kiến")
     if "tam thu" in plain(fee[max(0, pairs[0]["pos"] - 40) : pairs[0]["pos"] + 60]):
         prefix.append("tạm thu")
-    if re.search(r"\btu\s*$|\btu \d", plain(fee[: pairs[0]["pos"] + 3])) or head.strip().startswith("tu "):
+    if re.search(r"\btu\s*$|\btu \d", plain(fee[: pairs[0]["pos"] + 3])) or head.strip().startswith(
+        "tu "
+    ):
         prefix.append("từ")
     if re.search(r"khoang\s*$", plain(fee[max(0, pairs[0]["pos"] - 12) : pairs[0]["pos"]])):
         prefix.append("khoảng")
@@ -188,12 +217,17 @@ def prose_items(fee: str, unit: str | None = None) -> tuple[list[dict], bool]:
             continue
         p = pairs[0]
         name = clean(seg[: p["pos"]]).rstrip(" :–-(").removesuffix(" nhóm")
-        name = re.sub(r"^(?:Mức[^:]*:|Ví dụ[^:]*:|\d{4}–\d{4}[^:]*:|HKI[^:]*:|Áp dụng[^:]*:)\s*", "", name)
+        name = re.sub(
+            r"^(?:Mức[^:]*:|Ví dụ[^:]*:|\d{4}–\d{4}[^:]*:|HKI[^:]*:|Áp dụng[^:]*:)\s*", "", name
+        )
         if not name or len(name) > 160:
             ok = False
             continue
-        amount = p["token"] if len([q for q in pairs if q["cat"] == p["cat"]]) == 1 else " / ".join(
-            q["token"] for q in pairs if q["cat"] == p["cat"])
+        amount = (
+            p["token"]
+            if len([q for q in pairs if q["cat"] == p["cat"]]) == 1
+            else " / ".join(q["token"] for q in pairs if q["cat"] == p["cat"])
+        )
         items.append({"name": name, "amount": amount, "unit": p["label"]})
     return (items if len(items) >= 2 else []), ok
 
@@ -205,8 +239,12 @@ def section(text: str, label: str) -> str:
 
 def notes_of(limit: str, fee: str) -> str:
     out = []
-    for s in re.split(r"(?<=[.;])\s+|\s+(?=Không )", clean(limit) + " " + " ".join(
-            s for s in re.split(r"(?<=\.)\s+", clean(fee))[1:] if not money(s))):
+    for s in re.split(
+        r"(?<=[.;])\s+|\s+(?=Không )",
+        clean(limit)
+        + " "
+        + " ".join(s for s in re.split(r"(?<=\.)\s+", clean(fee))[1:] if not money(s)),
+    ):
         s = s.strip(" .;")
         if len(s) < 12 or TECH.search(s) or s.lower().startswith(("nguồn", "ví dụ")):
             continue
@@ -216,6 +254,9 @@ def notes_of(limit: str, fee: str) -> str:
 
 def parse() -> tuple[list[dict], list[dict]]:
     md = SOURCE.read_text(encoding="utf-8")
+    overrides = json.loads(
+        (ROOT / "data/manual/tuition_extra_overrides.json").read_text(encoding="utf-8")
+    )
     parts = re.split(r"^### (\d{2})\. ([A-Z0-9]{3}) — (.+)$", md, flags=re.M)
     schools, review = [], []
     for i in range(1, len(parts), 4):
@@ -246,8 +287,16 @@ def parse() -> tuple[list[dict], list[dict]]:
         pairs = money(fee, unit)
         flags = set()
         for cat in {p["cat"] for p in pairs}:
-            flags.add({"tin_chi": "theo_tin_chi", "hoc_ky": "theo_hoc_ky", "thang": "theo_thang",
-                       "toan_khoa": "toan_khoa", "dot": "theo_hoc_ky", "nam": ""}[cat])
+            flags.add(
+                {
+                    "tin_chi": "theo_tin_chi",
+                    "hoc_ky": "theo_hoc_ky",
+                    "thang": "theo_thang",
+                    "toan_khoa": "toan_khoa",
+                    "dot": "theo_hoc_ky",
+                    "nam": "",
+                }[cat]
+            )
         flags.discard("")
         if start is not None and start < 2025:
             flags.add("nam_cu")
@@ -260,9 +309,15 @@ def parse() -> tuple[list[dict], list[dict]]:
         if re.search(r"giam \d+%|hoc bong|uu dai|da tru", plain(fee)):
             flags.add("co_uu_dai")
         only = None
-        m = re.search(r"(?:riêng|chỉ (?:cho|có|xác minh được)[^,.;]*?)\s+ngành\s+([^,.;]+)", scope_raw + ". " + fee, re.I) \
-            or re.search(r"^Riêng ([^:]+?)(?: chính quy)?:", fee) \
+        m = (
+            re.search(
+                r"(?:riêng|chỉ (?:cho|có|xác minh được)[^,.;]*?)\s+ngành\s+([^,.;]+)",
+                scope_raw + ". " + fee,
+                re.I,
+            )
+            or re.search(r"^Riêng ([^:]+?)(?: chính quy)?:", fee)
             or re.search(r",\s*ngành\s+([A-ZĐ][^,.;]+)$", scope_raw)
+        )
         if m:
             only = re.sub(r"\s+trong đề án\s*\d*$", "", clean(m.group(1)))
             flags.add("chi_mot_nganh")
@@ -298,18 +353,40 @@ def parse() -> tuple[list[dict], list[dict]]:
             "sources": sources,
             "auto_ok": not reasons,
         }
+        if code in overrides:
+            override = overrides[code]
+            if set(override) - {"summary", "items", "note", "flags", "only_major"}:
+                raise ValueError(f"Unknown tuition override fields: {code}")
+            if not override.get("summary") or not all(
+                all(isinstance(item.get(k), str) and item[k] for k in ("name", "amount", "unit"))
+                for item in override.get("items", [])
+            ):
+                raise ValueError(f"Invalid tuition override: {code}")
+            entry.update(override)
+            entry["manual_override"] = True
         schools.append(entry)
-        if reasons or minor:
-            review.append({"stt": num, "uni_code": code, "level": "xem tay" if reasons else "nhỏ",
-                           "reasons": "; ".join(reasons + minor), "summary_used": summary or ""})
+        if (reasons or minor) and code not in overrides:
+            review.append(
+                {
+                    "stt": num,
+                    "uni_code": code,
+                    "level": "xem tay" if reasons else "nhỏ",
+                    "reasons": "; ".join(reasons + minor),
+                    "summary_used": summary or "",
+                }
+            )
+    if set(overrides) - {s["uni_code"] for s in schools}:
+        raise ValueError("Tuition override code is absent from source")
     return schools, review
 
 
 def main():
     schools, review = parse()
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps({"source": SOURCE.name, "schools": schools}, ensure_ascii=False, indent=1),
-                   encoding="utf-8")
+    OUT.write_text(
+        json.dumps({"source": SOURCE.name, "schools": schools}, ensure_ascii=False, indent=1),
+        encoding="utf-8",
+    )
     REVIEW.parent.mkdir(parents=True, exist_ok=True)
     with REVIEW.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, ["stt", "uni_code", "level", "reasons", "summary_used"])
@@ -319,8 +396,10 @@ def main():
     for s in schools:
         ev[s["evidence"]] = ev.get(s["evidence"], 0) + 1
     hard = sum(r["level"] == "xem tay" for r in review)
-    print(f"Tuition extra: {len(schools)} schools {ev}; {hard} need manual review, "
-          f"{len(review) - hard} minor -> {REVIEW.relative_to(ROOT)}")
+    print(
+        f"Tuition extra: {len(schools)} schools {ev}; {hard} need manual review, "
+        f"{len(review) - hard} minor -> {REVIEW.relative_to(ROOT)}"
+    )
 
 
 if __name__ == "__main__":
