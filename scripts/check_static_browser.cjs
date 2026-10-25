@@ -52,12 +52,14 @@ async function waitServer(url) {
   run(["-m", "uvicorn", "webapp.main:app", "--host", "127.0.0.1", "--port", String(apiPort)]);
   const base = `http://127.0.0.1:${staticPort}/Tuyensinhdaihoc/`;
   const live = `http://127.0.0.1:${apiPort}/`;
+  const pages = "https://tiennguyen2406.github.io/Tuyensinhdaihoc/";
   let browser;
   const results = [];
   try {
     await Promise.all([waitServer(base), waitServer(live + "api/meta")]);
     browser = await chromium.launch({ channel: "msedge", headless: true });
-    for (const mode of ["static", "api"]) for (const width of [375, 1280]) {
+    const modes = process.argv.includes("--live") ? ["pages"] : ["static", "api"];
+    for (const mode of modes) for (const width of [375, 1280]) {
       const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
       const errors = [], badResponses = [], failedRequests = [], requests = [];
       page.on("pageerror", (e) => errors.push(e.message));
@@ -65,10 +67,11 @@ async function waitServer(url) {
       page.on("response", (r) => { if (r.status() >= 400) badResponses.push(`${r.status()} ${r.url()}`); });
       page.on("requestfailed", (r) => failedRequests.push(`${r.url()} ${r.failure()?.errorText}`));
       page.on("request", (r) => requests.push(r.url()));
-      await page.goto(mode === "static" ? base : live);
+      const target = mode === "pages" ? pages : mode === "static" ? base : live;
+      await page.goto(target);
       await page.waitForFunction(() => document.querySelector("#uni-year").options.length === 3);
       await page.waitForFunction(() => document.querySelectorAll(".uni-card").length === 292);
-      assert.equal(await page.evaluate(() => Data.static), mode === "static");
+      assert.equal(await page.evaluate(() => Data.static), mode !== "api");
       assert.equal(await page.locator("#uni-grid").evaluate((e) => getComputedStyle(e).gridTemplateColumns.split(" ").length), width === 375 ? 1 : 3);
       await page.screenshot({ path: path.join(screenshots, `${mode}-grid-${width}.png`) });
       for (const gone of ["#uni-letter", "#uni-sort", "#adv-sort", "#adv-combo-search", "[data-csv]", ".btn-csv"]) assert.equal(await page.locator(gone).count(), 0, gone);
@@ -272,8 +275,8 @@ async function waitServer(url) {
       assert.deepEqual(errors, [], "Console/page errors");
       assert.deepEqual(badResponses, [], "HTTP errors");
       assert.deepEqual(failedRequests, [], "Failed requests");
-      assert.ok(requests.every((u) => u.startsWith(mode === "static" ? base : live)), "All requests stay under the project subpath");
-      if (mode === "static") assert.ok(requests.every((u) => !u.includes("/api/")), "Static mode makes no API probes");
+      assert.ok(requests.every((u) => u.startsWith(target)), "All requests stay under the project subpath");
+      if (mode !== "api") assert.ok(requests.every((u) => !u.includes("/api/")), "Static mode makes no API probes");
       results.push({ mode, width, tabs: 5, coverage: true, parity: cases.length, consoleErrors: 0, httpErrors: 0 });
       console.log(`PASS ${mode} ${width}px: five tabs, rank grid, plans/tuition, hot advice, ${cases.length} API comparisons, no console/HTTP errors`);
       await page.close();
