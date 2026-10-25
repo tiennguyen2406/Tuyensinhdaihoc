@@ -160,6 +160,6 @@ G2 năm 2026: 249 nút, 2.531 cạnh, density 0,0820, modularity Louvain 0,4822;
 
 [Web công khai](https://tiennguyen2406.github.io/Tuyensinhdaihoc/) · [Deploy bản dữ liệu đã kiểm](https://github.com/tiennguyen2406/Tuyensinhdaihoc/actions/runs/40147434125) · [CI V2](https://github.com/tiennguyen2406/Tuyensinhdaihoc/actions/runs/40147434258).
 
-Pages được chuyển sang push nhánh **main**; PR từ v2-simple vào main chứa cấu hình này. Bản công khai đã được kiểm sau deploy commit 1223b4c; commit tổng kết/cấu hình tiếp theo không đổi site/.
+Trigger Pages đã đổi sang push nhánh **main** trên v2-simple; cấu hình này có hiệu lực sau khi gộp vào main. Bản công khai đã được kiểm sau deploy commit 1223b4c; các commit tổng kết/cấu hình tiếp theo không đổi site/. Hướng dẫn tạo PR bằng nút GitHub có trong README.
 
 Các số liệu là độ phủ của tập dữ liệu đã thu thập, không phải toàn bộ cơ sở giáo dục hoặc thông báo tuyển sinh đang có trên mạng. Học phí, đề án và hạng có năm/phạm vi khác nhau, phải đọc ghi chú của từng trường.

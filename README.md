@@ -131,6 +131,11 @@ Workflow `.github/workflows/pages.yml` upload và deploy thư mục `site/` đã
 Workflow chạy khi push vào `main`, hoặc chạy thủ công với nhánh `main`.
 CI V2 không crawl và không cần DB. Các file xuất phải dưới 50 MB mỗi file.
 
+Tạo PR gộp bản nộp: mở [main ← v2-simple](https://github.com/tiennguyen2406/Tuyensinhdaihoc/compare/main...v2-simple?expand=1),
+kiểm tra **base: main**, **compare: v2-simple**, rồi bấm **Create pull request**.
+Tiêu đề gợi ý: `EduRadar V2: web tra cứu, dữ liệu chuẩn hoá và bản nộp SNA`.
+Sau khi PR được merge vào main, workflow Pages sẽ tự chạy từ main.
+
 Code v1 còn trong lịch sử nhánh [`codex/crawler-pilot`](https://github.com/tiennguyen2406/Tuyensinhdaihoc/tree/codex/crawler-pilot).
 Các thư mục và script v1 đã được gỡ khỏi `v2-simple`; không phát triển tiếp v1.
 
