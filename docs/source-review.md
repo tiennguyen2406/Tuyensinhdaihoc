@@ -4,6 +4,16 @@ Inventory gồm 12 trường/nguồn chính thức; không seed URL minh họa. 
 
 Hai ứng viên HUST/HaUI còn chờ mở trang gốc thành công. Các nguồn checked chỉ đã xem một phần trang/tài liệu bằng công cụ web, chưa đồng nghĩa đã đủ quyền crawl. Robots của cả 12 nguồn từng không truy cập được bằng công cụ nghiên cứu (lỗi công cụ, không phải HTTP từ chối); trạng thái thực tế của host pilot sẽ được bổ sung sau preflight. Các host/CDN khác chỉ quan sát trong liên kết được tách khỏi allowlist. Chỉ host chính xác trong profile được phép; chưa cho phép Google Drive, portal hồ sơ thí sinh hoặc CDN chưa kiểm tra.
 
+Đoạn trên là baseline17/10, không sửa frozen profiles/inventory. Task19/10 kiểm thêm
+UIT/DUT bằng profiles *intake-20261019*: UIT TLS certificate verification failed;
+DUT admissions và archive2025 robotsHTTP200 allowed. Link Drive cutoff2026 có relationship
+evidence từ official DUT iframe, được preflight robots và tải đúng public preview bằng
+profile riêng; không mở Google hosts khác/login/JS bypass. Preview chưa cung cấp supported
+PDF/text cho parser. Các profiles mới vẫn verified=false; technical eligibility không
+cấp authority/publication/redistribution.17wire requests,13còn lại, mọi runpaused.
+Source fallback/format failures, hashes và9staging review gates (0typedcutoffs) ghi trong
+reports/bootstrap-invalidation-intake.md; không mặc định pilot đa nguồn hoàn tất.
+
 PTIT được chọn có điều kiện vì ba trang HTML 2024/2025/2026 cùng host tuyensinh.ptit.edu.vn đã mở được. Không truy cập xettuyen.ptit.edu.vn hoặc biểu mẫu đăng nhập/đăng ký. Chỉ ba path seed và tài liệu PDF/XLS/XLSX dưới wp-content/uploads được khám phá; run budget giới hạn thêm. Không có quyền tự động tải hoặc license lưu/tái phân phối được nhà xuất bản cấp đã được tìm thấy. Hành động tải raw nội bộ giới hạn do chủ dự án yêu cầu; robots allowance chỉ là điều kiện kỹ thuật, không phải license. Raw giữ riêng, không commit/tái phân phối. Cần làm rõ quyền lưu/dùng thương mại trước khi mở rộng hoặc công bố dataset.
 
 UEH có trang https://ueh.edu.vn/personaldata/ dẫn chính sách dữ liệu cá nhân; chưa có căn cứ cho phép crawler/snapshot từ trang đó. DUT hiển thị copyright của đội CNTT trên sổ tay, không phải giấy phép tái sử dụng. Không tìm thấy điều khoản trong phần trang đã kiểm tra không chứng minh rằng không có điều khoản khác.

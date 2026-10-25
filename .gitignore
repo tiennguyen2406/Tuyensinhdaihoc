@@ -3,6 +3,8 @@
 !.env.example
 
 .venv/
+.claude/
+.uv-cache/
 __pycache__/
 *.pyc
 .pytest_cache/
@@ -25,3 +27,28 @@ data/private/
 *.dump
 *.backup
 *.bak
+
+# Local IDE settings stay private; extension recommendations are portable.
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.egg-info/
+build/
+dist/
+htmlcov/
+.coverage
+coverage/
+*.pem
+*.key
+*.p12
+*.zip
+
+# EduRadar V2 - du lieu sinh ra
+data/eduradar.db
+data/clean/
+data/interim/
+data/network/
+data/samples/
+_to_delete/

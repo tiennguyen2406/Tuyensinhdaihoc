@@ -1,64 +1,24 @@
-name: Database and crawler foundation
+name: EduRadar V2 checks
 on:
   push:
+    branches: [v2-simple, main]
   pull_request:
+    branches: [main]
 permissions:
   contents: read
 jobs:
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      POSTGRES_HOST: 127.0.0.1
-      POSTGRES_PORT: "5432"
-      POSTGRES_USER: tuyensinh
-      POSTGRES_PASSWORD: ci-disposable-password
-      POSTGRES_DB: tuyensinh_ci
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_USER: tuyensinh
-          POSTGRES_PASSWORD: ci-disposable-password
-          POSTGRES_DB: tuyensinh_ci
-        ports:
-          - 5432:5432
-        options: >-
-          --shm-size 512m
-          --health-cmd "pg_isready -U tuyensinh -d tuyensinh_ci"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
         with:
           version: "0.13.1"
-      - run: uv python install 3.12.15
+      - run: uv python install 3.12
       - run: uv sync --locked
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run mypy
-      - run: uv run alembic upgrade head
-      - run: uv run alembic check
-      - run: uv run pytest -q
-  web:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      NEXT_TELEMETRY_DISABLED: "1"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
-      - run: npm install --global pnpm@11.25.0
-      - run: pnpm --dir apps/web install --frozen-lockfile
-      - run: pnpm --dir apps/web lint
-      - run: pnpm --dir apps/web format:check
-      - run: pnpm --dir apps/web typecheck
-      - run: pnpm --dir apps/web test
-      - run: pnpm --dir apps/web build
-      - run: pnpm --dir apps/web exec playwright install --with-deps chromium
-      - run: pnpm --dir apps/web test:e2e
+      - run: uv run python scripts/check_static.py --committed
+      - run: uv run python scripts/check_dean.py --committed
+      - run: uv run python scripts/check_catalog.py --committed

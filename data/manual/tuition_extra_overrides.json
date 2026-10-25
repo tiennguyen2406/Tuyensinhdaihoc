@@ -1,0 +1,1092 @@
+{
+  "DHL": {
+    "summary": "HKI khóa 60, 17 tín chỉ: 8.568.700–10.223.800 đồng/học kỳ.",
+    "items": [
+      {
+        "name": "Bất động sản",
+        "amount": "8.568.700",
+        "unit": "đ/học kỳ (17 tín chỉ)"
+      },
+      {
+        "name": "Quản lý đất đai",
+        "amount": "8.938.600",
+        "unit": "đ/học kỳ (17 tín chỉ)"
+      },
+      {
+        "name": "Nhóm công nghệ kỹ thuật/cơ điện tử/thực phẩm/hạ tầng/lâm nghiệp/chăn nuôi/cây trồng/thủy sản nêu trong nguồn",
+        "amount": "9.856.600",
+        "unit": "đ/học kỳ (17 tín chỉ)"
+      },
+      {
+        "name": "Khuyến nông và Phát triển nông thôn",
+        "amount": "10.162.600",
+        "unit": "đ/học kỳ (17 tín chỉ)"
+      },
+      {
+        "name": "Thú y",
+        "amount": "10.223.800",
+        "unit": "đ/học kỳ (17 tín chỉ)"
+      }
+    ],
+    "note": "Chỉ phản ánh học phí HKI 17 tín chỉ của khóa 60, không phải mức cả năm.",
+    "flags": [
+      "theo_hoc_ky"
+    ],
+    "only_major": null
+  },
+  "DNC": {
+    "summary": "Dự kiến theo ngành: Quan hệ công chúng 30–33; Ô tô 28–30; Ô tô điện 32–34 triệu đồng/năm.",
+    "items": [
+      {
+        "name": "Quan hệ công chúng",
+        "amount": "30–33",
+        "unit": "triệu đ/năm (3 học kỳ)"
+      },
+      {
+        "name": "Công nghệ kỹ thuật ô tô",
+        "amount": "28–30",
+        "unit": "triệu đ/năm"
+      },
+      {
+        "name": "Chuyên ngành ô tô điện",
+        "amount": "32–34",
+        "unit": "triệu đ/năm"
+      }
+    ],
+    "note": "Chỉ có bằng chứng cho các ngành liệt kê, không phải khoảng học phí toàn trường. Nguồn thứ cấp, chưa đối chiếu gốc.",
+    "flags": [
+      "du_kien",
+      "chi_mot_nganh"
+    ],
+    "only_major": null
+  },
+  "DNH": {
+    "summary": "Các ngành ngôn ngữ: 450.000 đồng/tín chỉ; HK1 19 tín chỉ là 8.550.000 đồng.",
+    "items": [
+      {
+        "name": "Các ngành ngôn ngữ",
+        "amount": "450.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Nhập học HK1, 19 tín chỉ",
+        "amount": "8.550.000",
+        "unit": "đ/học kỳ"
+      }
+    ],
+    "note": "Mức được Cổng Chính phủ dẫn thông tin Học viện; chưa truy cập được PDF gốc của trường.",
+    "flags": [
+      "theo_tin_chi",
+      "theo_hoc_ky"
+    ],
+    "only_major": null
+  },
+  "DQU": {
+    "summary": "Lộ trình dự kiến 2026–2027: 1.790.000–2.090.000 đồng/tháng/sinh viên.",
+    "items": [
+      {
+        "name": "Khối I/III",
+        "amount": "1.790.000",
+        "unit": "đ/tháng/SV"
+      },
+      {
+        "name": "Khối IV",
+        "amount": "1.930.000",
+        "unit": "đ/tháng/SV"
+      },
+      {
+        "name": "Khối V",
+        "amount": "2.090.000",
+        "unit": "đ/tháng/SV"
+      },
+      {
+        "name": "Khối VII",
+        "amount": "1.910.000",
+        "unit": "đ/tháng/SV"
+      }
+    ],
+    "note": "Lộ trình cũ trong đề án 2024, dành cho đối tượng thuộc chỉ tiêu ngân sách cấp kinh phí đào tạo; chưa xác minh thực thu 2026.",
+    "flags": [
+      "du_kien",
+      "theo_thang"
+    ],
+    "only_major": null
+  },
+  "DSD": {
+    "summary": "Lộ trình cũ 2025–2026: 1.710.000 đồng/tháng hoặc 17.100.000 đồng/năm.",
+    "items": [
+      {
+        "name": "Đại học chính quy (lộ trình đề án 2024)",
+        "amount": "1.710.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Đại học chính quy (lộ trình đề án 2024)",
+        "amount": "17.100.000",
+        "unit": "đ/năm"
+      }
+    ],
+    "note": "Chưa đối chiếu quyết định thực thu 2025–2026. Có thông báo 2026 mới hơn nhưng chưa đọc được PDF; không gắn mức cũ cho 2026.",
+    "flags": [
+      "du_kien",
+      "theo_thang"
+    ],
+    "only_major": null
+  },
+  "DTE": {
+    "summary": "HK1 tạm thu: CT tiếng Việt 8.950.000 đồng; CT tiếng Anh/Trung 11.220.000 đồng.",
+    "items": [
+      {
+        "name": "Chương trình tiếng Việt",
+        "amount": "8.950.000",
+        "unit": "đ/HK1 (tạm thu)"
+      },
+      {
+        "name": "Tiếng Việt: mức tháng",
+        "amount": "1.790.000",
+        "unit": "đ/tháng, thu 5 tháng"
+      },
+      {
+        "name": "Chương trình tiếng Anh/Trung",
+        "amount": "11.220.000",
+        "unit": "đ/HK1 (tạm thu)"
+      },
+      {
+        "name": "Triết học trong CT tiếng Anh/Trung",
+        "amount": "1.665.000",
+        "unit": "đ/học phần"
+      },
+      {
+        "name": "GDTC1 trong CT tiếng Anh/Trung",
+        "amount": "555.000",
+        "unit": "đ/học phần"
+      },
+      {
+        "name": "Khóa ngoại ngữ trong CT tiếng Anh/Trung",
+        "amount": "9.000.000",
+        "unit": "đ/khóa ngoại ngữ"
+      }
+    ],
+    "note": "Chưa phải quyết định mức thu cuối cùng cả năm.",
+    "flags": [
+      "tam_thu",
+      "theo_hoc_ky",
+      "theo_thang"
+    ],
+    "only_major": null
+  },
+  "DTK": {
+    "summary": "K61 trở về trước: 530.000–840.000 đồng/tín chỉ tùy học phần; K62: 630.000 hoặc 945.000 đồng/tín chỉ học phí.",
+    "items": [
+      {
+        "name": "K61 trở về trước: kỹ thuật/công nghệ",
+        "amount": "2.090.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "K61 trở về trước: kỹ thuật/công nghệ",
+        "amount": "565.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "K61 trở về trước: Kinh tế công nghiệp/Quản lý công nghiệp/Ngôn ngữ Anh",
+        "amount": "1.790.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "K61 trở về trước: Kinh tế công nghiệp/Quản lý công nghiệp/Ngôn ngữ Anh",
+        "amount": "530.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Học phần tiếng Anh chương trình tiên tiến",
+        "amount": "840.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "K62: học phần tiếng Việt",
+        "amount": "630.000",
+        "unit": "đ/tín chỉ học phí"
+      },
+      {
+        "name": "K62: học phần tiếng Anh",
+        "amount": "945.000",
+        "unit": "đ/tín chỉ học phí"
+      }
+    ],
+    "note": "Theo QĐ1816 ngày 07/08/2026. Mức tháng tính 10 tháng/năm. K62 có hệ số theo loại học phần; tín chỉ học phí không đồng nhất tín chỉ chương trình.",
+    "flags": [
+      "theo_thang",
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "DVB": {
+    "summary": "Cử nhân 4 năm: 58–66 triệu đồng/toàn khóa; đơn giá 464.000–528.000 đồng/tín chỉ theo ngành.",
+    "items": [
+      {
+        "name": "Công nghệ/kỹ thuật",
+        "amount": "60.000.000",
+        "unit": "đ/toàn khóa"
+      },
+      {
+        "name": "Công nghệ/kỹ thuật",
+        "amount": "480.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Kinh tế, Luật, Ngôn ngữ Anh",
+        "amount": "58.000.000",
+        "unit": "đ/toàn khóa"
+      },
+      {
+        "name": "Kinh tế, Luật, Ngôn ngữ Anh",
+        "amount": "464.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Ngôn ngữ Hàn Quốc",
+        "amount": "66.000.000",
+        "unit": "đ/toàn khóa"
+      },
+      {
+        "name": "Ngôn ngữ Hàn Quốc",
+        "amount": "528.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Áp dụng cử nhân 4 năm, tuyển sinh 2026; không quy toàn khóa thành mức mỗi năm.",
+    "flags": [
+      "toan_khoa",
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "DVP": {
+    "summary": "Riêng Dược học: 153.000.000 đồng/toàn khóa; 10.200.000 đồng/học kỳ; 1.000.000 đồng/tín chỉ.",
+    "items": [
+      {
+        "name": "Dược học chính quy (153 tín chỉ)",
+        "amount": "153.000.000",
+        "unit": "đ/toàn khóa"
+      },
+      {
+        "name": "Dược học chính quy",
+        "amount": "10.200.000",
+        "unit": "đ/học kỳ"
+      },
+      {
+        "name": "Dược học chính quy",
+        "amount": "1.000.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Giữ ổn định toàn khóa theo bài của trường dẫn QĐ316 ngày 24/04/2025; không đại diện mọi ngành.",
+    "flags": [
+      "chi_mot_nganh",
+      "toan_khoa",
+      "theo_hoc_ky",
+      "theo_tin_chi"
+    ],
+    "only_major": "Dược học chính quy"
+  },
+  "GNT": {
+    "summary": "Dự kiến cũ 2023–2024: 1.350.000–1.640.000 đồng/tháng/sinh viên theo khối.",
+    "items": [
+      {
+        "name": "Khoa học giáo dục/đào tạo giáo viên",
+        "amount": "1.410.000",
+        "unit": "đ/tháng/SV"
+      },
+      {
+        "name": "Nghệ thuật",
+        "amount": "1.350.000",
+        "unit": "đ/tháng/SV"
+      },
+      {
+        "name": "Sản xuất/chế biến",
+        "amount": "1.640.000",
+        "unit": "đ/tháng/SV"
+      },
+      {
+        "name": "Nhân văn/dịch vụ xã hội",
+        "amount": "1.500.000",
+        "unit": "đ/tháng/SV"
+      }
+    ],
+    "note": "Nguồn thứ cấp Tuyển Sinh Số; trang cập nhật 2026 nhưng học phí ghi 2023–2024, không dùng làm giá 2026. Chưa đọc được quyết định mới.",
+    "flags": [
+      "nam_cu",
+      "du_kien",
+      "theo_thang"
+    ],
+    "only_major": null
+  },
+  "HHA": {
+    "summary": "Đại trà 505.000; CLC gần 700.000; tiên tiến 942.000 hoặc 1.413.000 đồng/tín chỉ.",
+    "items": [
+      {
+        "name": "Đại trà",
+        "amount": "505.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Chất lượng cao",
+        "amount": "gần 700.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Tiên tiến: học phần tiếng Việt",
+        "amount": "942.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Tiên tiến: học phần tiếng Anh",
+        "amount": "1.413.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Mức 2024–2025; nguồn Báo Hải Phòng 18/09/2024 dẫn lời Phó hiệu trưởng. Giữ từ “gần”, không coi là số chính xác.",
+    "flags": [
+      "nam_cu",
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "HLU": {
+    "summary": "Mức 2025–2026: 1.500.000–1.650.000 đồng/tháng tùy ngành.",
+    "items": [
+      {
+        "name": "Sư phạm",
+        "amount": "1.590.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Thiết kế đồ họa",
+        "amount": "1.500.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Quản trị kinh doanh/Kế toán",
+        "amount": "1.550.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Nhóm ngôn ngữ, Văn học, Quản lý văn hóa, Quản lý tài nguyên và môi trường, Du lịch/khách sạn/nhà hàng/hàng không",
+        "amount": "1.650.000",
+        "unit": "đ/tháng"
+      }
+    ],
+    "note": "Nguồn thứ cấp TrangEdu; chưa xác minh bảng chính thức. Không suy số tháng/năm hoặc số tiền sư phạm thực nộp sau chính sách.",
+    "flags": [
+      "theo_thang"
+    ],
+    "only_major": null
+  },
+  "HVC": {
+    "summary": "Khóa 2025, năm đầu: 36.117.871–39.576.274 đồng; toàn khóa 124.406.000 hoặc 132.634.000 đồng/SV.",
+    "items": [
+      {
+        "name": "Luật",
+        "amount": "36.117.871",
+        "unit": "đ/năm đầu"
+      },
+      {
+        "name": "Quản lý nhà nước/Chính trị học",
+        "amount": "38.506.645",
+        "unit": "đ/năm đầu"
+      },
+      {
+        "name": "Xây dựng Đảng và chính quyền nhà nước",
+        "amount": "39.576.274",
+        "unit": "đ/năm đầu"
+      },
+      {
+        "name": "Luật",
+        "amount": "124.406.000",
+        "unit": "đ/toàn khóa/SV"
+      },
+      {
+        "name": "Các ngành còn lại nêu trong nguồn",
+        "amount": "132.634.000",
+        "unit": "đ/toàn khóa/SV"
+      }
+    ],
+    "note": "Bảng dự kiến 2025–2026 và lộ trình theo năm của khóa 2025, nguồn thứ cấp. Không lấy cột năm sau làm học phí tân sinh viên 2026.",
+    "flags": [
+      "du_kien",
+      "toan_khoa"
+    ],
+    "only_major": null
+  },
+  "KCC": {
+    "summary": "HKI 2025–2026 dự kiến: 7.020.000 hoặc 7.475.000 đồng; 540.000 hoặc 575.000 đồng/tín chỉ.",
+    "items": [
+      {
+        "name": "Khối III/VII",
+        "amount": "7.020.000",
+        "unit": "đ/HKI"
+      },
+      {
+        "name": "Khối III/VII",
+        "amount": "540.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khối IV/V",
+        "amount": "7.475.000",
+        "unit": "đ/HKI"
+      },
+      {
+        "name": "Khối IV/V",
+        "amount": "575.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Thông báo chính thức 2025, bản lưu bên thứ ba; chưa xác minh biểu 2026. Không nhân học kỳ thành năm.",
+    "flags": [
+      "du_kien",
+      "theo_hoc_ky",
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "KTA": {
+    "summary": "Khóa 2026: đại trà 690.000–950.000; tiên tiến 1.600.000 đồng/tín chỉ; DEEA 75 và IAHC 90 triệu đồng/năm.",
+    "items": [
+      {
+        "name": "XD dân dụng và công nghiệp; XD công trình ngầm đô thị; CNKT vật liệu XD; Quản lý dự án XD; Kỹ thuật cấp thoát nước; Hạ tầng đô thị; Môi trường đô thị; XD công trình giao thông; CN cơ điện công trình",
+        "amount": "690.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Quản lý XD; Kinh tế XD; Bất động sản; Vận tải và Logistics; Kinh tế phát triển; Kinh tế đầu tư; CNTT; Công nghệ đa phương tiện; Công nghệ Game",
+        "amount": "750.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Thiết kế đồ họa; Điêu khắc; Thiết kế thời trang; Mỹ thuật đô thị; Nghệ thuật số",
+        "amount": "860.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Kiến trúc; Quy hoạch vùng và đô thị; Kiến trúc cảnh quan; Thiết kế đô thị",
+        "amount": "890.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Thiết kế nội thất",
+        "amount": "950.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Chương trình tiên tiến",
+        "amount": "1.600.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "DEEA",
+        "amount": "75",
+        "unit": "triệu đ/năm"
+      },
+      {
+        "name": "IAHC",
+        "amount": "90",
+        "unit": "triệu đ/năm"
+      }
+    ],
+    "note": "Mức chính thức cho khóa tuyển sinh 2026, chưa trừ học bổng/hỗ trợ nếu có.",
+    "flags": [
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "LNH": {
+    "summary": "Khóa 69 trở đi: đại trà 427.000–529.000; tiên tiến 500.000 hoặc 1.116.000 đồng/tín chỉ.",
+    "items": [
+      {
+        "name": "Quản trị kinh doanh",
+        "amount": "436.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Bất động sản",
+        "amount": "454.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Tài chính – Ngân hàng",
+        "amount": "427.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Kế toán",
+        "amount": "433.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Công nghệ sinh học",
+        "amount": "468.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Nhóm kỹ thuật/nông lâm/thú y",
+        "amount": "468.000–529.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Nhóm Kinh tế/xã hội/du lịch/môi trường",
+        "amount": "457.000–486.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Tiên tiến Quản lý tài nguyên thiên nhiên: tiếng Việt",
+        "amount": "500.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Tiên tiến Quản lý tài nguyên thiên nhiên: tiếng Anh",
+        "amount": "1.116.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Theo QĐ1157 ngày 28/08/2025, phụ lục II. Khóa 68 trở về trước có biểu khác, không trộn.",
+    "flags": [
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "MDA": {
+    "summary": "Chính quy 513.100–635.900 đồng/tín chỉ theo nhóm; kỹ sư tài năng miễn học phí năm 2026–2027.",
+    "items": [
+      {
+        "name": "Kinh doanh/quản lý/pháp luật (mã 7340201 trong bảng nguồn)",
+        "amount": "526.400",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khoa học sự sống/tự nhiên",
+        "amount": "513.100",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Toán/CNTT/công nghệ/kỹ thuật/sản xuất/xây dựng/nông lâm/thủy sản/thú y",
+        "amount": "568.200",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Sức khỏe",
+        "amount": "635.900",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Kỹ sư tài năng",
+        "amount": "Miễn học phí năm 2026–2027",
+        "unit": "(đơn giá công bố 624.700 đ/tín chỉ)"
+      }
+    ],
+    "note": "Bảng chính thức trong thông báo 03/07/2026. Không dùng mức cũ 454.100–499.100 đồng/tín chỉ.",
+    "flags": [
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "MTC": {
+    "summary": "Mức cũ 2022–2023: 1.200.000 đồng/tháng hoặc 6.000.000 đồng/học kỳ.",
+    "items": [
+      {
+        "name": "Thiết kế đồ họa/thời trang/nội thất/công nghiệp, Điêu khắc",
+        "amount": "1.200.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Cùng các ngành chính quy nêu trên",
+        "amount": "6.000.000",
+        "unit": "đ/học kỳ"
+      }
+    ],
+    "note": "Nguồn Zing News 05/09/2022, chưa xác minh mức mới. Không dùng bảng VietJack vì tổng không nhất quán.",
+    "flags": [
+      "nam_cu",
+      "theo_thang",
+      "theo_hoc_ky"
+    ],
+    "only_major": null
+  },
+  "MTS": {
+    "summary": "Chính quy 2024–2025: 13.500.000 đồng/năm hoặc 6.750.000 đồng/học kỳ.",
+    "items": [
+      {
+        "name": "Đại học chính quy",
+        "amount": "13.500.000",
+        "unit": "đ/năm học"
+      },
+      {
+        "name": "Đại học chính quy",
+        "amount": "6.750.000",
+        "unit": "đ/học kỳ"
+      }
+    ],
+    "note": "Mức chính thức năm cũ, không gán cho 2025 hoặc 2026.",
+    "flags": [
+      "nam_cu",
+      "theo_hoc_ky"
+    ],
+    "only_major": null
+  },
+  "NHB": {
+    "summary": "Dự kiến 825.000 đồng/tín chỉ; khoảng 27,8 triệu đồng/năm theo tiến độ thông thường.",
+    "items": [
+      {
+        "name": "Các chương trình tại Phân viện Bắc Ninh",
+        "amount": "825.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Theo tiến độ thông thường",
+        "amount": "khoảng 27,8",
+        "unit": "triệu đ/năm"
+      }
+    ],
+    "note": "Theo QĐ2029 ngày 31/03/2026, mục 10.1 trang 11; đúng Phân viện Bắc Ninh, mức dự kiến.",
+    "flags": [
+      "du_kien",
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "NLS": {
+    "summary": "HK1 2024–2025: đại trà 477.000–684.000; CLC 953.000–1.070.000 đồng/tín chỉ, tùy khóa và khối.",
+    "items": [
+      {
+        "name": "Đại trà khóa 2020 trở về sau: khối III",
+        "amount": "594.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Đại trà khóa 2020 trở về sau: khối IV/VII",
+        "amount": "638.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Đại trà khóa 2020 trở về sau: khối V",
+        "amount": "684.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Đại trà khóa 2019 trở về trước: khối III/VII",
+        "amount": "477.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Đại trà khóa 2019 trở về trước: khối IV",
+        "amount": "495.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Đại trà khóa 2019 trở về trước: khối V",
+        "amount": "540.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "CLC khối III",
+        "amount": "953.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "CLC khối IV/VII",
+        "amount": "1.019.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "CLC khối V",
+        "amount": "1.070.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Nguồn thứ cấp Tuổi Trẻ/PLO đăng ảnh thông báo; chưa đối chiếu gốc. Không sử dụng như mức 2026.",
+    "flags": [
+      "nam_cu",
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "NTS": {
+    "summary": "Tiêu chuẩn dự kiến 28–32 triệu đồng/năm; bảng chung FTU, cần đối chiếu chương trình thực tế ở Phân hiệu.",
+    "items": [
+      {
+        "name": "Tiêu chuẩn",
+        "amount": "28–32",
+        "unit": "triệu đ/năm"
+      },
+      {
+        "name": "Tích hợp (bảng chung FTU)",
+        "amount": "34–39",
+        "unit": "không ghi đơn vị trong nguồn"
+      },
+      {
+        "name": "Chất lượng cao (bảng chung FTU)",
+        "amount": "50–54",
+        "unit": "không ghi đơn vị trong nguồn"
+      },
+      {
+        "name": "ĐHNN&PTQT: Quản trị khách sạn, Marketing số, Truyền thông Marketing tích hợp, Kinh doanh số toàn cầu",
+        "amount": "65–70",
+        "unit": "không ghi đơn vị trong nguồn"
+      },
+      {
+        "name": "Các CT ĐHNN&PTQT còn lại trong bảng chung",
+        "amount": "50–54",
+        "unit": "không ghi đơn vị trong nguồn"
+      }
+    ],
+    "note": "Chỉ chọn chương trình thực tế mở tại Phân hiệu TP.HCM. File người dùng viết tắt đơn vị ở các khoảng sau tiêu chuẩn; giữ nguyên số và đánh dấu thiếu đơn vị. Không dùng 88 triệu i-Hons hoặc khoảng 28–88 cho NTS.",
+    "flags": [
+      "du_kien"
+    ],
+    "only_major": null
+  },
+  "NTT": {
+    "summary": "Ví dụ khóa 2025: HK1 25.540.000–28.360.000 đồng; toàn khóa 209.440.000–225.430.000 đồng.",
+    "items": [
+      {
+        "name": "Tâm lý học",
+        "amount": "25.540.000",
+        "unit": "đ/HK1"
+      },
+      {
+        "name": "Tâm lý học",
+        "amount": "209.440.000",
+        "unit": "đ/toàn khóa"
+      },
+      {
+        "name": "Luật kinh tế",
+        "amount": "27.190.000",
+        "unit": "đ/HK1"
+      },
+      {
+        "name": "Luật kinh tế",
+        "amount": "217.120.000",
+        "unit": "đ/toàn khóa"
+      },
+      {
+        "name": "CNTT",
+        "amount": "28.360.000",
+        "unit": "đ/HK1"
+      },
+      {
+        "name": "CNTT",
+        "amount": "225.430.000",
+        "unit": "đ/toàn khóa"
+      },
+      {
+        "name": "Kỹ thuật phần mềm",
+        "amount": "27.870.000",
+        "unit": "đ/HK1"
+      },
+      {
+        "name": "Kỹ thuật phần mềm",
+        "amount": "224.210.000",
+        "unit": "đ/toàn khóa"
+      }
+    ],
+    "note": "Chỉ là các ngành ví dụ trong phụ lục chính thức, không phải khoảng toàn trường.",
+    "flags": [
+      "theo_hoc_ky",
+      "toan_khoa"
+    ],
+    "only_major": null
+  },
+  "NTU": {
+    "summary": "Khóa K22, đợt 2 năm 2024–2025: 11.700.000 đồng học phí/đợt; thu riêng 1.000.000 đồng kỹ năng và CSVC.",
+    "items": [
+      {
+        "name": "Học phí khóa K22, đợt 2",
+        "amount": "11.700.000",
+        "unit": "đ/đợt"
+      },
+      {
+        "name": "Chương trình kỹ năng và cơ sở vật chất",
+        "amount": "1.000.000",
+        "unit": "đ/khoản thu riêng"
+      }
+    ],
+    "note": "Chỉ phản ánh khoản thu K22 được bài báo dẫn từ TB112 ngày 17/12/2024; không suy thành mức chung/năm. Nguồn thứ cấp, chưa đối chiếu gốc.",
+    "flags": [
+      "nam_cu",
+      "theo_hoc_ky"
+    ],
+    "only_major": null
+  },
+  "QSP": {
+    "summary": "Riêng Kỹ thuật xây dựng, đề án 2024: bình quân dự kiến 7.000.000–9.000.000 đồng/sinh viên/học kỳ.",
+    "items": [
+      {
+        "name": "Kỹ thuật xây dựng",
+        "amount": "7.000.000–9.000.000",
+        "unit": "đ/SV/học kỳ"
+      }
+    ],
+    "note": "Tùy số tín chỉ thực tế; chỉ cho ngành này trong đề án 2024, không phải bảng 2026. Văn bản chính thức được lưu bên thứ ba, chưa đối chiếu lại host trường.",
+    "flags": [
+      "nam_cu",
+      "du_kien",
+      "trung_binh",
+      "theo_hoc_ky",
+      "chi_mot_nganh"
+    ],
+    "only_major": "Kỹ thuật xây dựng"
+  },
+  "SIU": {
+    "summary": "Khóa 18, CT tiếng Việt: HK1 16.321.000–34.572.000 đồng; đóng cùng HK1+HK2: 33.967.000–72.008.000 đồng, đã có ưu đãi.",
+    "items": [
+      {
+        "name": "Ngôn ngữ Anh, HK1 (đã giảm 30% học bổng)",
+        "amount": "16.321.000",
+        "unit": "đ/HK1"
+      },
+      {
+        "name": "Khoa học máy tính, HK1",
+        "amount": "34.572.000",
+        "unit": "đ/HK1"
+      },
+      {
+        "name": "CNTT y tế, HK1+HK2 (đã giảm 40% học bổng và 5% trả cùng lần)",
+        "amount": "33.967.000",
+        "unit": "đ/hai học kỳ"
+      },
+      {
+        "name": "Khoa học máy tính, HK1+HK2 (đã giảm 5% trả cùng lần)",
+        "amount": "72.008.000",
+        "unit": "đ/hai học kỳ"
+      }
+    ],
+    "note": "Biểu 2025–2026 gồm ưu đãi học bổng theo ngành và giảm thêm 5% nếu trả cùng lần; không phải tất cả mức gốc. Chưa xác minh 2026.",
+    "flags": [
+      "theo_hoc_ky",
+      "da_tru_uu_dai"
+    ],
+    "only_major": null
+  },
+  "SKH": {
+    "summary": "Dự kiến 2026–2027: 2.150.000–2.500.000 đồng/tháng theo nhóm ngành.",
+    "items": [
+      {
+        "name": "Sư phạm, Kinh tế – Quản lý",
+        "amount": "2.150.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "CNTT, Công nghệ kỹ thuật, Kỹ thuật, Sản xuất",
+        "amount": "2.500.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Nhân văn, Khoa học xã hội",
+        "amount": "2.250.000",
+        "unit": "đ/tháng"
+      }
+    ],
+    "note": "Mức thu dự kiến; chính sách hỗ trợ ngành sư phạm xem riêng.",
+    "flags": [
+      "du_kien",
+      "theo_thang"
+    ],
+    "only_major": null
+  },
+  "TDB": {
+    "summary": "Khóa ĐH62: 596.666–720.700 đồng/tín chỉ; 17.900.000–20.735.000 đồng/năm theo ngành.",
+    "items": [
+      {
+        "name": "Giáo dục thể chất",
+        "amount": "596.666",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Giáo dục thể chất",
+        "amount": "17.900.000",
+        "unit": "đ/năm"
+      },
+      {
+        "name": "Huấn luyện thể thao",
+        "amount": "704.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Huấn luyện thể thao",
+        "amount": "19.008.000",
+        "unit": "đ/năm"
+      },
+      {
+        "name": "Quản lý TDTT",
+        "amount": "715.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Quản lý TDTT",
+        "amount": "20.735.000",
+        "unit": "đ/năm"
+      },
+      {
+        "name": "Y sinh học TDTT",
+        "amount": "720.700",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Y sinh học TDTT",
+        "amount": "20.179.600",
+        "unit": "đ/năm"
+      }
+    ],
+    "note": "Nguồn chính thức năm học 2026–2027, áp dụng khóa ĐH62 nhập học 2026; không nhân tín chỉ để thay các mức năm đã công bố.",
+    "flags": [
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "TDV": {
+    "summary": "Năm 2025–2026: 523.000–714.000 đồng/tín chỉ theo khối/ngành.",
+    "items": [
+      {
+        "name": "Khối I",
+        "amount": "568.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khối III",
+        "amount": "571.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khối IV",
+        "amount": "579.000–612.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khối V",
+        "amount": "627.000–663.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khối VI.1: Điều dưỡng",
+        "amount": "714.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khối VII",
+        "amount": "523.000–571.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Sinh viên đào tạo giáo viên đăng ký hưởng chính sách NĐ116 không đóng học phí.",
+    "flags": [
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "TQU": {
+    "summary": "HKI 2025–2026: 262.000–465.000 đồng/tín chỉ; niên chế 980.000–1.430.000 đồng/tháng/SV.",
+    "items": [
+      {
+        "name": "Khối 1 (đào tạo giáo viên), 3 (Kế toán), 7",
+        "amount": "262.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khối 4, 5",
+        "amount": "310.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Khối 6 (chăm sóc sức khỏe, Dược)",
+        "amount": "465.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Niên chế khối 1, 3, 7",
+        "amount": "980.000",
+        "unit": "đ/tháng/SV"
+      },
+      {
+        "name": "Niên chế khối 4, 5",
+        "amount": "1.170.000",
+        "unit": "đ/tháng/SV"
+      },
+      {
+        "name": "Niên chế khối 6",
+        "amount": "1.430.000",
+        "unit": "đ/tháng/SV"
+      }
+    ],
+    "note": "Mức tín chỉ và niên chế là các cách thu tương ứng, không cộng chung hoặc tự quy đổi thành năm.",
+    "flags": [
+      "theo_hoc_ky",
+      "theo_tin_chi",
+      "theo_thang"
+    ],
+    "only_major": null
+  },
+  "TTD": {
+    "summary": "Năm 2026–2027: 1.790.000 hoặc 2.100.000 đồng/tháng; 537.000 hoặc 630.000 đồng/tín chỉ.",
+    "items": [
+      {
+        "name": "Huấn luyện thể thao/Quản lý TDTT",
+        "amount": "2.100.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Huấn luyện thể thao/Quản lý TDTT",
+        "amount": "630.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Giáo dục thể chất",
+        "amount": "1.790.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Giáo dục thể chất",
+        "amount": "537.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Mức tháng hoặc tín chỉ, không cộng hai cách thu.",
+    "flags": [
+      "theo_thang",
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  },
+  "UFA": {
+    "summary": "Lộ trình cũ: 2025–2026 là 1.590.000 đồng/tháng hoặc 451.000 đồng/tín chỉ; dự kiến 2026–2027 là 1.790.000 hoặc 508.000 tương ứng.",
+    "items": [
+      {
+        "name": "Lộ trình 2025–2026 trước sáp nhập",
+        "amount": "1.590.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Lộ trình 2025–2026 trước sáp nhập",
+        "amount": "451.000",
+        "unit": "đ/tín chỉ"
+      },
+      {
+        "name": "Lộ trình dự kiến 2026–2027 trước sáp nhập",
+        "amount": "1.790.000",
+        "unit": "đ/tháng"
+      },
+      {
+        "name": "Lộ trình dự kiến 2026–2027 trước sáp nhập",
+        "amount": "508.000",
+        "unit": "đ/tín chỉ"
+      }
+    ],
+    "note": "Nguồn Tuyển sinh 247, thông tin tuyển sinh 2025; chưa đối chiếu gốc. Không khẳng định lộ trình trước sáp nhập là phí thực thu Phân hiệu UFM sau tháng 5/2026.",
+    "flags": [
+      "du_kien",
+      "theo_thang",
+      "theo_tin_chi"
+    ],
+    "only_major": null
+  }
+}
