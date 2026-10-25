@@ -1,5 +1,6 @@
 """Small V2 catalog regressions; no PostgreSQL or crawling required."""
 
+import csv
 import json
 import re
 import sys
@@ -11,6 +12,45 @@ sys.path.insert(0, str(ROOT))
 from pipeline.clean import block_rows, split_combos  # noqa: E402
 from pipeline.tuition_import import SOURCE, parse  # noqa: E402
 from webapp import main as api  # noqa: E402
+
+
+def committed_catalog(idx):
+    def read(path):
+        return json.loads((ROOT / "site/data" / path).read_text(encoding="utf-8"))
+
+    metadata = read("meta.json")
+    overrides = json.loads(
+        (ROOT / "data/manual/tuition_extra_overrides.json").read_text(encoding="utf-8")
+    )
+    for code, override in overrides.items():
+        data = read(f"uni/{code}_2026.json")["tuition_extra"]
+        assert all(data[k] == value for k, value in override.items()), code
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", metadata["updated_on"])
+    for methods in metadata["combo_usage"].values():
+        for items in methods.values():
+            assert items == sorted(items, key=lambda r: (-r["n"], r["combo"]))
+            assert all(metadata["combo_subjects"].get(i["combo"]) and i["n"] > 0 for i in items)
+    for u in idx.values():
+        data = read(f"uni/{u['uni_code']}_{u['latest_year']}.json")
+        assert u["n_programs"] == len({r["program_code"] for r in data["rows"]})
+        assert u["n_methods"] == len(data["methods"])
+    for path in (ROOT / "site/data/advice").glob("*.json"):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for values in data["rows"]:
+            r = dict(zip(data["columns"], values))
+            assert all(0 <= r[k] <= 1 for k in ("hot", "hot_uni", "hot_major", "hot_trend"))
+            expected_uni = (
+                0
+                if r["vnur_rank"] is None
+                else (101 - r["vnur_rank"]) / 100 * (0.8 if r["vnur_parent"] else 1)
+            )
+            assert abs(r["hot_uni"] - expected_uni) < 1e-4
+            assert (
+                abs(r["hot"] - (0.5 * r["hot_uni"] + 0.3 * r["hot_major"] + 0.2 * r["hot_trend"]))
+                < 1e-3
+            )
+            assert not set(r["combos"].split(";")) & {"BO3", "BO0", "AO1"}
+    print("PASS: committed catalog, provinces, card counts, combos, hot formula")
 
 
 def check():
@@ -57,7 +97,18 @@ def check():
     assert {i["unit"] for i in by_code["DVB"]["items"]} == {"đ/toàn khóa", "đ/tín chỉ"}
     assert len(by_code["TDB"]["items"]) == 8
     assert all(i["unit"] == "không ghi đơn vị trong nguồn" for i in by_code["NTS"]["items"][1:])
-    idx = {u["uni_code"]: u for u in api.search_index()["unis"]}
+    committed = "--committed" in sys.argv
+    unis = (
+        json.loads((ROOT / "site/data/universities.json").read_text(encoding="utf-8"))
+        if committed
+        else api.search_index()["unis"]
+    )
+    idx = {u["uni_code"]: u for u in unis}
+    with (ROOT / "data/manual/province_map.csv").open(encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            assert idx[row["uni_code"]]["province"] == row["tinh"] and row["nguon"].startswith(
+                "https://"
+            )
     assert all(u["province"] != "Khác" for u in idx.values())
     for code, province in {
         "VJU": "Thành phố Hà Nội",
@@ -79,6 +130,9 @@ def check():
     assert idx["DTK"]["vnur_rank"] == 15
     assert idx["SPK"]["vnur_rank"] == 38 and idx["DKS"]["vnur_rank"] == 64
     assert idx["THV"]["vnur_rank"] == 89 and idx["DHV"]["vnur_rank"] is None
+    if committed:
+        committed_catalog(idx)
+        return
     with api.con() as c:
         metadata = api.meta()
         for year, methods in metadata["combo_usage"].items():

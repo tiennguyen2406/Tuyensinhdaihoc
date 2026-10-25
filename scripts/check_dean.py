@@ -1,5 +1,6 @@
 """Admission-plan extraction regression: publish structured facts, not source paragraphs."""
 
+import json
 import sys
 from pathlib import Path
 
@@ -57,13 +58,24 @@ def check():
     assert all(len(s) <= MAX_BULLET + 1 for s, _ in sentences(long))
     from webapp import main
 
-    plans = main.dean_index()
+    committed = "--committed" in sys.argv
+    plans = (
+        json.loads((ROOT / "site/data/dean.json").read_text(encoding="utf-8"))
+        if committed
+        else main.dean_index()
+    )
     assert plans["stats"]["universities"] == len(plans["plans"])
     for code in ("BKA", "NTH", "YHB", "DVL"):
-        plan = main.university_plan(code)
+        plan = (
+            json.loads((ROOT / f"site/data/uni/{code}_2026.json").read_text(encoding="utf-8"))[
+                "dean"
+            ]
+            if committed
+            else main.university_plan(code)
+        )
         assert plan["methods"] and all(set(m["fields"]) == set(FIELDS) for m in plan["methods"])
         assert any(any(m["fields"].values()) for m in plan["methods"]), code
-    assert main.university_plan("BVS") is None
+    assert not plans["plans"].get("BVS")
     bullets = [
         s
         for v in plans["plans"].values()
@@ -73,7 +85,12 @@ def check():
         for s in items
     ]
     assert max(map(len, bullets)) <= MAX_BULLET + 1
-    idx = {u["uni_code"]: u for u in main.search_index()["unis"]}
+    unis = (
+        json.loads((ROOT / "site/data/universities.json").read_text(encoding="utf-8"))
+        if committed
+        else main.search_index()["unis"]
+    )
+    idx = {u["uni_code"]: u for u in unis}
     assert idx["BKA"]["province"] == "Thành phố Hà Nội"
     assert any(u.get("province_source") == "HOCMAI" for u in idx.values())
     print(f"PASS: structured fields, shared facts, timeline, documents; {len(bullets)} bullets")

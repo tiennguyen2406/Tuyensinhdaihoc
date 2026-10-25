@@ -1,4 +1,4 @@
-/* Edge headless regression: Node + the existing @playwright/test installation.
+/* Edge headless regression: npm install --prefix .venv/browser-check playwright
  * Run: node scripts/check_static_browser.cjs
  */
 const assert = require("node:assert/strict");
@@ -7,7 +7,7 @@ const path = require("node:path");
 const os = require("node:os");
 const net = require("node:net");
 const { spawn } = require("node:child_process");
-const { chromium } = require("../apps/web/node_modules/@playwright/test");
+const { chromium } = require("../.venv/browser-check/node_modules/playwright");
 
 const root = path.resolve(__dirname, "..");
 const scratch = path.join(os.tmpdir(), "eduradar-pages-check");
